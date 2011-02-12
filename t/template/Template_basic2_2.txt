@@ -1,0 +1,5 @@
+Female: {%&if($is_female)<<THEN,ELSE%}
+yes
+{%THEN%}
+no
+{%ELSE%}

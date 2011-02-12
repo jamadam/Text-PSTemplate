@@ -1,0 +1,7 @@
+left {%&put_tpl()<<EOF%}
+	inline template 
+	{%&put_tpl()<<EOF2%}
+		inline template2
+	{%EOF2%}
+{%EOF%}
+right

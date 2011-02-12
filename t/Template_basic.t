@@ -69,15 +69,15 @@ use Data::Dumper;
         my $tpl = Text::PSTemplate->new();
         
         my $tpl_str = <<EOF;
-    <div>
-        {%&hello('Takashi', 'Taro')%}
-    </div>
+<div>
+    {%&hello('Takashi', 'Taro')%}
+</div>
 EOF
         
         my $expected = <<EOF;
-    <div>
-        hello Takashi! hello Taro!
-    </div>
+<div>
+    hello Takashi! hello Taro!
+</div>
 EOF
         my $mother = $tpl;
         $tpl->set_func(hello => sub {

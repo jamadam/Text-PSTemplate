@@ -1,0 +1,88 @@
+=head1 NAME
+
+Text::PSTemplate::Manual - Text::PSTemplate Manual
+
+=head1 DESCRIPTION
+
+This Document is draft!
+
+HTML example
+
+    <html>
+    <title><!-- $title --></title>
+    <body>
+        <p>today: <!-- &access_counter(name => 'today') --></p>
+        <p>yesterday: <!-- &access_counter(name => 'yesterday') --></p>
+        
+        <!-- &set_delimiter(left => '%%', right => '%%') -->
+        <img src="%%&access_counter(name => 'today', by_image => 1)%%">
+        
+        <p>
+            %%&put_google_news_headlines(count => 10)%%
+        </p>
+    </body>
+    </html>
+
+CSV example
+
+    "{%$field1%}","{%$field2%}","{%$field3%}"
+
+=head1 USAGE
+
+=head2 put vars and functions
+
+Statements must be delimited by certain delimiters. Variables and functions
+inside the pair of delimiters has same appearance as Perl programs.
+
+    <!-- $str -->
+    <!-- &some_func('str') -->
+    <!-- &some_func('str') -->
+    <!-- &some_func($str) -->
+
+As a matter of fact, The statements will be evaluated by eval function as
+follows.
+
+    $self->var('str');
+    $self->func('some_func')->('str');
+    $self->func('some_func')->('str');
+    $self->func('some_func')->($self->var('str'));
+
+Statements can include line breaks.
+
+    <!-- 
+        &str_envif(
+            str => 'Internet Explorer is not recommended',
+            key => 'USER-AGENT',
+            value => 'MSIE',
+        )
+    -->
+
+=head2 escape
+
+Statement delimiter can be escaped by backslash so that the delimiter
+charactors themselves appear to the output. If you want to parse the statement
+after backslash, you can double escape.
+
+    \<!-- html comment -->   ### html comment
+    \\<!-- $var -->          ### A backlash and parsed value
+    \\\<!-- html comment --> ### A backslash and html comment
+    \\\\<!-- $var -->        ### Two backlashes and parsed value
+    ....
+
+Charactor $ and & is interpolated in any part of statements even in single
+quotes. So you must escape them with '\' when it is needed. 
+
+    <!-- &escape(str => '\$10.25') -->
+
+=head1 AUTHOR
+
+Sugama Keita, E<lt>sugama@jamadam.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Sugama Keita.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

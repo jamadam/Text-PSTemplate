@@ -378,22 +378,151 @@ Text::PSTemplate - Multi purpose template engine
 =head1 DESCRIPTION
 
 Text::PSTemplate is a multi purpose template engine.
+This module allows you to include variables and fucntion calls in your template.
 
-    <html>
-    <title><!-- $title --></title>
-    <body>
-        <p>today: <!-- &access_counter(name => 'today') --></p>
-        <p>yesterday: <!-- &access_counter(name => 'yesterday') --></p>
-        
-        <!-- &set_delimiter(left => '%%', right => '%%') -->
-        <img src="%%&access_counter(name => 'today', by_image => 1)%%">
-        
-        <p>
-            %%&put_google_news_headlines(count => 10)%%
-        </p>
-    </body>
-    </html>
-    %%&access_counter::count()%%
+This module doesn't provide any template functions in default. This doesn't
+provide any controll structure such as 'if-then' or 'for'. Fucntions will be
+available by specifying code refs. Any controll structures are feasible by
+implementing functions.
+
+This module requires less sytaxes than popular template engines. Template
+designers only have to learn following rules.
+
+=over
+
+=item Special tagging
+
+    {% ... %}
+
+=item escaping
+
+    \{% ... %}
+
+=item Perl style variable and function call
+
+    {% $some_var %}
+    {% &some_func(...) %}
+
+=item Inline data syntax [Advansed]
+
+    {% &some_func()<<EOF,EOF2 %}
+    inline data
+    {%EOF%}
+    inline data2
+    {%EOF2%}
+
+=back
+
+=head1 METHODS
+
+=head2 Text::PSTemplate->new()
+
+Constractor. This method takes following arguments.
+
+=over
+
+=item mother
+
+The template variables and functions inherit their mother's. This argument
+specify PSTemplate instance the mother. 
+
+=item nonexist
+
+This paramete takes code ref for catching excepton. When variables/functions
+found in template are undefined, the parse method calls the subroutine to deal
+with the statements. 
+
+=back
+
+=head2 Text::PSTemplate::mother
+
+If current context is recursed instance, this returns mother instance.
+
+=head2 Text::PSTemplate::context
+
+If current context is origined from file, this returns file name.
+
+=head2 Text::PSTemplate::inline_data
+
+Returns inline data specified in template
+
+=head2 $instance->set_param(%hash)
+
+This can sets following parameters.
+
+=over
+
+=item mother
+
+=item nonexist
+
+=item encoding 
+
+=item recur_limit
+
+=back
+
+=head2 $instance->get_param($name)
+
+=head2 $instance->set_delimiter($left, $right)
+
+Set delimiters.
+
+    $instance->set_delimiter('<!-- ', ' -->')
+
+=head2 $instance->get_delimiter($left_or_right)
+
+Get delimiters
+
+    $instance->get_delimiter('left')
+    $instance->get_delimiter('right')
+
+=head2 $instance->set_var(%datasets)
+
+This Sets variables. It can take null string too. If you give it undef, the
+variable inherits the mother's. 
+
+    $instance->set_var(a => 'b', c => 'd')
+
+=head2 $instance->var($name)
+
+Get template variables
+
+    $instance->set_var(a)
+
+=head2 $instance->set_func(some_name => $code_ref)
+
+Set template functions
+
+    $a = sub {
+        return 'Hello '. $_[0];
+    };
+    $instance->set_func(say_hello_to => $a)
+    
+    Inside template...
+    {%say_hello_to('Fujitsu san')%}
+
+=head2 $instance->func(name)
+
+Get template functions.
+
+=head2 $instance->parse($str)
+
+=head2 $instance->parse(file => $file_path)
+
+=head2 $instance->parse()
+
+Template Parse.
+    
+    $tpl->parse('...')
+    $tpl->parse(file => $file_path)
+    $tpl->parse()
+
+=head2 $instance->nonExistNull
+
+=head2 $instance->nonExistNoaction
+
+=head2 $instance->nonExistDie
 
 =head1 AUTHOR
 
