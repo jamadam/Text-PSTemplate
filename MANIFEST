@@ -11,3 +11,4 @@ t/template/Template_basic2.txt
 t/template/Template_basic2_2.txt
 t/Template_basic.t
 t/Template_basic2.t
+t/Template_escaping.t
