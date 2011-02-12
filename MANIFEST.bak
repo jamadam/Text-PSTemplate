@@ -6,3 +6,4 @@ README
 t/00_load.t
 t/99_pod.t
 t/99_podcoverage.t
+t/Template_basic.t
