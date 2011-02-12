@@ -17,6 +17,41 @@ use Data::Dumper;
         is($parsed, 'leftright');
     }
     
+    sub ampersand_in_function : Test {
+        
+        my $tpl = Text::PSTemplate->new();
+        $tpl->set_var(title => 'TITLE');
+        $tpl->set_func(hoge => sub {return '-'. $_[0]});
+        my $parsed = $tpl->parse(q!left {%&hoge('./?a=1\&b=2')%} right!);
+        is($parsed, 'left -./?a=1&b=2 right');
+    }
+    
+    sub ampersand_in_inline_data : Test {
+        
+        my $tpl = Text::PSTemplate->new();
+        $tpl->set_var(title => 'TITLE');
+        $tpl->set_func(hoge => sub {return '-'. Text::PSTemplate::inline_data(0)});
+        my $parsed = $tpl->parse(q!left {%&hoge()<<EOF%}./?a=1&b=2{%EOF%} right!);
+        is($parsed, 'left -./?a=1&b=2 right');
+    }
+    
+    sub to_way_function_implementation : Test(2) {
+        
+        my $tpl = Text::PSTemplate->new();
+        $tpl->set_var(title => 'TITLE');
+        $tpl->set_func(hoge => sub {
+            if ($_[0]) {
+                return '-'. $_[0];
+            } else {
+                return '-'. Text::PSTemplate::inline_data(0);
+            }
+        });
+        my $parsed1 = $tpl->parse(q!left {%&hoge()<<EOF%}./?a=1&b=2{%EOF%} right!);
+        is($parsed1, 'left -./?a=1&b=2 right');
+        my $parsed2 = $tpl->parse(q!left {%&hoge('./?a=1\&b=2')%} right!);
+        is($parsed2, 'left -./?a=1&b=2 right');
+    }
+    
     sub set_vars1 : Test {
         
         my $tpl = Text::PSTemplate->new();

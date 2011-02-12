@@ -253,11 +253,11 @@ no warnings 'recursion';
     sub _interpolate {
         
         my ($self, $str) = (@_);
-        $str =~ s{(\\*)([\$\&])([\w:]+)(\()?}{
+        $str =~ s{(\\*)([\$\&])([\w:]+)}{
             my $len = length($1 or '');
             my $out = '\\' x int($len / 2);
             if ($len % 2 == 1) {
-                $out .= $2. $3. ($4 || '');
+                $out .= $2. $3;
             } else {
                 if ($2 eq '$') {
                     if (defined $self->var($3)) {
@@ -268,9 +268,9 @@ no warnings 'recursion';
                         $self->get_param('nonexist')->($self, $2. $3).
                         "\E'";
                     }
-                } elsif ($2 eq '&' and $4) {
+                } elsif ($2 eq '&') {
                     if ($self->func($3)) {
-                        $out .= qq!\$self->func('$3')->(!;
+                        $out .= qq!\$self->func('$3')->!;
                     } else {
                         $out .=
                         "'\Q".
