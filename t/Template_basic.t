@@ -17,41 +17,6 @@ use Data::Dumper;
         is($parsed, 'leftright');
     }
     
-    sub ampersand_in_function : Test {
-        
-        my $tpl = Text::PSTemplate->new();
-        $tpl->set_var(title => 'TITLE');
-        $tpl->set_func(hoge => sub {return '-'. $_[0]});
-        my $parsed = $tpl->parse(q!left {%&hoge('./?a=1\&b=2')%} right!);
-        is($parsed, 'left -./?a=1&b=2 right');
-    }
-    
-    sub ampersand_in_inline_data : Test {
-        
-        my $tpl = Text::PSTemplate->new();
-        $tpl->set_var(title => 'TITLE');
-        $tpl->set_func(hoge => sub {return '-'. Text::PSTemplate::inline_data(0)});
-        my $parsed = $tpl->parse(q!left {%&hoge()<<EOF%}./?a=1&b=2{%EOF%} right!);
-        is($parsed, 'left -./?a=1&b=2 right');
-    }
-    
-    sub to_way_function_implementation : Test(2) {
-        
-        my $tpl = Text::PSTemplate->new();
-        $tpl->set_var(title => 'TITLE');
-        $tpl->set_func(hoge => sub {
-            if ($_[0]) {
-                return '-'. $_[0];
-            } else {
-                return '-'. Text::PSTemplate::inline_data(0);
-            }
-        });
-        my $parsed1 = $tpl->parse(q!left {%&hoge()<<EOF%}./?a=1&b=2{%EOF%} right!);
-        is($parsed1, 'left -./?a=1&b=2 right');
-        my $parsed2 = $tpl->parse(q!left {%&hoge('./?a=1\&b=2')%} right!);
-        is($parsed2, 'left -./?a=1&b=2 right');
-    }
-    
     sub set_vars1 : Test {
         
         my $tpl = Text::PSTemplate->new();
@@ -130,40 +95,6 @@ EOF
         is($tpl->parse($tpl_str), $expected);
     }
     
-    sub error_msg_include_quote : Test {
-        
-        my $err = sub {q{error at 'hoge' ""}};
-        my $tpl = Text::PSTemplate->new(nonexist => $err);
-        my $parsed = $tpl->parse(q!-{%$title%}-!);
-        is($parsed, q{-error at 'hoge' ""-});
-    }
-    
-    sub error_msg_include_quote_sub : Test {
-        
-        my $tpl = Text::PSTemplate->new(nonexist => sub {q{error at 'hoge' ""}});
-        my $parsed = $tpl->parse(q!-{%&title($a)%}-!);
-        is($parsed, q{-error at 'hoge' ""-});
-    }
-    
-    sub inline_data_include_quote : Test(1) {
-        
-        my $tpl = Text::PSTemplate->new();
-        
-        my $expected = <<'EOF';
-        hello takashi"!
-EOF
-        $tpl->set_var(a => 'a');
-        $tpl->set_func(hello => sub {
-            my $name = shift || Text::PSTemplate::inline_data(0);
-            my $tpl = Text::PSTemplate->new();
-            return $tpl->parse("hello $name!");
-        });
-        is($tpl->parse(<<'EOF'), $expected);
-        {%&hello()<<END1%}takashi"{%END1%}
-EOF
-    
-    }
-    
     sub inline_data2 : Test(1) {
         
         my $tpl = Text::PSTemplate->new();
@@ -214,9 +145,9 @@ EOF
         
         my $expected = <<'EXPECTED';
     <ol>
-        <li>ƒvƒƒOƒ‰ƒ~ƒ“ƒOPerl Vol.1 708 pages / ISBN-13 : 978-4873110967</li>
-        <li>ƒvƒƒOƒ‰ƒ~ƒ“ƒOPerl Vol.2 1303 pages / ISBN-13 : 978-4873110974</li>
-        <li>„P„‚„€„s„‚„p„}„}„y„‚„€„r„p„~„y„u „~„p Perl 1152 pages / ISBN-13 : 978-5932860205</li>
+        <li>Ã‰vÃ‰Ã§Ã‰OÃ‰Ã¢Ã‰~Ã‰Ã¬Ã‰OPerl Vol.1 708 pages / ISBN-13 : 978-4873110967</li>
+        <li>Ã‰vÃ‰Ã§Ã‰OÃ‰Ã¢Ã‰~Ã‰Ã¬Ã‰OPerl Vol.2 1303 pages / ISBN-13 : 978-4873110974</li>
+        <li>Ã‘PÃ‘Ã‡Ã‘Ã„Ã‘sÃ‘Ã‡Ã‘pÃ‘}Ã‘}Ã‘yÃ‘Ã‡Ã‘Ã„Ã‘rÃ‘pÃ‘~Ã‘yÃ‘u Ã‘~Ã‘p Perl 1152 pages / ISBN-13 : 978-5932860205</li>
         <li>Programming Perl 1092 pages / ISBN-13 : 978-0596000271</li>
     
     </ol>
@@ -228,15 +159,15 @@ EXPECTED
                 pages => 1092,
             },
             "978-5932860205" => {
-                name => "„P„‚„€„s„‚„p„}„}„y„‚„€„r„p„~„y„u „~„p Perl",
+                name => "Ã‘PÃ‘Ã‡Ã‘Ã„Ã‘sÃ‘Ã‡Ã‘pÃ‘}Ã‘}Ã‘yÃ‘Ã‡Ã‘Ã„Ã‘rÃ‘pÃ‘~Ã‘yÃ‘u Ã‘~Ã‘p Perl",
                 pages => 1152,
             },
             "978-4873110967" => {
-                name  => "ƒvƒƒOƒ‰ƒ~ƒ“ƒOPerl Vol.1",
+                name  => "Ã‰vÃ‰Ã§Ã‰OÃ‰Ã¢Ã‰~Ã‰Ã¬Ã‰OPerl Vol.1",
                 pages => 708,
             },
             "978-4873110974" => {
-                name  => "ƒvƒƒOƒ‰ƒ~ƒ“ƒOPerl Vol.2",
+                name  => "Ã‰vÃ‰Ã§Ã‰OÃ‰Ã¢Ã‰~Ã‰Ã¬Ã‰OPerl Vol.2",
                 pages => 1303,
             },
         };

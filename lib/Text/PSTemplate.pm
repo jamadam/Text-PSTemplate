@@ -3,10 +3,28 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 use 5.005;
 use Carp;
 no warnings 'recursion';
+
+    my $ARG_DELIMTER_LEFT   = 1;
+    my $ARG_DELIMTER_RIGHT  = 2;
+    my $ARG_ENCODING        = 3;
+    my $ARG_RECUR_LIMIT     = 4;
+    my $ARG_NONEXIST        = 5;
+    my $ARG_MOTHER          = 6;
+    my $ARG_FUNC            = 7;
+    my $ARG_VAR             = 8;
+    
+    my %arg_name_tbl = (
+        'mother'            => $ARG_MOTHER,
+        'delimiter_left'    => $ARG_DELIMTER_LEFT,
+        'delimiter_right'   => $ARG_DELIMTER_RIGHT,
+        'encoding'          => $ARG_ENCODING,
+        'nonexist'          => $ARG_NONEXIST,
+        'recur_limit'       => $ARG_RECUR_LIMIT,
+    );
     
     ### ---
     ### constractor
@@ -15,26 +33,29 @@ no warnings 'recursion';
         
         my $class = shift;
         my $self = {
-            mother      => ($Text::PSTemplate::self || undef), 
-            nonexist    => undef, 
-            encoding    => undef,
-            recur_limit => undef,
-            func        => {},
-            var         => {},
-            @_};
+            $ARG_MOTHER      => ($Text::PSTemplate::self || undef), 
+            $ARG_NONEXIST    => undef, 
+            $ARG_ENCODING    => undef,
+            $ARG_RECUR_LIMIT => undef,
+            $ARG_FUNC        => {},
+            $ARG_VAR         => {},
+        };
+        while ((my $a = shift) && (my $b = shift)) {
+            $self->{$arg_name_tbl{$a}} = $b;
+        }
         
         bless $self, $class;
         
-        if (! defined $self->{mother}) {
-            $self->{encoding}          ||= 'utf8';
-            $self->{recur_limit}       ||= 10;
-            $self->{nonexist} 		   ||= \&nonExistDie;
-            $self->{left_delimiter}    ||= '{%';
-            $self->{right_delimiter}   ||= '%}';
+        if (! defined $self->{$ARG_MOTHER}) {
+            $self->{$ARG_ENCODING}          ||= 'utf8';
+            $self->{$ARG_RECUR_LIMIT}       ||= 10;
+            $self->{$ARG_NONEXIST} 		   ||= \&nonExistDie;
+            $self->{$ARG_DELIMTER_LEFT}    ||= '{%';
+            $self->{$ARG_DELIMTER_RIGHT}   ||= '%}';
         }
         
-        if ($self->_count_recursion() > $self->get_param('recur_limit')) {
-            croak 'Deep Recursion over '. $self->get_param('recur_limit');
+        if ($self->_count_recursion() > $self->get_param($ARG_RECUR_LIMIT)) {
+            croak 'Deep Recursion over '. $self->get_param($ARG_RECUR_LIMIT);
         }
         return $self;
     }
@@ -73,9 +94,9 @@ no warnings 'recursion';
     ### ---
     sub set_param {
         
-        my ($self, %args) = (@_);
-        foreach my $key (keys %args) {
-            $self->{$key} = $args{$key};
+        my $self = shift;
+        while ((my $a = shift) && (my $b = shift)) {
+            $self->{$arg_name_tbl{$a}} = $b;
         }
         return $self;
     }
@@ -90,8 +111,8 @@ no warnings 'recursion';
             if (defined $self->{$name}) {
                 return $self->{$name};
             }
-            if (defined $self->{mother}) {
-                return $self->{mother}->get_param($name);
+            if (defined $self->{$ARG_MOTHER}) {
+                return $self->{$ARG_MOTHER}->get_param($name);
             }
         }
         return undef;
@@ -103,8 +124,8 @@ no warnings 'recursion';
     sub set_delimiter {
         
         my ($self, $left, $right) = @_;
-        $self->{left_delimiter} = $left;
-        $self->{right_delimiter} = $right;
+        $self->{$ARG_DELIMTER_LEFT} = $left;
+        $self->{$ARG_DELIMTER_RIGHT} = $right;
         return $self;
     }
     
@@ -114,14 +135,12 @@ no warnings 'recursion';
     sub get_delimiter {
         
         my ($self, $name) = (@_);
-        $name ||= 'left';
-        my $key = $name. "_delimiter";
         
-        if (defined $self->{$key}) {
-            return $self->{$key};
+        if (defined $self->{$name}) {
+            return $self->{$name};
         }
-        if (defined $self->{mother}) {
-            return $self->{mother}->get_delimiter($name);
+        if (defined $self->{$ARG_MOTHER}) {
+            return $self->{$ARG_MOTHER}->get_delimiter($name);
         }
         return;
     }
@@ -133,7 +152,7 @@ no warnings 'recursion';
         
         my ($self, %args) = (@_);
         while ((my $key, my $value) = each %args) {
-            $self->{var}->{$key} = $value;
+            $self->{$ARG_VAR}->{$key} = $value;
         }
         return $self;
     }
@@ -145,11 +164,11 @@ no warnings 'recursion';
         
         my ($self, $name) = (@_);
         if (defined $name) {
-            if (defined $self->{var}->{$name}) {
-                return $self->{var}->{$name};
+            if (defined $self->{$ARG_VAR}->{$name}) {
+                return $self->{$ARG_VAR}->{$name};
             }
-            if (defined $self->{mother}) {
-                return $self->{mother}->var($name);
+            if (defined $self->{$ARG_MOTHER}) {
+                return $self->{$ARG_MOTHER}->var($name);
             }
         }
         return;
@@ -162,7 +181,7 @@ no warnings 'recursion';
         
         my ($self, %args) = (@_);
         while ((my $key, my $value) = each %args) {
-            $self->{func}->{$key} = $value;
+            $self->{$ARG_FUNC}->{$key} = $value;
         }
         return $self;
     }
@@ -174,11 +193,11 @@ no warnings 'recursion';
         
         my ($self, $name) = (@_);
         if (defined $name) {
-            if (defined $self->{func}->{$name}) {
-                return $self->{func}->{$name};
+            if (defined $self->{$ARG_FUNC}->{$name}) {
+                return $self->{$ARG_FUNC}->{$name};
             }
-            if (defined $self->{mother}) {
-                return $self->{mother}->func($name);
+            if (defined $self->{$ARG_MOTHER}) {
+                return $self->{$ARG_MOTHER}->func($name);
             }
         }
         return;
@@ -209,8 +228,8 @@ no warnings 'recursion';
         
         (defined $str) or croak 'No template string found';
         
-        my $delim_l = $self->get_param('left_delimiter');
-        my $delim_r = $self->get_param('right_delimiter');
+        my $delim_l = $self->get_param($ARG_DELIMTER_LEFT);
+        my $delim_r = $self->get_param($ARG_DELIMTER_RIGHT);
         my ($left, $escape, $tag, $right) =
             split(m{(\\*)$delim_l(.+?)$delim_r}s, $str, 2);
         
@@ -221,7 +240,6 @@ no warnings 'recursion';
                 $out .= $delim_l. $tag. $delim_r;
             } else {
                 local $Text::PSTemplate::inline_data;
-                #$tag =~ m{()};
                 $tag =~ s{(<<[a-zA-Z0-9,]*)}{};
                 if (my $inline = $1) {
                     for my $a (split(',', substr($inline, 2))) {
@@ -238,7 +256,7 @@ no warnings 'recursion';
                     $out .= $result;
                 } else {
                     no strict 'refs';
-                    $out .= $self->get_param('nonexist')->($self, $tag, $@);
+                    $out .= $self->get_param($ARG_NONEXIST)->($self, $tag, $@);
                 }
             }
             return $left. $out. $self->parse($right);
@@ -265,7 +283,7 @@ no warnings 'recursion';
                     } else {
                         $out .=
                         "'\Q".
-                        $self->get_param('nonexist')->($self, $2. $3).
+                        $self->get_param($ARG_NONEXIST)->($self, $2. $3).
                         "\E'";
                     }
                 } elsif ($2 eq '&') {
@@ -274,7 +292,7 @@ no warnings 'recursion';
                     } else {
                         $out .=
                         "'\Q".
-                        $self->get_param('nonexist')->($self, $2. $3).
+                        $self->get_param($ARG_NONEXIST)->($self, $2. $3).
                         "\E'";
                     }
                 } else {
@@ -292,7 +310,7 @@ no warnings 'recursion';
     sub _get_file {
         
         my ($self, $name) = (@_);
-        my $encode = $self->get_param('encoding');
+        my $encode = $self->get_param($ARG_ENCODING);
         my $fh;
         
         if ($encode) {
@@ -302,7 +320,7 @@ no warnings 'recursion';
         }
         
         if ($fh and flock($fh, LOCK_EX)) {
-            my $out = join('', <$fh>);
+			my $out = do { local $/; <$fh> };
             close($fh);
             return $out;
         }
@@ -321,9 +339,9 @@ no warnings 'recursion';
         
         my ($self, $line, $err) = (@_);
         return 
-            $self->get_param('left_delimiter')
+            $self->get_param($ARG_DELIMTER_LEFT)
             . '\\'. $line
-            . $self->get_param('right_delimiter');
+            . $self->get_param($ARG_DELIMTER_RIGHT);
     }
     
     sub nonExistDie {
@@ -344,8 +362,8 @@ no warnings 'recursion';
     sub _count_recursion {
         
         my ($self) = (@_);
-        if (defined $self->{mother}) {
-            return $self->{mother}->_count_recursion() + 1;
+        if (defined $self->{$ARG_MOTHER}) {
+            return $self->{$ARG_MOTHER}->_count_recursion() + 1;
         }
         return 0;
     }
