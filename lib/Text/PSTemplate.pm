@@ -8,19 +8,19 @@ use 5.005;
 use Carp;
 no warnings 'recursion';
 
-    my $ARG_DELIMTER_LEFT   = 1;
-    my $ARG_DELIMTER_RIGHT  = 2;
-    my $ARG_ENCODING        = 3;
-    my $ARG_RECUR_LIMIT     = 4;
+    my $ARG_MOTHER          = 1;
+    my $ARG_DELIMITER_LEFT   = 2;
+    my $ARG_DELIMITER_RIGHT  = 3;
+    my $ARG_ENCODING        = 4;
     my $ARG_NONEXIST        = 5;
-    my $ARG_MOTHER          = 6;
+    my $ARG_RECUR_LIMIT     = 6;
     my $ARG_FUNC            = 7;
     my $ARG_VAR             = 8;
     
     my %arg_name_tbl = (
         'mother'            => $ARG_MOTHER,
-        'delimiter_left'    => $ARG_DELIMTER_LEFT,
-        'delimiter_right'   => $ARG_DELIMTER_RIGHT,
+        'delimiter_left'    => $ARG_DELIMITER_LEFT,
+        'delimiter_right'   => $ARG_DELIMITER_RIGHT,
         'encoding'          => $ARG_ENCODING,
         'nonexist'          => $ARG_NONEXIST,
         'recur_limit'       => $ARG_RECUR_LIMIT,
@@ -50,8 +50,8 @@ no warnings 'recursion';
             $self->{$ARG_ENCODING}          ||= 'utf8';
             $self->{$ARG_RECUR_LIMIT}       ||= 10;
             $self->{$ARG_NONEXIST} 		   ||= \&nonExistDie;
-            $self->{$ARG_DELIMTER_LEFT}    ||= '{%';
-            $self->{$ARG_DELIMTER_RIGHT}   ||= '%}';
+            $self->{$ARG_DELIMITER_LEFT}    ||= '{%';
+            $self->{$ARG_DELIMITER_RIGHT}   ||= '%}';
         }
         
         if ($self->_count_recursion() > $self->get_param($ARG_RECUR_LIMIT)) {
@@ -81,9 +81,8 @@ no warnings 'recursion';
     ### ---
     sub inline_data {
         
-        my $idx = shift;
-        if (defined $idx) {
-            return $Text::PSTemplate::inline_data->[$idx];
+        if (defined $_[0]) {
+            return $Text::PSTemplate::inline_data->[$_[0]];
         } else {
             return $Text::PSTemplate::inline_data;
         }
@@ -94,11 +93,10 @@ no warnings 'recursion';
     ### ---
     sub set_param {
         
-        my $self = shift;
         while ((my $a = shift) && (my $b = shift)) {
-            $self->{$arg_name_tbl{$a}} = $b;
+            $_[0]->{$arg_name_tbl{$a}} = $b;
         }
-        return $self;
+        return $_[0];
     }
     
     ### ---
@@ -106,16 +104,15 @@ no warnings 'recursion';
     ### ---
     sub get_param {
         
-        my ($self, $name) = (@_);
-        if (defined $name) {
-            if (defined $self->{$name}) {
-                return $self->{$name};
+        if (defined $_[1]) {
+            if (defined $_[0]->{$_[1]}) {
+                return $_[0]->{$_[1]};
             }
-            if (defined $self->{$ARG_MOTHER}) {
-                return $self->{$ARG_MOTHER}->get_param($name);
+            if (defined $_[0]->{$ARG_MOTHER}) {
+                return $_[0]->{$ARG_MOTHER}->get_param($_[1]);
             }
         }
-        return undef;
+        return;
     }
     
     ### ---
@@ -123,10 +120,9 @@ no warnings 'recursion';
     ### ---
     sub set_delimiter {
         
-        my ($self, $left, $right) = @_;
-        $self->{$ARG_DELIMTER_LEFT} = $left;
-        $self->{$ARG_DELIMTER_RIGHT} = $right;
-        return $self;
+        $_[0]->{$ARG_DELIMITER_LEFT} = $_[1];
+        $_[0]->{$ARG_DELIMITER_RIGHT} = $_[2];
+        return $_[0];
     }
     
     ### ---
@@ -134,13 +130,12 @@ no warnings 'recursion';
     ### ---
     sub get_delimiter {
         
-        my ($self, $name) = (@_);
-        
-        if (defined $self->{$name}) {
-            return $self->{$name};
+        my $name = ($ARG_DELIMITER_LEFT, $ARG_DELIMITER_RIGHT)[$_[1]];
+        if (defined $_[0]->{$name}) {
+            return $_[0]->{$name};
         }
-        if (defined $self->{$ARG_MOTHER}) {
-            return $self->{$ARG_MOTHER}->get_delimiter($name);
+        if (defined $_[0]->{$ARG_MOTHER}) {
+            return $_[0]->{$ARG_MOTHER}->get_delimiter($_[1]);
         }
         return;
     }
@@ -162,13 +157,12 @@ no warnings 'recursion';
     ### ---
     sub var {
         
-        my ($self, $name) = (@_);
-        if (defined $name) {
-            if (defined $self->{$ARG_VAR}->{$name}) {
-                return $self->{$ARG_VAR}->{$name};
+        if (defined $_[1]) {
+            if (defined $_[0]->{$ARG_VAR}->{$_[1]}) {
+                return $_[0]->{$ARG_VAR}->{$_[1]};
             }
-            if (defined $self->{$ARG_MOTHER}) {
-                return $self->{$ARG_MOTHER}->var($name);
+            if (defined $_[0]->{$ARG_MOTHER}) {
+                return $_[0]->{$ARG_MOTHER}->var($_[1]);
             }
         }
         return;
@@ -191,13 +185,12 @@ no warnings 'recursion';
     ### ---
     sub func {
         
-        my ($self, $name) = (@_);
-        if (defined $name) {
-            if (defined $self->{$ARG_FUNC}->{$name}) {
-                return $self->{$ARG_FUNC}->{$name};
+        if (defined $_[1]) {
+            if (defined $_[0]->{$ARG_FUNC}->{$_[1]}) {
+                return $_[0]->{$ARG_FUNC}->{$_[1]};
             }
-            if (defined $self->{$ARG_MOTHER}) {
-                return $self->{$ARG_MOTHER}->func($name);
+            if (defined $_[0]->{$ARG_MOTHER}) {
+                return $_[0]->{$ARG_MOTHER}->func($_[1]);
             }
         }
         return;
@@ -228,8 +221,8 @@ no warnings 'recursion';
         
         (defined $str) or croak 'No template string found';
         
-        my $delim_l = $self->get_param($ARG_DELIMTER_LEFT);
-        my $delim_r = $self->get_param($ARG_DELIMTER_RIGHT);
+        my $delim_l = $self->get_param($ARG_DELIMITER_LEFT);
+        my $delim_r = $self->get_param($ARG_DELIMITER_RIGHT);
         my ($left, $escape, $tag, $right) =
             split(m{(\\*)$delim_l(.+?)$delim_r}s, $str, 2);
         
@@ -339,9 +332,9 @@ no warnings 'recursion';
         
         my ($self, $line, $err) = (@_);
         return 
-            $self->get_param($ARG_DELIMTER_LEFT)
+            $self->get_param($ARG_DELIMITER_LEFT)
             . '\\'. $line
-            . $self->get_param($ARG_DELIMTER_RIGHT);
+            . $self->get_param($ARG_DELIMITER_RIGHT);
     }
     
     sub nonExistDie {
@@ -379,19 +372,23 @@ Text::PSTemplate - Multi purpose template engine
 =head1 SYNOPSIS
 
     use Text::PSTemplate;
+    
     $template = Text::PSTemplate->new(%args);
     $template->set_param(%args);
-    $value = $template->get_param($name);
+    
     $template->set_delimiter($left, $right);
-    $str = $template->get_delimiter($left_or_right);
+    
     $template->set_var(key1 => $value1, key2 => $value2);
     $value = $template->var($name);
+    
     $template->set_func(key1 => \&func1, key2 => \&func2);
+    
     $str = $template->parse(file => $filename);
     $str = $template->parse_str(str => $str);
-    $context = $template->context();
-    $inline_data = $template->inline_data();
-    $mother_obj = $template->mother();
+    
+    $context        = Text::PSTemplate->context();
+    $inline_data    = Text::PSTemplate->inline_data($number);
+    $mother_obj     = Text::PSTemplate->mother();
 
 =head1 DESCRIPTION
 
@@ -488,12 +485,12 @@ Set delimiters.
 
     $instance->set_delimiter('<!-- ', ' -->')
 
-=head2 $instance->get_delimiter($left_or_right)
+=head2 $instance->get_delimiter(0 or 1)
 
 Get delimiters
 
-    $instance->get_delimiter('left')
-    $instance->get_delimiter('right')
+    $instance->get_delimiter(1) # left delimiter
+    $instance->get_delimiter(2) # right delimiter
 
 =head2 $instance->set_var(%datasets)
 
@@ -506,7 +503,7 @@ variable inherits the mother's.
 
 Get template variables
 
-    $instance->set_var(a)
+    $instance->var(a)
 
 =head2 $instance->set_func(some_name => $code_ref)
 
@@ -518,7 +515,7 @@ Set template functions
     $instance->set_func(say_hello_to => $a)
     
     Inside template...
-    {%say_hello_to('Fujitsu san')%}
+    {%&say_hello_to('Fujitsu san')%}
 
 =head2 $instance->func(name)
 

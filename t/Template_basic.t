@@ -17,6 +17,16 @@ use Data::Dumper;
         is($parsed, 'leftright');
     }
     
+    sub get_delimiter : Test(4) {
+        
+        my $tpl = Text::PSTemplate->new();
+        is($tpl->get_delimiter(0), '{%');
+        is($tpl->get_delimiter(1), '%}');
+        my $tpl2 = Text::PSTemplate->new(mother => $tpl);
+        is($tpl2->get_delimiter(0), '{%');
+        is($tpl2->get_delimiter(1), '%}');
+    }
+    
     sub set_vars1 : Test {
         
         my $tpl = Text::PSTemplate->new();
