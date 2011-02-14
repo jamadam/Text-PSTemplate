@@ -9,8 +9,8 @@ use Carp;
 no warnings 'recursion';
 
     my $ARG_MOTHER          = 1;
-    my $ARG_DELIMITER_LEFT   = 2;
-    my $ARG_DELIMITER_RIGHT  = 3;
+    my $ARG_DELIMITER_LEFT  = 2;
+    my $ARG_DELIMITER_RIGHT = 3;
     my $ARG_ENCODING        = 4;
     my $ARG_NONEXIST        = 5;
     my $ARG_RECUR_LIMIT     = 6;
@@ -49,7 +49,7 @@ no warnings 'recursion';
         if (! defined $self->{$ARG_MOTHER}) {
             $self->{$ARG_ENCODING}          ||= 'utf8';
             $self->{$ARG_RECUR_LIMIT}       ||= 10;
-            $self->{$ARG_NONEXIST} 		   ||= \&nonExistDie;
+            $self->{$ARG_NONEXIST} 		    ||= \&nonExistDie;
             $self->{$ARG_DELIMITER_LEFT}    ||= '{%';
             $self->{$ARG_DELIMITER_RIGHT}   ||= '%}';
         }
@@ -265,11 +265,17 @@ no warnings 'recursion';
         
         my ($self, $str) = (@_);
         $str =~ s{(\\*)([\$\&])([\w:]+)}{
-            my $len = length($1 or '');
-            my $out = '\\' x int($len / 2);
-            if ($len % 2 == 1) {
-                $out .= $2. $3;
-            } else {
+            my $out;
+            my $escaped;
+            if ($1) {
+                my $len = length($1);
+                $out = '\\' x int($len / 2);
+                if ($len % 2 == 1) {
+                    $escaped = 1;
+                    $out .= $2. $3;
+                }
+            }
+            if (! $escaped) {
                 if ($2 eq '$') {
                     if (defined $self->var($3)) {
                         $out .= qq!\$self->var('$3')!;
@@ -355,6 +361,7 @@ no warnings 'recursion';
     sub _count_recursion {
         
         my ($self) = (@_);
+        
         if (defined $self->{$ARG_MOTHER}) {
             return $self->{$ARG_MOTHER}->_count_recursion() + 1;
         }
@@ -439,7 +446,7 @@ Constractor. This method takes following arguments.
 =item mother
 
 The template variables and functions inherit their mother's. This argument
-specify PSTemplate instance the mother. 
+specify PSTemplate instance for the mother. 
 
 =item nonexist
 
@@ -449,17 +456,20 @@ with the statements.
 
 =back
 
-=head2 Text::PSTemplate::mother
+=head2 Text::PSTemplate::mother()
 
-If current context is recursed instance, this returns mother instance.
+This can be called from template function. If current context is recursed
+instance, this returns mother instance.
 
-=head2 Text::PSTemplate::context
+=head2 Text::PSTemplate::context()
 
-If current context is origined from file, this returns file name.
+This can be called from template function. If current context is origined from
+file, this returns file name.
 
-=head2 Text::PSTemplate::inline_data
+=head2 Text::PSTemplate::inline_data()
 
-Returns inline data specified in template
+This can be called from template function. This Returns inline data specified
+in template
 
 =head2 $instance->set_param(%hash)
 
