@@ -14,3 +14,4 @@ t/Template_basic2.t
 t/Template_deep_recursion.t
 t/Template_deep_recursion2.t
 t/Template_escaping.t
+t/Template_escaping2.t

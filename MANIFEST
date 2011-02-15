@@ -7,10 +7,12 @@ README
 t/00_load.t
 t/99_pod.t
 t/99_podcoverage.t
+t/lib/TestCommonControll.pm
 t/template/Template_basic2.txt
 t/template/Template_basic2_2.txt
 t/Template_basic.t
 t/Template_basic2.t
+t/Template_common_controll.t
 t/Template_deep_recursion.t
 t/Template_deep_recursion2.t
 t/Template_escaping.t
