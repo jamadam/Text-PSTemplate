@@ -1,12 +1,20 @@
 Changes
+lib/Class/C3.pm
+lib/Class/C3/next.pm
+lib/Class/FileCacheable.pm
+lib/Class/FileCacheable/Lite.pm
 lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Manual.pod
+lib/Text/PSTemplate/Plugable.pm
+lib/Text/PSTemplate/Plugin.pm
+lib/Text/PSTemplate/PluginBase.pm
 Makefile.PL
-MANIFEST			This list of files
+MANIFEST
 README
 t/00_load.t
 t/99_pod.t
 t/99_podcoverage.t
+t/lib/Test/Plugin1.pm
 t/lib/TestCommonControll.pm
 t/template/Template_basic2.txt
 t/template/Template_basic2_2.txt
@@ -17,3 +25,5 @@ t/Template_deep_recursion.t
 t/Template_deep_recursion2.t
 t/Template_escaping.t
 t/Template_escaping2.t
+t/Template_plugable_basic.t
+t/Template_plugable_basic2.t

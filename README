@@ -1,18 +1,189 @@
-Text-PSTemplate
+=head1 NAME
 
-INSTALLATION
+Text::PSTemplate - Multi purpose template engine
 
-To install this module, run the following commands:
+=head1 SYNOPSIS
 
-    perl Makefile.PL
-    make
-    make test
-    make install
+    use Text::PSTemplate;
+    
+    $template = Text::PSTemplate->new(%args);
+    $template->set_param(%args);
+    
+    $template->set_delimiter($left, $right);
+    
+    $template->set_var(key1 => $value1, key2 => $value2);
+    $value = $template->var($name);
+    
+    $template->set_func(key1 => \&func1, key2 => \&func2);
+    
+    $str = $template->parse(file => $filename);
+    $str = $template->parse_str(str => $str);
+    
+    $context        = Text::PSTemplate->context();
+    $inline_data    = Text::PSTemplate->inline_data($number);
+    $mother_obj     = Text::PSTemplate->mother();
 
-COPYRIGHT AND LICENSE
+=head1 DESCRIPTION
 
-Copyright (C) 2011 Sugama Keita
+Text::PSTemplate is a multi purpose template engine.
+This module allows you to include variables and fucntion calls in your template.
+
+This module doesn't provide any template functions in default. This doesn't
+provide any controll structure such as 'if-then' or 'for'. Fucntions will be
+available by specifying code refs. Any controll structures are feasible by
+implementing functions.
+
+This module requires less sytaxes than popular template engines. Template
+designers only have to learn following rules.
+
+=over
+
+=item Special tagging
+
+    {% ... %}
+
+=item escaping
+
+    \{% ... %}
+
+=item Perl style variable and function call
+
+    {% $some_var %}
+    {% &some_func(...) %}
+
+=item Inline data syntax [Advansed]
+
+    {% &some_func()<<EOF,EOF2 %}
+    inline data
+    {%EOF%}
+    inline data2
+    {%EOF2%}
+
+=back
+
+=head1 METHODS
+
+=head2 Text::PSTemplate->new()
+
+Constractor. This method takes following arguments.
+
+=over
+
+=item mother
+
+The template variables and functions inherit their mother's. This argument
+specify PSTemplate instance for the mother. 
+
+=item nonexist
+
+This paramete takes code ref for catching excepton. When variables/functions
+found in template are undefined, the parse method calls the subroutine to deal
+with the statements. 
+
+=back
+
+=head2 Text::PSTemplate::mother()
+
+This can be called from template function. If current context is recursed
+instance, this returns mother instance.
+
+=head2 Text::PSTemplate::context()
+
+This can be called from template function. If current context is origined from
+file, this returns file name.
+
+=head2 Text::PSTemplate::inline_data()
+
+This can be called from template function. This Returns inline data specified
+in template
+
+=head2 $instance->set_param(%hash)
+
+This can sets following parameters.
+
+=over
+
+=item mother
+
+=item nonexist
+
+=item encoding 
+
+=item recur_limit
+
+=back
+
+=head2 $instance->get_param($name)
+
+=head2 $instance->set_delimiter($left, $right)
+
+Set delimiters.
+
+    $instance->set_delimiter('<!-- ', ' -->')
+
+=head2 $instance->get_delimiter(0 or 1)
+
+Get delimiters
+
+    $instance->get_delimiter(1) # left delimiter
+    $instance->get_delimiter(2) # right delimiter
+
+=head2 $instance->set_var(%datasets)
+
+This Sets variables. It can take null string too. If you give it undef, the
+variable inherits the mother's. 
+
+    $instance->set_var(a => 'b', c => 'd')
+
+=head2 $instance->var($name)
+
+Get template variables
+
+    $instance->var(a)
+
+=head2 $instance->set_func(some_name => $code_ref)
+
+Set template functions
+
+    $a = sub {
+        return 'Hello '. $_[0];
+    };
+    $instance->set_func(say_hello_to => $a)
+    
+    Inside template...
+    {%&say_hello_to('Fujitsu san')%}
+
+=head2 $instance->func(name)
+
+Get template functions.
+
+=head2 $instance->parse($str)
+
+=head2 $instance->parse(file => $file_path)
+
+=head2 $instance->parse()
+
+Template Parse.
+    
+    $tpl->parse('...')
+    $tpl->parse(file => $file_path)
+    $tpl->parse()
+
+=head2 $instance->nonExistNull
+
+=head2 $instance->nonExistNoaction
+
+=head2 $instance->nonExistDie
+
+=head1 AUTHOR
+
+Sugama Keita, E<lt>sugama@jamadam.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Sugama Keita.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
+=cut
