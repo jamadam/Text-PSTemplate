@@ -6,7 +6,6 @@ lib/Class/FileCacheable/Lite.pm
 lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Manual.pod
 lib/Text/PSTemplate/Plugable.pm
-lib/Text/PSTemplate/Plugin.pm
 lib/Text/PSTemplate/PluginBase.pm
 Makefile.PL
 MANIFEST
