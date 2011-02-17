@@ -9,10 +9,11 @@ our $VERSION = '0.01';
     sub plug {
         
         my ($self, $plug_array_ref) = (@_);
+		
+		$self->{pluged} ||= {};
         foreach my $plug_name (@{$plug_array_ref}) {
             $plug_name->new($self);
         }
-        $self->{pluged} = 1;
     }
     
     sub set_namespace_base {

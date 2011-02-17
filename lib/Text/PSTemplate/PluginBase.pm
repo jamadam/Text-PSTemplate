@@ -26,9 +26,12 @@ our $VERSION = '0.01';
             }
             $$instance = bless {ini => {}}, $class;
         }
-        if (! $tpl->{pluged}) {
-                $$instance->_set_tpl_funcs($tpl);
-        }
+		if ($tpl && $tpl->isa('Text::PSTemplate::Plugable')) {
+			if (! exists $tpl->{pluged}->{$class}) {
+				$$instance->_set_tpl_funcs($tpl);
+				$tpl->{pluged}->{$class} = 1;
+			}
+		}
         return $$instance;
     }
     
@@ -83,7 +86,7 @@ our $VERSION = '0.01';
     sub _set_tpl_funcs {
         
         my ($self, $tpl) = (@_);
-        
+		
         my $plug_id = ref $self;
         if (my $namespace_base = $tpl->{namespace_base}) {
             $plug_id =~ s{$namespace_base\:\:}{};
