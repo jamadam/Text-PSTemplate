@@ -10,6 +10,8 @@ use base qw(Class::FileCacheable::Lite);
 
 our $VERSION = '0.01';
     
+    my %_tpl_exports = ();
+    
     ### ---
     ### Constractor
     ### ---
@@ -26,12 +28,12 @@ our $VERSION = '0.01';
             }
             $$instance = bless {ini => {}}, $class;
         }
-		if ($tpl && $tpl->isa('Text::PSTemplate::Plugable')) {
-			if (! exists $tpl->{pluged}->{$class}) {
-				$$instance->_set_tpl_funcs($tpl);
-				$tpl->{pluged}->{$class} = 1;
-			}
-		}
+        if ($tpl && $tpl->isa('Text::PSTemplate::Plugable')) {
+            if (! exists $tpl->{pluged}->{$class}) {
+                $$instance->_set_tpl_funcs($tpl);
+                $tpl->{pluged}->{$class} = 1;
+            }
+        }
         return $$instance;
     }
     
@@ -60,6 +62,25 @@ our $VERSION = '0.01';
     }
     
     ### ---
+    ### Get template function entries
+    ### ---
+    sub _get_tpl_exports {
+        
+        my $pkg = shift;
+        my @out = ();
+        no strict 'refs';
+        foreach my $super (@{$pkg. '::ISA'}) {
+            if ($super ne __PACKAGE__) {
+                push(@out, @{_get_tpl_exports($super)});
+            }
+        }
+        if (my $a = $_tpl_exports{$pkg}) {
+            push(@out, @$a);
+        }
+        return \@out;
+    }
+    
+    ### ---
     ### Set ini
     ### ---
     sub set_ini {
@@ -71,8 +92,6 @@ our $VERSION = '0.01';
         $self->{ini} = $hash || {};
         return $self;
     }
-    
-    my %_tpl_exports = ();
     
     ### ---
     ### Template function Attribute
@@ -89,7 +108,7 @@ our $VERSION = '0.01';
     sub _set_tpl_funcs {
         
         my ($self, $tpl) = (@_);
-		
+        
         my $plug_id = ref $self;
         if (my $namespace_base = $tpl->{namespace_base}) {
             $plug_id =~ s{$namespace_base\:\:}{};
@@ -121,25 +140,6 @@ our $VERSION = '0.01';
         
         return $self;
     }
-    
-    ### ---
-    ### Get template function entries
-    ### ---
-    sub _get_tpl_exports {
-        
-        my $pkg = shift;
-        my @out = ();
-        no strict 'refs';
-        foreach my $super (@{$pkg. '::ISA'}) {
-            if ($super ne __PACKAGE__) {
-                push(@out, @{_get_tpl_exports($super)});
-            }
-        }
-        if (my $a = $_tpl_exports{$pkg}) {
-            push(@out, @$a);
-        }
-        return \@out;
-    }
 
 1;
 
@@ -162,23 +162,67 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
         
         my $value = $plugin->ini('some_key');
     }
+    
+    # in templates ..
+    # {% &say_hello_to('Jamadam') %}
 
+    # Template functions can be cached into files
+    
+    use LWP::Simple;
+    
+    sub insert_remote_data : TplExport FileCacheable {
+        my ($plugin, $url) = (@_);
+        return LWP::Simple::get($url);
+    }
+    
+    # in templates ..
+    # {% &insert_remote_data('http://example.com/') %}
+    
 =head1 DESCRIPTION
 
-This is an Abstract Class whitch represents plugins for
-Text::PSTemplate::Plugable Class.
+[DRAFT]
+
+This is an Abstract Class which represents plugins for
+Text::PSTemplate::Plugable.
+
+The Plugins are thought of singleton pattern so each plugins instanciates the
+one and only one instance. The new constractor is also behave as instance
+getter.
+
+The plugin classes can contain subroutins with TplExport attribute. These
+subroutins are targeted as template function.
+
+Text::PSTemplate::PluginBase is a sub class of Class::FileCacheable so
+subtoutins can have FileCacheable attribute. See also
+L<Class::FileCacheable>.
+
+The Plugins can inherit other plugins. The new constractor automatically
+instanciates all depended plugins and template functions are inherited even in
+templates.
+
+This class also manage ini datas for each plugins.
 
 =head1 METHODS
 
 =head2 new
 
+Constractor. This makes 
+
 =head2 set_ini
 
+ini setter
+
 =head2 ini
+
+ini getter
 
 =head1 ATTRIBUTE
 
 =head2 TplExport
+
+=head2 FileCacheable
+
+See L<Class::FileCacheable>
 
 =head1 AUTHOR
 
