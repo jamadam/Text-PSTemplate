@@ -65,6 +65,9 @@ our $VERSION = '0.01';
     sub set_ini {
         
         my ($self, $hash) = (@_);
+        if (! blessed $self) {
+            $self = $self->new;
+        }
         $self->{ini} = $hash || {};
         return $self;
     }
@@ -98,7 +101,7 @@ our $VERSION = '0.01';
             
             my $ref = \&$sym;
             my $rapper = sub {
-                my $self = (blessed($_[0])) ? shift : $self;
+                #my $self = (blessed($_[0])) ? shift : $self;
                 my $ret = $self->$ref(@_);
                 return (defined $ret ? $ret : '');
             };

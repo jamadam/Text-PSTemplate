@@ -27,3 +27,4 @@ t/Template_escaping2.t
 t/Template_plugable_basic.t
 t/Template_plugable_basic2.t
 t/Template_plugable_incrementally_added.t
+t/Template_plugable_respect_false_values.t
