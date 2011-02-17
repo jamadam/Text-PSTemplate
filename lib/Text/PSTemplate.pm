@@ -61,6 +61,15 @@ no warnings 'recursion';
     }
     
     ### ---
+    ### Sub template factory
+    ### ---
+    sub new_sub_template {
+        
+        my $self = shift;
+        return __PACKAGE__->new(mother => $self, @_);
+    }
+    
+    ### ---
     ### Get mother in caller context
     ### ---
     sub mother {
