@@ -17,8 +17,8 @@ use Test::Plugin1;
         is($parsed, 'left Test::Plugin1::some_function called right');
 		
         $tpl->plug(['Test::Plugin2']);
-        my $parsed = $tpl->parse(q[left {%&Test::Plugin2::some_function()%} right]);
-        is($parsed, 'left Test::Plugin2::some_function called right');
+        my $parsed2 = $tpl->parse(q[left {%&Test::Plugin2::some_function()%} right]);
+        is($parsed2, 'left Test::Plugin2::some_function called right');
     }
     
     sub incrementally_basic_twice : Test(2) {
@@ -29,6 +29,6 @@ use Test::Plugin1;
         is($parsed, 'left Test::Plugin1::some_function called right');
 		
         $tpl->plug(['Test::Plugin2']);
-        my $parsed = $tpl->parse(q[left {%&Test::Plugin2::some_function()%} right]);
-        is($parsed, 'left Test::Plugin2::some_function called right');
+        my $parsed2 = $tpl->parse(q[left {%&Test::Plugin2::some_function()%} right]);
+        is($parsed2, 'left Test::Plugin2::some_function called right');
     }
