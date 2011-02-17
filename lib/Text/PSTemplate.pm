@@ -552,6 +552,8 @@ Template Parse.
     $tpl->parse(file => $file_path)
     $tpl->parse()
 
+=head2 $instance->new_sub_template(%params);
+
 =head2 $instance->nonExistNull
 
 =head2 $instance->nonExistNoaction
