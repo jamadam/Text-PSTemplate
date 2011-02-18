@@ -10,18 +10,17 @@ our $VERSION = '0.01';
     sub plug {
         
         my ($self, $plugin, $as) = (@_);
-		
-		$self->{pluged} ||= {};
-		
-		if (ref $plugin eq 'ARRAY') {
-			foreach my $plug_name (@{$plugin}) {
-				$plug_name->new($self);
-			}
-		} else {
-			$self->{pluged}->{$plugin} = {};
-			$self->{pluged}->{$plugin}->{as} = $as;
-			$plugin->new($self);
-		}
+        
+        $self->{pluged} ||= {};
+        
+        if (ref $plugin eq 'ARRAY') {
+            foreach my $plug_name (@{$plugin}) {
+                $plug_name->new($self);
+            }
+        } else {
+            $self->{pluged}->{$plugin} = {as => $as};
+            $plugin->new($self);
+        }
     }
     
     sub set_namespace_base {
@@ -54,8 +53,8 @@ Text::PSTemplate::Plugable - Plugable template engine
     $tpl->parse('...{%&say_hello_to('Kenji')%}...');
     
     package MyPlug1;
-	use strict;
-	use warnings;
+    use strict;
+    use warnings;
     use base qw(Text::PSTemplate::PluginBase);
     sub say_hello_to : TplExport {
         my ($plugin, $name) = (@_);

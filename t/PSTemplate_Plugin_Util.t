@@ -13,15 +13,15 @@ use Text::PSTemplate::Plugin::Util;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Util', '');
-		
-		$tpl->set_var(
-			some_var1 => '1',
-			some_var2 => '2',
-			some_var3 => '3',
-			null_string => '',
-			zero => 0,
-		);
-		
+        
+        $tpl->set_var(
+            some_var1 => '1',
+            some_var2 => '2',
+            some_var3 => '3',
+            null_string => '',
+            zero => 0,
+        );
+        
         my $parsed1 = $tpl->parse(q{{% &if_equals($some_var1,'1')<<THEN %}equal{%THEN%}});
         is($parsed1, 'equal');
         my $parsed2 = $tpl->parse(q{{% &if_equals($some_var1,'1')<<THEN,ELSE %}equal{%THEN%}not equal{%ELSE%}});
@@ -38,15 +38,15 @@ use Text::PSTemplate::Plugin::Util;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Util', '');
-		
-		$tpl->set_var(
-			some_var1 => '1',
-			some_var2 => '2',
-			some_var3 => '3',
-			null_string => '',
-			zero => 0,
-		);
-		
+        
+        $tpl->set_var(
+            some_var1 => '1',
+            some_var2 => '2',
+            some_var3 => '3',
+            null_string => '',
+            zero => 0,
+        );
+        
         my $parsed1 = $tpl->parse(q{{% &if_exists($some_var1)<<THEN %}exists{%THEN%}});
         is($parsed1, 'exists');
         my $parsed2 = $tpl->parse(q{{% &if_exists($null_string)<<THEN %}exists{%THEN%}});
@@ -65,15 +65,15 @@ use Text::PSTemplate::Plugin::Util;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Util', '');
-		
-		$tpl->set_var(
-			some_var1 => '1',
-			some_var2 => '2',
-			some_var3 => '3',
-			null_string => '',
-			zero => 0,
-		);
-		
+        
+        $tpl->set_var(
+            some_var1 => '1',
+            some_var2 => '2',
+            some_var3 => '3',
+            null_string => '',
+            zero => 0,
+        );
+        
         my $parsed1 = $tpl->parse(q{{% &if_in_array($some_var1,[1,2])<<THEN %}found{%THEN%}});
         is($parsed1, 'found');
         my $parsed2 = $tpl->parse(q{{% &if_in_array($some_var3,[1,2])<<THEN %}found{%THEN%}});
@@ -90,15 +90,15 @@ use Text::PSTemplate::Plugin::Util;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Util', '');
-		
-		$tpl->set_var(
-			some_var1 => '1',
-			some_var2 => '2',
-			some_var3 => '3',
-			null_string => '',
-			zero => 0,
-		);
-		
+        
+        $tpl->set_var(
+            some_var1 => '1',
+            some_var2 => '2',
+            some_var3 => '3',
+            null_string => '',
+            zero => 0,
+        );
+        
         my $parsed1 = $tpl->parse(q{{% &switch($some_var1,[1,2])<<CASE1,CASE2 %}case1{%CASE1%}case2{%CASE2%}});
         is($parsed1, 'case1');
         my $parsed2 = $tpl->parse(q{{% &switch($some_var2,[1,2])<<CASE1,CASE2 %}case1{%CASE1%}case2{%CASE2%}});
@@ -121,18 +121,18 @@ use Text::PSTemplate::Plugin::Util;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Util', '');
-		
-		$tpl->set_var(
-			some_var1 => '1',
-			some_var2 => '2',
-			some_var3 => '3',
-			null_string => '',
-			zero => 0,
-		);
-		my $parsed1 = $tpl->parse(q{{% &tpl_switch($some_var1,{1 => 't/template/Template_Plugin_Util.txt', 2 => ''})%}});
+        
+        $tpl->set_var(
+            some_var1 => '1',
+            some_var2 => '2',
+            some_var3 => '3',
+            null_string => '',
+            zero => 0,
+        );
+        my $parsed1 = $tpl->parse(q{{% &tpl_switch($some_var1,{1 => 't/template/Template_Plugin_Util.txt', 2 => ''})%}});
         is($parsed1, 'ok');
-		my $parsed2 = $tpl->parse(q{{% &tpl_switch($some_var2,{1 => '', 2 => 't/template/Template_Plugin_Util.txt'})%}});
+        my $parsed2 = $tpl->parse(q{{% &tpl_switch($some_var2,{1 => '', 2 => 't/template/Template_Plugin_Util.txt'})%}});
         is($parsed2, 'ok');
-		my $parsed3 = $tpl->parse(q{{% &tpl_switch($some_var3,{1 => '', 2 => ''})%}});
+        my $parsed3 = $tpl->parse(q{{% &tpl_switch($some_var3,{1 => '', 2 => ''})%}});
         is($parsed3, '');
     }
