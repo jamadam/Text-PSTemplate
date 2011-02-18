@@ -37,6 +37,44 @@ use Data::Dumper;
         is(indent_optimize($parsed), 'Female: yes');
     }
     
+    sub catch_exception : Test(1) {
+        
+        my $tpl = Text::PSTemplate->new;
+		eval {
+			$tpl->parse(q[{%&hoge()%}])
+		};
+		like($@, qr/Error/);
+    }
+    
+    sub no_exception : Test(1) {
+        
+        my $tpl = Text::PSTemplate->new;
+		my $e = sub {'hoge'};
+		$tpl->set_param(nonexist => $e);
+		eval {
+			$tpl->parse(q[{%&hoge()%}])
+		};
+		is($@, '');
+    }
+    
+    sub reconstruct_tag : Test(2) {
+        
+        my $tpl = Text::PSTemplate->new;
+		my $e = sub {
+	        my ($self, $line, $err) = (@_);
+			return 
+				$self->get_delimiter(0)
+				. '\\'. $line
+				. $self->get_delimiter(1);
+		};
+		$tpl->set_param(nonexist => $e);
+		my $parsed = eval {
+			$tpl->parse(q[{%&hoge()%}])
+		};
+		is($@, '');
+		is($parsed, '{%\&hoge()%}');
+    }
+    
     sub indent_optimize {
         my $in = shift;
         $in =~ s{\s+}{ }g;

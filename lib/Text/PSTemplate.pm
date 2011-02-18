@@ -3,7 +3,7 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 use 5.005;
 use Carp;
 no warnings 'recursion';
@@ -102,10 +102,11 @@ no warnings 'recursion';
     ### ---
     sub set_param {
         
+        my $self = shift;
         while ((my $a = shift) && (my $b = shift)) {
-            $_[0]->{$arg_name_tbl{$a}} = $b;
+            $self->{$arg_name_tbl{$a}} = $b;
         }
-        return $_[0];
+        return $self;
     }
     
     ### ---
@@ -233,14 +234,17 @@ no warnings 'recursion';
         my $delim_l = $self->get_param($ARG_DELIMITER_LEFT);
         my $delim_r = $self->get_param($ARG_DELIMITER_RIGHT);
         my ($left, $escape, $tag, $right) =
-            split(m{(\\*)$delim_l(.+?)$delim_r}s, $str, 2);
+            split(m{(\\*)$delim_l(.+?)\s*$delim_r}s, $str, 2);
         
-        if (defined $right) {
+        if ($tag) {
             my $len = length($escape);
             my $out = ('\\' x int($len / 2));
             if ($len % 2 == 1) {
                 $out .= $delim_l. $tag. $delim_r;
             } else {
+                if (substr($tag, 0, 1) !~ /\$|\&/) {
+                    croak "Syntax error at template parse near $tag";
+                }
                 local $Text::PSTemplate::inline_data;
                 $tag =~ s{(<<[a-zA-Z0-9,]*)}{};
                 if (my $inline = $1) {
