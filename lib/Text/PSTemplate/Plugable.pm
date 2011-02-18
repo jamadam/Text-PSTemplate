@@ -63,16 +63,42 @@ Text::PSTemplate::Plugable - Plugable template engine
 
 =head1 DESCRIPTION
 
-    Text::PSTemplate::Plugable Class is a sub class of Text::PSTemplate.
-    This extends some feature to Text::PSTemplate plugable.
+Text::PSTemplate::Plugable Class is a sub class of Text::PSTemplate.
+This extends some feature to Text::PSTemplate plugable.
 
 =head1 METHODS
 
-=head2 plug
+=head2 $instance->plug
 
-=head2 set_namespace_base
+This method adds some controll structures into your PSTemplate instance.
 
-=head2 set_default_plugin
+    $instance->plug('Path::To::SomePlugin');
+
+The plugins will available as follows.
+
+    {% &Plug::To::SomePlugin::some_function(...) %}
+
+Or you can set an alias name as follows.
+
+    $instance->plug('Path::To::SomePlugin', 'MyNamespace');
+
+This plugin will available as follows
+
+    {% &MyNamespace::some_function(...) %}
+
+You can marge plugins into single namespace.
+
+    $instance->plug(['Plugin1','Plugin2',...], 'MyNamespace');
+
+=head2 $instance->set_namespace_base [experimental]
+
+This method sets a namespace base. Namespace base strips long modificated
+functions into short. If you set 'A::B' for namespace base, &A::B::func()
+can call as just func(). Also, A::B::C::func() is active as C::func().
+
+=head2 $instance->set_default_plugin [experimental]
+
+Default plugin setting causes the fucntions can be called as &::func() style.
 
 =head1 AUTHOR
 

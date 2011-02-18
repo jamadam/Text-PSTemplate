@@ -160,16 +160,25 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
 
 =head1 SYNOPSIS
 
+    package MyApp;
+    
+    my $tpl = Text::PSTemplate::Plugable->new;
+    
+    $tpl->plug('MyPlug1');
+    
+    # or
+    
+    $tpl->plug('MyPlug1', 'AnyNamespace');
+    
     package MyPlug1;
-    use strict;
-    use warnings;
+    
     use base qw(Text::PSTemplate::PluginBase);
     
     sub say_hello_to : TplExport {
+    
         my ($plugin, $name) = (@_);
-        return "Hello $name";
         
-        my $value = $plugin->ini('some_key');
+        return "Hello $name";
     }
     
     # in templates ..
@@ -189,17 +198,13 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
     
 =head1 DESCRIPTION
 
-[DRAFT]
-
 This is an Abstract Class which represents plugins for
 Text::PSTemplate::Plugable.
 
 The Plugins are thought of singleton pattern so each plugins instanciates the
-one and only one instance. The new constractor is also behave as instance
-getter.
-
-The plugin classes can contain subroutins with TplExport attribute. These
-subroutins are targeted as template function.
+one and only one instance. The new constractor also behave as instance
+getter. The plugin classes can contain subroutins with TplExport attribute.
+These subroutins are targeted as template function.
 
 Text::PSTemplate::PluginBase is a sub class of Class::FileCacheable so
 subtoutins can have FileCacheable attribute. See also
@@ -209,29 +214,55 @@ The Plugins can inherit other plugins. The new constractor automatically
 instanciates all depended plugins and template functions are inherited even in
 templates.
 
-This class also manage ini datas for each plugins.
+This class also capable of managing ini datas for each plugins.
 
 =head1 METHODS
 
-=head2 new
+=head2 Text::PSTemplate::PluginBase->new($template)
 
-Constractor. This makes 
+Constractor and instance getter. This makes an singleton instance for the
+plugin. This takes plugable template instance as argument.
 
-=head2 set_ini
+    my $tpl = Text::PSTemplate::Plugable->new;
+    my $myplug = My::Plug->new($tpl);
+    
+    # ...later
+    
+    my $myplug2 = My::Plugin->new ### Always returns same instance 
 
-ini setter
+=head2 $instance->set_ini($hash)
 
-=head2 ini
+ini setter.
 
-ini getter
+    $myplug->set_ini($hash_ref);
+
+=head2 $instance->ini($key)
+
+ini getter. The ini settings inherits the super classes. If your Plugin don't
+have ini setting for given key by itself, this method searches the super class's
+ini with C3 algorithm.
+
+    my $value = $myplug->ini($some_key);
 
 =head1 ATTRIBUTE
 
 =head2 TplExport
 
+This attribute makes the subroutine availabe in templates.
+
+    sub your_func : TplExport {
+        
+    }
+
 =head2 FileCacheable
 
-See L<Class::FileCacheable>
+=head2 FileCacheable(\%args)
+
+This attribute makes the subroutine cacheable. See also L<Class::FileCacheable>
+
+    sub your_func : FileCacheable {
+        
+    }
 
 =head1 AUTHOR
 
