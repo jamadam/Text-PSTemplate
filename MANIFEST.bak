@@ -14,6 +14,7 @@ t/00_load.t
 t/99_pod.t
 t/99_podcoverage.t
 t/lib/Test/Plugin1.pm
+t/lib/Test/Plugin2.pm
 t/lib/TestCommonControll.pm
 t/template/Template_basic2.txt
 t/template/Template_basic2_2.txt
@@ -27,6 +28,7 @@ t/Template_escaping2.t
 t/Template_plugable_basic.t
 t/Template_plugable_basic2.t
 t/Template_plugable_basic3.t
+t/Template_plugable_basic4.t
 t/Template_plugable_incrementally_added.t
 t/Template_plugable_ini_c3.t
 t/Template_plugable_respect_false_values.t

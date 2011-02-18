@@ -29,9 +29,9 @@ our $VERSION = '0.01';
             $$instance = bless {ini => {}}, $class;
         }
         if ($tpl && $tpl->isa('Text::PSTemplate::Plugable')) {
-            if (! exists $tpl->{pluged}->{$class}) {
+            if (! exists $tpl->{pluged}->{$class}->{ok}) {
                 $$instance->_set_tpl_funcs($tpl);
-                $tpl->{pluged}->{$class} = 1;
+                $tpl->{pluged}->{$class}->{ok} = 1;
             }
         }
         return $$instance;
@@ -110,6 +110,8 @@ our $VERSION = '0.01';
         my ($self, $tpl) = (@_);
         
         my $plug_id = ref $self;
+        my $as = $tpl->{pluged}->{$plug_id}->{as};
+        
         if (my $namespace_base = $tpl->{namespace_base}) {
             $plug_id =~ s{$namespace_base\:\:}{};
         }
@@ -127,8 +129,15 @@ our $VERSION = '0.01';
             
             my $subname = ((scalar *$sym) =~ m{([^:]+$)})[0];
             
-            ### Set template funcs in template object
             $tpl->set_func($plug_id. '::'. $subname => $rapper);
+            if (defined $as) {
+                if ($as) {
+                    $tpl->set_func($as. '::'. $subname => $rapper);
+                } else {
+                    $tpl->set_func($subname => $rapper);
+                }
+            }
+            
             if (my $default_plugin = $tpl->{default_plugin}) {
                 if ($plug_id eq $default_plugin) {
                     $tpl->set_func($subname => $rapper);

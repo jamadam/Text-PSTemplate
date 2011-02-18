@@ -1,6 +1,7 @@
 package Text::PSTemplate::Plugable;
 use strict;
 use warnings;
+use Carp;
 use base qw(Text::PSTemplate);
 use Text::PSTemplate::PluginBase;
 
@@ -8,12 +9,19 @@ our $VERSION = '0.01';
     
     sub plug {
         
-        my ($self, $plug_array_ref) = (@_);
+        my ($self, $plugin, $as) = (@_);
 		
 		$self->{pluged} ||= {};
-        foreach my $plug_name (@{$plug_array_ref}) {
-            $plug_name->new($self);
-        }
+		
+		if (ref $plugin eq 'ARRAY') {
+			foreach my $plug_name (@{$plugin}) {
+				$plug_name->new($self);
+			}
+		} else {
+			$self->{pluged}->{$plugin} = {};
+			$self->{pluged}->{$plugin}->{as} = $as;
+			$plugin->new($self);
+		}
     }
     
     sub set_namespace_base {
