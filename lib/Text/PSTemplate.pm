@@ -413,12 +413,14 @@ Text::PSTemplate - Multi purpose template engine
 =head1 DESCRIPTION
 
 Text::PSTemplate is a multi purpose template engine.
-This module allows you to include variables and fucntion calls in your template.
+This module allows you to include variables and fucntion calls in your
+templates.
 
 This module doesn't provide any template functions in default. This doesn't
-provide any controll structure such as 'if-then' or 'for'. Fucntions will be
+provide any controll structures such as 'if-then' or 'for'. Functions will be
 available by specifying code refs. Any controll structures are feasible by
-implementing functions.
+implementing functions by yourself. See also L<Text::PSTemplate::Plugin::Util>
+for example.
 
 This module requires less sytaxes than popular template engines. Template
 designers only have to learn following rules.
@@ -466,6 +468,18 @@ specify PSTemplate instance for the mother.
 This paramete takes code ref for catching excepton. When variables/functions
 found in template are undefined, the parse method calls the subroutine to deal
 with the statements. 
+
+=item delimiter_left
+
+=item delimiter_right
+
+=item encoding
+
+This specifies the encode of template files.
+
+=item nonexist
+
+=item recur_limit
 
 =back
 
