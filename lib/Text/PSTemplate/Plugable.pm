@@ -4,9 +4,24 @@ use warnings;
 use Carp;
 use base qw(Text::PSTemplate);
 use Text::PSTemplate::PluginBase;
+use Text::PSTemplate::Plugin::Core::Control;
+use Text::PSTemplate::Plugin::Core::Num;
 
 our $VERSION = '0.01';
-    
+our @CORE_LIST = qw(Control Num);
+
+	sub new {
+		
+		my $class = shift;
+		my $tpl = bless $class->SUPER::new(@_), $class;
+		
+		for my $name (@CORE_LIST) {
+			$tpl->plug('Text::PSTemplate::Plugin::Core::'. $name, '');
+		}
+		
+		return $tpl;
+	}
+	
     sub plug {
         
         my ($self, $plugin, $as) = (@_);
@@ -23,6 +38,22 @@ our $VERSION = '0.01';
         }
     }
     
+	sub get_as {
+		
+		my ($self, $plug_id) = @_;
+		return $self->{pluged}->{$plug_id}->{as};
+	}
+	
+	sub get_base {
+		
+		my ($self, $plug_id) = @_;
+		if (my $namespace_base = $self->{namespace_base}) {
+			$plug_id =~ s{^$namespace_base\:\:}{};
+			return $plug_id;
+		}
+		return;
+	}
+	
     sub set_namespace_base {
         
         my $self = shift;
@@ -89,6 +120,12 @@ This plugin will available as follows
 You can marge plugins into single namespace.
 
     $instance->plug(['Plugin1','Plugin2',...], 'MyNamespace');
+
+=head2 new
+
+=head2 $instance->get_as($plug_id)
+
+=head2 $instance->get_base($plug_id) [experimental];
 
 =head2 $instance->set_namespace_base [experimental]
 

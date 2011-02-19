@@ -109,41 +109,40 @@ our $VERSION = '0.01';
         
         my ($self, $tpl) = (@_);
         
-        my $plug_id = ref $self;
-        my $as = $tpl->{pluged}->{$plug_id}->{as};
+        my @namespaces = ();
         
-        if (my $namespace_base = $tpl->{namespace_base}) {
-            $plug_id =~ s{$namespace_base\:\:}{};
+        my $org = ref $self;
+        my $as = $tpl->get_as($org);
+        if (defined $as) {
+            push(@namespaces, $as);
+        } else {
+            my $org = $org;
+            if (my $short = $tpl->get_base($org)) {
+                $org = $short;
+            }
+            push(@namespaces, $org);
+            if (my $default_plugin = $tpl->{default_plugin}) {
+                if ($org eq $default_plugin) {
+                    push(@namespaces, '');
+                } elsif ($org =~ /^$default_plugin\::(.+)/) {
+                    push(@namespaces, '::'. $1);
+                }
+            }
         }
-
-        my $_tpl_exports = _get_tpl_exports(ref $self);
+        
+        @namespaces = map {$_ ? $_.'::' : $_} grep {defined $_} @namespaces;
+        
+        my $_tpl_exports = _get_tpl_exports($org);
         
         foreach my $sym (@$_tpl_exports) {
-            
             my $ref = \&$sym;
             my $rapper = sub {
-                #my $self = (blessed($_[0])) ? shift : $self;
                 my $ret = $self->$ref(@_);
                 return (defined $ret ? $ret : '');
             };
-            
             my $subname = ((scalar *$sym) =~ m{([^:]+$)})[0];
-            
-            $tpl->set_func($plug_id. '::'. $subname => $rapper);
-            if (defined $as) {
-                if ($as) {
-                    $tpl->set_func($as. '::'. $subname => $rapper);
-                } else {
-                    $tpl->set_func($subname => $rapper);
-                }
-            }
-            
-            if (my $default_plugin = $tpl->{default_plugin}) {
-                if ($plug_id eq $default_plugin) {
-                    $tpl->set_func($subname => $rapper);
-                } elsif ($plug_id =~ /^$default_plugin\::(.+)/) {
-                    $tpl->set_func('::'. $1. '::'. $subname => $rapper);
-                }
+            for my $namespace (@namespaces) {
+                $tpl->set_func($namespace. $subname => $rapper);
             }
         }
         

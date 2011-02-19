@@ -6,7 +6,8 @@ lib/Class/FileCacheable/Lite.pm
 lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Manual.pod
 lib/Text/PSTemplate/Plugable.pm
-lib/Text/PSTemplate/Plugin/Util.pm
+lib/Text/PSTemplate/Plugin/Core/Control.pm
+lib/Text/PSTemplate/Plugin/Core/Num.pm
 lib/Text/PSTemplate/PluginBase.pm
 Makefile.PL
 MANIFEST
@@ -20,7 +21,6 @@ t/lib/TestCommonControll.pm
 t/PSTemplate_Plugin_Util.t
 t/template/Template_basic2.txt
 t/template/Template_basic2_2.txt
-t/template/Template_Plugin_Util.txt
 t/Template_basic.t
 t/Template_basic2.t
 t/Template_common_controll.t

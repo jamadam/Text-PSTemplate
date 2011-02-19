@@ -5,14 +5,12 @@ use Test::More;
 use lib 't/lib';
 use Text::PSTemplate::Plugable;
 use Data::Dumper;
-use Text::PSTemplate::Plugin::Util;
 
     __PACKAGE__->runtests;
     
     sub if_equals : Test(5) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->plug('Text::PSTemplate::Plugin::Util', '');
         
         $tpl->set_var(
             some_var1 => '1',
@@ -37,7 +35,6 @@ use Text::PSTemplate::Plugin::Util;
     sub if : Test(6) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->plug('Text::PSTemplate::Plugin::Util', '');
         
         $tpl->set_var(
             some_var1 => '1',
@@ -46,7 +43,6 @@ use Text::PSTemplate::Plugin::Util;
             null_string => '',
             zero => 0,
         );
-        
         my $parsed1 = $tpl->parse(q{{% &if($some_var1)<<THEN %}exists{%THEN%}});
         is($parsed1, 'exists');
         my $parsed2 = $tpl->parse(q{{% &if($null_string)<<THEN %}exists{%THEN%}});
@@ -64,7 +60,6 @@ use Text::PSTemplate::Plugin::Util;
     sub if_in_array : Test(5) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->plug('Text::PSTemplate::Plugin::Util', '');
         
         $tpl->set_var(
             some_var1 => '1',
@@ -89,7 +84,6 @@ use Text::PSTemplate::Plugin::Util;
     sub switch : Test(8) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->plug('Text::PSTemplate::Plugin::Util', '');
         
         $tpl->set_var(
             some_var1 => '1',
@@ -120,7 +114,6 @@ use Text::PSTemplate::Plugin::Util;
     sub tpl_switch : Test(3) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->plug('Text::PSTemplate::Plugin::Util', '');
         
         $tpl->set_var(
             some_var1 => '1',
