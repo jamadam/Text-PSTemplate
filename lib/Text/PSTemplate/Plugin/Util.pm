@@ -5,7 +5,7 @@ use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
 
 our $VERSION = '0.01';
-
+	
     ### ---
     ### Parse inline template if the variable is in array
     ### ---
@@ -30,17 +30,17 @@ our $VERSION = '0.01';
         }
         return;
     }
-    
+	
     ### ---
-    ### Parse inline template if the variable is exists
+    ### Parse inline template if the variable equals to value
     ### ---
-    sub if_exists : TplExport {
+    sub if : TplExport {
         
-        my ($self, $target, $then, $else) = @_;
+        my ($self, $condition, $then, $else) = @_;
         
         my $tpl = Text::PSTemplate->new;
         
-        if ($target) {
+        if ($condition) {
             if ($then) {
                 return $then;
             } elsif (my $inline = Text::PSTemplate::inline_data(0)) {
@@ -148,12 +148,12 @@ Text::PSTemplate::Plugin::Util - Common controll structures
     else
     {%ELSE%}
     
-    {% &if_exists($some_var, 'exists', 'not exists') %}
+    {% &if($some_var, 'true', 'not true') %}
     
-    {% &if_exists($some_var)<<THEN,ELSE %}
-    exists
+    {% &if($some_var)<<THEN,ELSE %}
+    true
     {%THEN%}
-    not exists
+    not true
     {%ELSE%}
     
     {% &if_in_array($some_var, ['a','b','c'], 'then', 'else') %}
@@ -195,7 +195,7 @@ To activate this plugin, your template have to load it as follows
 
 =head2 if_equals
 
-=head2 if_exists
+=head2 if
 
 =head2 if_in_array
 

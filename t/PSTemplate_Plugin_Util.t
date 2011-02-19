@@ -28,13 +28,13 @@ use Text::PSTemplate::Plugin::Util;
         is($parsed2, 'equal');
         my $parsed3 = $tpl->parse(q{{% &if_equals($some_var1,'2')<<THEN,ELSE %}equal{%THEN%}not equal{%ELSE%}});
         is($parsed3, 'not equal');
-        my $parsed4 = $tpl->parse(q{{% &if_exists($some_var1, 'equal', 'not equal')%}});
+        my $parsed4 = $tpl->parse(q{{% &if_equals($some_var1, '1', 'equal', 'not equal')%}});
         is($parsed4, 'equal');
-        my $parsed5 = $tpl->parse(q{{% &if_exists($zero, 'equal', 'not equal')%}});
+        my $parsed5 = $tpl->parse(q{{% &if_equals($zero, '1', 'equal', 'not equal')%}});
         is($parsed5, 'not equal');
     }
     
-    sub if_exists : Test(6) {
+    sub if : Test(6) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Util', '');
@@ -47,17 +47,17 @@ use Text::PSTemplate::Plugin::Util;
             zero => 0,
         );
         
-        my $parsed1 = $tpl->parse(q{{% &if_exists($some_var1)<<THEN %}exists{%THEN%}});
+        my $parsed1 = $tpl->parse(q{{% &if($some_var1)<<THEN %}exists{%THEN%}});
         is($parsed1, 'exists');
-        my $parsed2 = $tpl->parse(q{{% &if_exists($null_string)<<THEN %}exists{%THEN%}});
+        my $parsed2 = $tpl->parse(q{{% &if($null_string)<<THEN %}exists{%THEN%}});
         is($parsed2, '');
-        my $parsed3 = $tpl->parse(q{{% &if_exists($zero)<<THEN %}exists{%THEN%}});
+        my $parsed3 = $tpl->parse(q{{% &if($zero)<<THEN %}exists{%THEN%}});
         is($parsed3, '');
-        my $parsed4 = $tpl->parse(q{{% &if_exists($zero)<<THEN,ELSE %}exists{%THEN%}not exists{%ELSE%}});
+        my $parsed4 = $tpl->parse(q{{% &if($zero)<<THEN,ELSE %}exists{%THEN%}not exists{%ELSE%}});
         is($parsed4, 'not exists');
-        my $parsed5 = $tpl->parse(q{{% &if_exists($some_var1, 'exists', 'not exists')%}});
+        my $parsed5 = $tpl->parse(q{{% &if($some_var1, 'exists', 'not exists')%}});
         is($parsed5, 'exists');
-        my $parsed6 = $tpl->parse(q{{% &if_exists($zero, 'exists', 'not exists')%}});
+        my $parsed6 = $tpl->parse(q{{% &if($zero, 'exists', 'not exists')%}});
         is($parsed6, 'not exists');
     }
     

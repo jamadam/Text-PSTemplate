@@ -19,8 +19,8 @@ no warnings 'recursion';
     
     my %arg_name_tbl = (
         'mother'            => $ARG_MOTHER,
-        'delimiter_left'    => $ARG_DELIMITER_LEFT,
-        'delimiter_right'   => $ARG_DELIMITER_RIGHT,
+        #'delimiter_left'    => $ARG_DELIMITER_LEFT,
+        #'delimiter_right'   => $ARG_DELIMITER_RIGHT,
         'encoding'          => $ARG_ENCODING,
         'nonexist'          => $ARG_NONEXIST,
         'recur_limit'       => $ARG_RECUR_LIMIT,
