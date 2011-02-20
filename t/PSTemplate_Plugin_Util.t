@@ -129,3 +129,39 @@ use Data::Dumper;
         my $parsed3 = $tpl->parse(q{{% &tpl_switch($some_var3,{1 => '', 2 => ''})%}});
         is($parsed3, '');
     }
+    
+    sub substr : Test(2) {
+        
+        my $tpl = Text::PSTemplate::Plugable->new;
+        
+        $tpl->set_var(
+            some_var1 => '1',
+            some_var2 => '2',
+            some_var3 => '3',
+            null_string => '',
+            zero => 0,
+        );
+        my $parsed1 = $tpl->parse(q{{% &substr('abcde', 0, 2)%}});
+        is($parsed1, 'ab');
+        my $parsed2 = $tpl->parse(q{{% &substr('abcde', 0, 2, '..')%}});
+        is($parsed2, 'ab..');
+    }
+    
+    sub each : Test(4) {
+        
+        my $tpl = Text::PSTemplate::Plugable->new;
+        
+        $tpl->set_var(
+            array => [1,2,3,4],
+            hash => {a => 1, b => 2},
+            zero => 0,
+        );
+        my $parsed1 = $tpl->parse(q{{% &each($array, 'name')<<EOF%}{%$name%}{%EOF%}});
+        is($parsed1, '1234');
+        my $parsed2 = $tpl->parse(q{{% &each($array, 'key' => 'value')<<EOF%}{%$key%}{%$value%}{%EOF%}});
+        is($parsed2, '01122334');
+        my $parsed3 = $tpl->parse(q{{% &each($hash, 'name')<<EOF%}{%$name%}{%EOF%}});
+        is($parsed3, '12');
+        my $parsed4 = $tpl->parse(q{{% &each($hash, 'key' => 'value')<<EOF%}{%$key%}{%$value%}{%EOF%}});
+        is($parsed4, 'a1b2');
+    }

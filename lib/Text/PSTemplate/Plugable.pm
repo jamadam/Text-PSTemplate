@@ -77,10 +77,17 @@ Text::PSTemplate::Plugable - Plugable template engine
 
     use Text::PSTemplate::Plugable;
     
-    my $tpl = tplText::PSTemplate::Plugable->new;
-    $tpl->plug(['MyPlug1', ...]);
+    my $tpl = Text::PSTemplate::Plugable->new;
+    
+    $tpl->plug(['MyPlug1', 'MyPlug2' ...]);
+    # or..
+    $tpl->plug('MyPlug1','My::Name::Space');
+    $tpl->plug('MyPlug2','My::Name::Space');
+    #...
+    
     $tpl->set_namespace_base('Foo::Bar');
     $tpl->set_default_plugin('Foo::Bar');
+    
     $tpl->parse('...{%&say_hello_to('Kenji')%}...');
     
     package MyPlug1;
@@ -99,7 +106,14 @@ This extends some feature to Text::PSTemplate plugable.
 
 =head1 METHODS
 
-=head2 $instance->plug
+=head2 Text:PSTemplate::Plugable->new(%args)
+
+Constractor. This only does SUPER::new and loads some core plugins. See also
+new constractor of L<Text:PSTemplate>.
+
+    my $template = Text:PSTemplate::Plugable->new();
+
+=head2 $instance->plug($array_ref, $namespace)
 
 This method adds some controll structures into your PSTemplate instance.
 
@@ -107,7 +121,7 @@ This method adds some controll structures into your PSTemplate instance.
 
 The plugins will available as follows.
 
-    {% &Plug::To::SomePlugin::some_function(...) %}
+    {% &Path::To::SomePlugin::some_function(...) %}
 
 Or you can set an alias name as follows.
 
@@ -121,10 +135,6 @@ You can marge plugins into single namespace.
 
     $instance->plug(['Plugin1','Plugin2',...], 'MyNamespace');
 
-=head2 new
-
-=head2 $instance->get_as($plug_id)
-
 =head2 $instance->get_base($plug_id) [experimental];
 
 =head2 $instance->set_namespace_base [experimental]
@@ -136,6 +146,11 @@ can call as just func(). Also, A::B::C::func() is active as C::func().
 =head2 $instance->set_default_plugin [experimental]
 
 Default plugin setting causes the fucntions can be called as &::func() style.
+
+=head2 $instance->get_as($plug_id)
+
+This method returns the namespace for the plugin. Since it's just to be called
+from PluginBase abstract class, you don't warry about it.
 
 =head1 AUTHOR
 

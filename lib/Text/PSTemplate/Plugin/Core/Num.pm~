@@ -7,7 +7,7 @@ use Text::PSTemplate;
 our $VERSION = '0.01';
     
     ### ---
-	### Conver to comma separated number
+    ### ”’l‚ğ3Œ…‚²‚Æ‚ÉƒJƒ“ƒ}‹æØ‚è‚É
     ### ---
     sub commify : TplExport {
         

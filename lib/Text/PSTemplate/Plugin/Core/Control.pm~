@@ -192,58 +192,17 @@ our $VERSION = '0.01';
     }
 	
 	### ---
-	### Substr
+	### •¶Žš—ñ‚ÌŽw’è•¶Žš”ˆÈ‰º‚ðÈ—ª
 	### ---
-	sub each : TplExport {
-		
-		my ($self, $data, $asign1, $asign2) = @_;
-		
-		my $tplstr = Text::PSTemplate::inline_data(0);
-		my $tpl = Text::PSTemplate->new;
-		my $out = '';
-		if (ref $data eq 'ARRAY') {
-			if (scalar @_ == 3) {
-				for my $val (@$data) {
-					$tpl->set_var($asign1 => $val);
-					$out .= $tpl->parse($tplstr);
-				}
-			} elsif (scalar @_ == 4) {
-				my $idx = 0;
-				for my $val (@$data) {
-					$tpl->set_var($asign1 => $idx++);
-					$tpl->set_var($asign2 => $val);
-					$out .= $tpl->parse($tplstr);
-				}
-			}
-		} elsif (ref $data eq 'HASH') {
-			if (scalar @_ == 3) {
-				while (my ($key, $value) = each(%$data)) {
-					$tpl->set_var($asign1 => $value);
-					$out .= $tpl->parse($tplstr);
-				}
-			} elsif (scalar @_ == 4) {
-				while (my ($key, $value) = each(%$data)) {
-					$tpl->set_var($asign1 => $key);
-					$tpl->set_var($asign2 => $value);
-					$out .= $tpl->parse($tplstr);
-				}
-			}
-		}
-		return $out;
-	}
-	
-	### ---
-	### Substr
-	### ---
-	sub substr : TplExport {
+	sub clip : TplExport {
 		
 		my ($self, $target, $start, $length, $alter) = @_;
 		
 		defined $target or return '';
 		
 		my $output = substr($target, $start, $length);
-		
-		if ($alter && length($target) != length($output)) {
+		warn 'a';
+		if (length($target) != length($output)) {
 			$output .= $alter;
 		}
 		return $output;
@@ -275,7 +234,7 @@ Text::PSTemplate::Plugin::Util - Common controll structures
     not true
     {%ELSE%}
     
-    {% &if_in_array($some_var, ['a','b','c'], 'found', 'not found') %}
+    {% &if_in_array($some_var, ['a','b','c'], 'then', 'else') %}
     
     {% &if_in_array($some_var, ['a','b','c'])<<THEN,ELSE %}
     found
@@ -295,24 +254,6 @@ Text::PSTemplate::Plugin::Util - Common controll structures
         a => 'path/to/tpl_a.txt',
         b => 'path/to/tpl_b.txt',
     }, 'path/to/tpl_default.txt) %}
-	
-	{% &substr($some_var, 0, 2, '...') %}
-	
-	{% &each($array_ref, 'name')<<TPL %}
-	This is {%$name%}.
-	{%TPL%}
-
-	{% &each($array_ref, 'index' => 'name')<<TPL %}
-	No.{%$index%} is {%$name%}.
-	{%TPL%}
-
-	{% &each($hash_ref, 'name')<<TPL %}
-	This is {%$name%}.
-	{%TPL%}
-
-	{% &each($has_href, 'key' => 'name')<<TPL %}
-	Key '{%$key%}' contains {%$name%}.
-	{%TPL%}
 
 =head1 DESCRIPTION
 
@@ -348,9 +289,7 @@ To activate this plugin, your template have to load it as follows
 
 =head2 if_env_like
 
-=head2 each
-
-=head2 substr
+=head2 clip
 
 =head2 if_like
 
