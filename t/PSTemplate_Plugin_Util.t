@@ -147,13 +147,14 @@ use Data::Dumper;
         is($parsed2, 'ab..');
     }
     
-    sub each : Test(4) {
+    sub each : Test(5) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
         
         $tpl->set_var(
             array => [1,2,3,4],
             hash => {a => 1, b => 2},
+            scalar => 1,
             zero => 0,
         );
         my $parsed1 = $tpl->parse(q{{% &each($array, 'name')<<EOF%}{%$name%}{%EOF%}});
@@ -164,4 +165,6 @@ use Data::Dumper;
         is($parsed3, '12');
         my $parsed4 = $tpl->parse(q{{% &each($hash, 'key' => 'value')<<EOF%}{%$key%}{%$value%}{%EOF%}});
         is($parsed4, 'a1b2');
+        my $parsed4 = $tpl->parse(q{{% &each($scalar, 'key' => 'value')<<EOF%}{%$key%}{%$value%}{%EOF%}});
+        is($parsed4, '01');
     }

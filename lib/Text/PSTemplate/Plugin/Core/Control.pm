@@ -200,6 +200,11 @@ our $VERSION = '0.01';
         
         my $tplstr = Text::PSTemplate::inline_data(0);
         my $tpl = Text::PSTemplate->new;
+		
+		if (! ref $data) {
+			$data = [$data];
+		}
+		
         my $out = '';
         if (ref $data eq 'ARRAY') {
             if (scalar @_ == 3) {
@@ -285,11 +290,13 @@ Text::PSTemplate::Plugin::Util - Common controll structures
     
     {% &switch($some_var, {a => 'match a', b => 'match b'}, 'default') %}
     
-    {% &switch($some_var, ['a', 'b'])<<CASE1,CASE2 %}
+    {% &switch($some_var, ['a', 'b'])<<CASE1,CASE2,DEFAULT %}
     match a
     {%CASE1%}
     match b
     {%CASE2%}
+    default
+    {%DEFAULT%}
     
     {% &tpl_switch($some_var, {
         a => 'path/to/tpl_a.txt',
