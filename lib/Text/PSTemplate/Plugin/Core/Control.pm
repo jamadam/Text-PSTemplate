@@ -200,11 +200,11 @@ our $VERSION = '0.01';
         
         my $tplstr = Text::PSTemplate::inline_data(0);
         my $tpl = Text::PSTemplate->new;
-		
-		if (! ref $data) {
-			$data = [$data];
-		}
-		
+        
+        if (! ref $data) {
+            $data = [$data];
+        }
+        
         my $out = '';
         if (ref $data eq 'ARRAY') {
             if (scalar @_ == 3) {
@@ -334,32 +334,126 @@ To activate this plugin, your template have to load it as follows
     my $tpl = Text::PSTemplate::Plugable->new;
     $tpl->plug('Text::PSTemplate::Plugin::Util', '');
 
+Since this has promoted to core plugin, you don't have to explicitly load it.
 
 =head1 TEMPLATE FUNCTIONS
 
-=head2 if_equals
+Note that this document contains many keywords for specifing block endings such
+as THEN or ELSE etc. These keywords are just a example. As the matter of
+fact, you can say 'EOF' for all of them. The template engine only matters
+the order of BLOCKs. So do not memorize any of them. 
 
-=head2 if
+=head2 &if_equals($var, $case, $then, [$else])
 
-=head2 if_in_array
+=head2 &if_equals($var, $case)<<THEN[,ELSE]
 
-=head2 switch
+Conditional branch. If $var equals to $case, $then is returned. Otherwise
+returns $else. $else if optional.
 
-=head2 tpl_switch
+    {% &if_equals($a, '1', 'matched') %}
 
-=head2 env
+Instead of arguments, you can pass 1 or 2 blocks for each conditions. The blocks
+will be parsed as template.
 
-=head2 if_env
+    {% &if_equals($a, '1')<<THEN %}
+        This is {% &escape_or_something($a) %}.
+    {%THEN%}
 
-=head2 if_env_equals
+=head2 &if($var, $then, [$else])
 
-=head2 if_env_like
+=head2 &if($var)<<THEN[,ELSE]
 
-=head2 each
+Conditional branch. If $var is a true value, returns $then. Otherwise returns
+$else. The true means 'not 0' and 'not 0 length'. The exact definition about
+true, see documents of perl itself. 
 
-=head2 substr
+    {% if($var, 'true', 'not true') %}
 
-=head2 if_like
+For more about Block syntax, See if_equals function.
+
+    {% if($var)<<THEN,ELSE %}
+        This is {% &escape_or_something_if_you_need($var) %}.
+    {%THEN%}
+        not true
+    {%ELSE%}
+
+=head2 &if_in_array($var, $array_ref, $then, [$else])
+
+=head2 &if_in_array($var, $array_ref)<<THEN[,ELSE]
+
+Conditional branch for searching in array. If $var is in the array, returns
+$then, otherwize returns $else.
+
+    {% if_in_array($var, [1,2,3,'a'], 'found', 'not found') %}
+
+Block syntax is also available.
+
+    {% if_in_array($var, [1,2,3,'a'])<<THEN,ELSE %}
+        Found {% &escape_or_something_if_you_need($var) %}.
+    {%THEN%}
+        Not found
+    {%ELSE%}
+
+=head2 &switch($var, $hash_ref, [$default])
+
+=head2 &switch($var, $array_ref, [$default])<<CASE1,CASE2,...
+
+Conditional branch for switching many cases.
+
+    &switch($var, {1 => 'case1', 2 => 'case2'}, 'default')
+
+Block syntax is also available.
+
+    &switch($var, [1, 2])<<CASE1,CASE2,DEFAULT %}
+        case1
+    {%CASE1%}
+        case2 {% &escape_or_something_if_you_need($var) %}
+    {%CASE2%}
+        default
+    {%DEFAULT%}
+
+=head2 &tpl_switch($var, $hash_ref)
+
+Conditional branch for switching many cases. This function parses file templates
+for each cases and returns the parsed string.
+
+=head2 &if_like($var, $pattern, $then, $else)
+
+=head2 &if_like($var, $pattern)<<THEN,ELSE
+
+Not written yet.
+
+=head2 &env($name)
+
+Not written yet.
+
+=head2 &if_env($name, $then, $else)
+
+=head2 &if_env($name)<<THEN,ELSE
+
+Not written yet.
+
+=head2 &if_env_equals($name, $then, $else)
+
+=head2 &if_env_equals($name)<<THEN,ELSE
+
+Not written yet.
+
+=head2 &if_env_like($name, $pattern, $then, $else)
+
+=head2 &if_env_like($name, $pattern)<<THEN,ELSE
+
+Not written yet.
+
+=head2 &each($var, $value)<<TPL
+
+=head2 &each($var, $key => $value)<<TPL
+
+Not written yet.
+
+=head2 &substr($var, $start, [$length, $alterative])
+
+Not written yet.
 
 =head1 AUTHOR
 
