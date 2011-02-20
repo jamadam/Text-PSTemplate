@@ -50,14 +50,14 @@ our $VERSION = '0.01';
             no strict 'refs';
             for my $pkg (Class::C3::calculateMRO(ref $self)) {
                 if ($pkg eq __PACKAGE__) {
-                    return undef;
+                    return;
                 }
                 my $ret = $pkg->new->{ini}->{$name};
                 if (defined $ret) {
                     return $ret;
                 }
             }
-            return undef;
+            return;
         }
     }
     

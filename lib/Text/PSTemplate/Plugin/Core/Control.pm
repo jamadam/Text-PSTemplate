@@ -190,6 +190,23 @@ our $VERSION = '0.01';
         my ($self, $key, @args) = @_;
 		return $self->if_like($ENV{$key}, @args);
     }
+	
+	### ---
+	### •¶š—ñ‚Ìw’è•¶š”ˆÈ‰º‚ğÈ—ª
+	### ---
+	sub clip : TplExport {
+		
+		my ($self, $target, $start, $length, $alter) = @_;
+		
+		defined $target or return '';
+		
+		my $output = substr($target, $start, $length);
+		warn 'a';
+		if (length($target) != length($output)) {
+			$output .= $alter;
+		}
+		return $output;
+	}
 
 1;
 
@@ -258,8 +275,6 @@ To activate this plugin, your template have to load it as follows
 
 =head2 if
 
-=head2 if_like
-
 =head2 if_in_array
 
 =head2 switch
@@ -273,6 +288,10 @@ To activate this plugin, your template have to load it as follows
 =head2 if_env_equals
 
 =head2 if_env_like
+
+=head2 clip
+
+=head2 if_like
 
 =head1 AUTHOR
 
