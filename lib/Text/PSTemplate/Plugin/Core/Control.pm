@@ -5,7 +5,7 @@ use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
 
 our $VERSION = '0.01';
-	
+    
     ### ---
     ### Parse inline template if the variable is in array
     ### ---
@@ -30,7 +30,7 @@ our $VERSION = '0.01';
         }
         return;
     }
-	
+    
     ### ---
     ### Parse inline template if the variable equals to value
     ### ---
@@ -154,7 +154,7 @@ our $VERSION = '0.01';
         }
         return;
     }
-	
+    
     ### ---
     ### Get Environment variable
     ### ---
@@ -163,91 +163,91 @@ our $VERSION = '0.01';
         my ($self, $key) = @_;
         return $ENV{$key};
     }
-	
+    
     ### ---
     ### Get Environment variable
     ### ---
     sub if_env : TplExport {
         
         my ($self, $key, @args) = @_;
-		return $self->if($ENV{$key}, @args);
+        return $self->if($ENV{$key}, @args);
     }
-	
+    
     ### ---
     ### Get Environment variable
     ### ---
     sub if_env_equals : TplExport {
         
         my ($self, $key, @args) = @_;
-		return $self->if_equals($ENV{$key}, @args);
+        return $self->if_equals($ENV{$key}, @args);
     }
-	
+    
     ### ---
     ### Get Environment variable
     ### ---
     sub if_env_like : TplExport {
         
         my ($self, $key, @args) = @_;
-		return $self->if_like($ENV{$key}, @args);
+        return $self->if_like($ENV{$key}, @args);
     }
-	
-	### ---
-	### Substr
-	### ---
-	sub each : TplExport {
-		
-		my ($self, $data, $asign1, $asign2) = @_;
-		
-		my $tplstr = Text::PSTemplate::inline_data(0);
-		my $tpl = Text::PSTemplate->new;
-		my $out = '';
-		if (ref $data eq 'ARRAY') {
-			if (scalar @_ == 3) {
-				for my $val (@$data) {
-					$tpl->set_var($asign1 => $val);
-					$out .= $tpl->parse($tplstr);
-				}
-			} elsif (scalar @_ == 4) {
-				my $idx = 0;
-				for my $val (@$data) {
-					$tpl->set_var($asign1 => $idx++);
-					$tpl->set_var($asign2 => $val);
-					$out .= $tpl->parse($tplstr);
-				}
-			}
-		} elsif (ref $data eq 'HASH') {
-			if (scalar @_ == 3) {
-				while (my ($key, $value) = each(%$data)) {
-					$tpl->set_var($asign1 => $value);
-					$out .= $tpl->parse($tplstr);
-				}
-			} elsif (scalar @_ == 4) {
-				while (my ($key, $value) = each(%$data)) {
-					$tpl->set_var($asign1 => $key);
-					$tpl->set_var($asign2 => $value);
-					$out .= $tpl->parse($tplstr);
-				}
-			}
-		}
-		return $out;
-	}
-	
-	### ---
-	### Substr
-	### ---
-	sub substr : TplExport {
-		
-		my ($self, $target, $start, $length, $alter) = @_;
-		
-		defined $target or return '';
-		
-		my $output = substr($target, $start, $length);
-		
-		if ($alter && length($target) != length($output)) {
-			$output .= $alter;
-		}
-		return $output;
-	}
+    
+    ### ---
+    ### Substr
+    ### ---
+    sub each : TplExport {
+        
+        my ($self, $data, $asign1, $asign2) = @_;
+        
+        my $tplstr = Text::PSTemplate::inline_data(0);
+        my $tpl = Text::PSTemplate->new;
+        my $out = '';
+        if (ref $data eq 'ARRAY') {
+            if (scalar @_ == 3) {
+                for my $val (@$data) {
+                    $tpl->set_var($asign1 => $val);
+                    $out .= $tpl->parse($tplstr);
+                }
+            } elsif (scalar @_ == 4) {
+                my $idx = 0;
+                for my $val (@$data) {
+                    $tpl->set_var($asign1 => $idx++);
+                    $tpl->set_var($asign2 => $val);
+                    $out .= $tpl->parse($tplstr);
+                }
+            }
+        } elsif (ref $data eq 'HASH') {
+            if (scalar @_ == 3) {
+                while (my ($key, $value) = each(%$data)) {
+                    $tpl->set_var($asign1 => $value);
+                    $out .= $tpl->parse($tplstr);
+                }
+            } elsif (scalar @_ == 4) {
+                while (my ($key, $value) = each(%$data)) {
+                    $tpl->set_var($asign1 => $key);
+                    $tpl->set_var($asign2 => $value);
+                    $out .= $tpl->parse($tplstr);
+                }
+            }
+        }
+        return $out;
+    }
+    
+    ### ---
+    ### Substr
+    ### ---
+    sub substr : TplExport {
+        
+        my ($self, $target, $start, $length, $alter) = @_;
+        
+        defined $target or return '';
+        
+        my $output = substr($target, $start, $length);
+        
+        if ($alter && length($target) != length($output)) {
+            $output .= $alter;
+        }
+        return $output;
+    }
 
 1;
 
@@ -295,24 +295,24 @@ Text::PSTemplate::Plugin::Util - Common controll structures
         a => 'path/to/tpl_a.txt',
         b => 'path/to/tpl_b.txt',
     }, 'path/to/tpl_default.txt) %}
-	
-	{% &substr($some_var, 0, 2, '...') %}
-	
-	{% &each($array_ref, 'name')<<TPL %}
-	This is {%$name%}.
-	{%TPL%}
+    
+    {% &substr($some_var, 0, 2, '...') %}
+    
+    {% &each($array_ref, 'name')<<TPL %}
+    This is {%$name%}.
+    {%TPL%}
 
-	{% &each($array_ref, 'index' => 'name')<<TPL %}
-	No.{%$index%} is {%$name%}.
-	{%TPL%}
+    {% &each($array_ref, 'index' => 'name')<<TPL %}
+    No.{%$index%} is {%$name%}.
+    {%TPL%}
 
-	{% &each($hash_ref, 'name')<<TPL %}
-	This is {%$name%}.
-	{%TPL%}
+    {% &each($hash_ref, 'name')<<TPL %}
+    This is {%$name%}.
+    {%TPL%}
 
-	{% &each($has_href, 'key' => 'name')<<TPL %}
-	Key '{%$key%}' contains {%$name%}.
-	{%TPL%}
+    {% &each($has_href, 'key' => 'name')<<TPL %}
+    Key '{%$key%}' contains {%$name%}.
+    {%TPL%}
 
 =head1 DESCRIPTION
 
