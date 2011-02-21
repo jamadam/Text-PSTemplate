@@ -222,7 +222,7 @@ no warnings 'recursion';
         } else {
             my %args = (@_);
             if ($args{file}) {
-                $str = $self->_get_file($args{file});
+                $str = $self->get_file($args{file});
                 $Text::PSTemplate::file = $args{file};
             } elsif ($Text::PSTemplate::inline_data) {
                 $str = shift @{Text::PSTemplate->inline_data};
@@ -321,7 +321,7 @@ no warnings 'recursion';
     ### ---
     ### Get template from a file
     ### ---
-    sub _get_file {
+    sub get_file {
         
         my ($self, $name) = (@_);
         my $encode = $self->get_param($ARG_ENCODING);
@@ -570,6 +570,8 @@ Template Parse.
     $tpl->parse()
 
 =head2 $instance->new_sub_template(%params);
+
+=head2 $instance->get_file($name);
 
 =head1 TEXT::PSTemplate::Exception CLASS
 
