@@ -50,7 +50,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
 		my $e = sub {'hoge'};
-		$tpl->set_param(nonexist => $e);
+        $tpl->set_exception($e);
 		eval {
 			$tpl->parse(q[{%&hoge()%}])
 		};
@@ -67,7 +67,7 @@ use Data::Dumper;
 				. '\\'. $line
 				. $self->get_delimiter(1);
 		};
-		$tpl->set_param(nonexist => $e);
+        $tpl->set_exception($e);
 		my $parsed = eval {
 			$tpl->parse(q[{%&hoge()%}])
 		};

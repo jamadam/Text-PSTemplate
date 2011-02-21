@@ -4,11 +4,12 @@ use warnings;
 use Carp;
 use base qw(Text::PSTemplate);
 use Text::PSTemplate::PluginBase;
-use Text::PSTemplate::Plugin::Core::Control;
-use Text::PSTemplate::Plugin::Core::Num;
+use Text::PSTemplate::Plugin::Control;
+use Text::PSTemplate::Plugin::Num;
+use Text::PSTemplate::Plugin::Env;
 
 our $VERSION = '0.01';
-our @CORE_LIST = qw(Control Num);
+our @CORE_LIST = qw(Control Num Env);
 
 	sub new {
 		
@@ -16,7 +17,7 @@ our @CORE_LIST = qw(Control Num);
 		my $tpl = bless $class->SUPER::new(@_), $class;
 		
 		for my $name (@CORE_LIST) {
-			$tpl->plug('Text::PSTemplate::Plugin::Core::'. $name, '');
+			$tpl->plug('Text::PSTemplate::Plugin::'. $name, '');
 		}
 		
 		return $tpl;

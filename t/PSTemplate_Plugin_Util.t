@@ -165,6 +165,6 @@ use Data::Dumper;
         is($parsed3, '12');
         my $parsed4 = $tpl->parse(q{{% &each($hash, 'key' => 'value')<<EOF%}{%$key%}{%$value%}{%EOF%}});
         is($parsed4, 'a1b2');
-        my $parsed4 = $tpl->parse(q{{% &each($scalar, 'key' => 'value')<<EOF%}{%$key%}{%$value%}{%EOF%}});
-        is($parsed4, '01');
+        my $parsed5 = $tpl->parse(q{{% &each($scalar, 'key' => 'value')<<EOF%}{%$key%}{%$value%}{%EOF%}});
+        is($parsed5, '01');
     }

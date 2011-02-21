@@ -12,15 +12,16 @@ use Data::Dumper;
     sub recuresion_limit_custom2 : Test(4) {
         
         my $tpl01 = Text::PSTemplate->new();
-        my $tpl02 = eval {Text::PSTemplate->new(mother => $tpl01)};
-        my $tpl03 = eval {Text::PSTemplate->new(mother => $tpl02, recur_limit => 2)};
+        my $tpl02 = eval {Text::PSTemplate->new($tpl01)};
+        my $tpl03 = eval {Text::PSTemplate->new($tpl02)};
+        $tpl03->set_recur_limit(2);
         is($@, '');
-        my $tpl04 = eval {Text::PSTemplate->new(mother => $tpl03)};
+        my $tpl04 = eval {Text::PSTemplate->new($tpl03)};
         like($@, qr/Deep Recursion/);
 
-        my $tpl05 = eval {Text::PSTemplate->new(mother => $tpl02)};
+        my $tpl05 = eval {Text::PSTemplate->new($tpl02)};
         is($@, '');
-        my $tpl06 = eval {Text::PSTemplate->new(mother => $tpl05)};
+        my $tpl06 = eval {Text::PSTemplate->new($tpl05)};
         is($@, '');
     }
     
