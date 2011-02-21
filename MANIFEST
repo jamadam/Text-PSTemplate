@@ -24,6 +24,7 @@ t/perlcriticrc
 t/PSTemplate_Plugin_Util.t
 t/template/Template_basic2.txt
 t/template/Template_basic2_2.txt
+t/template/Template_filename_trans.txt
 t/template/Template_Plugin_Util.txt
 t/Template_basic.t
 t/Template_basic2.t
@@ -32,6 +33,7 @@ t/Template_deep_recursion.t
 t/Template_deep_recursion2.t
 t/Template_escaping.t
 t/Template_escaping2.t
+t/Template_filename_trans.t
 t/Template_plugable_basic.t
 t/Template_plugable_basic2.t
 t/Template_plugable_basic3.t

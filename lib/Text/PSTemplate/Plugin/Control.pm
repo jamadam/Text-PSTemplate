@@ -217,7 +217,6 @@ our $VERSION = '0.01';
         }
         return $output;
     }
-<<<<<<< HEAD:lib/Text/PSTemplate/Plugin/Control.pm
     
     ### ---
     ### Do nothing and returns null string
@@ -229,8 +228,6 @@ our $VERSION = '0.01';
         
         return '';
     }
-=======
->>>>>>> 13f24a7b889a47ef288e93565308553303496d4e:lib/Text/PSTemplate/Plugin/Control.pm
 
 1;
 
@@ -411,7 +408,6 @@ Not written yet.
 
 Not written yet.
 
-<<<<<<< HEAD:lib/Text/PSTemplate/Plugin/Control.pm
 =head2 &bypass('')
 
 This function do nothing and returns null string.
@@ -424,8 +420,6 @@ PSTemplate parses above as..
 
     <!--  -->
 
-=======
->>>>>>> 13f24a7b889a47ef288e93565308553303496d4e:lib/Text/PSTemplate/Plugin/Control.pm
 =head1 AUTHOR
 
 Sugama Keita, E<lt>sugama@jamadam.comE<gt>

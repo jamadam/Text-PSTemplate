@@ -15,6 +15,7 @@ no warnings 'recursion';
     my $ARG_RECUR_LIMIT     = 6;
     my $ARG_FUNC            = 7;
     my $ARG_VAR             = 8;
+    my $ARG_FILENAME_TRANS  = 9;
     
     ### ---
     ### constractor
@@ -45,6 +46,15 @@ no warnings 'recursion';
             croak 'Deep Recursion over '. $self->get_param($ARG_RECUR_LIMIT);
         }
         return $self;
+    }
+    
+    ### ---
+    ### Set file name transform callback
+    ### ---
+    sub set_filename_trans_coderef {
+        
+        my ($self, $coderef) = @_;
+        $self->{$ARG_FILENAME_TRANS} = $coderef;
     }
     
     ### ---
@@ -324,6 +334,12 @@ no warnings 'recursion';
     sub get_file {
         
         my ($self, $name) = (@_);
+        
+        my $file_name_trans_code = $self->get_param($ARG_FILENAME_TRANS);
+        if (ref $file_name_trans_code eq 'CODE') {
+            $name = $file_name_trans_code->($name);
+        }
+        
         my $encode = $self->get_param($ARG_ENCODING);
         my $fh;
         
@@ -571,7 +587,33 @@ Template Parse.
 
 =head2 $instance->new_sub_template(%params);
 
-=head2 $instance->get_file($name);
+=head2 $instance->get_file($name)
+
+=head2 $instance->set_filename_trans_coderef($code_ref)
+
+This method sets a callback subroutine which defines a translating rule for file
+name.
+
+This example sets the base template directory.
+
+    $trans = sub {
+        my $name = shift;
+        return '/path/to/template/base/directory'. $name;
+    }
+    $tpl->set_filename_trans_coderef($trans)
+
+This example allows common extension to be ommited.
+
+    $trans = sub {
+        my $name = shift;
+        if ($name !~ /\./) {
+            return $name . '.html'
+        }
+        return $name;
+    }
+    $tpl->set_filename_trans_coderef($trans)
+
+This also let you set a default template in case the template not found.
 
 =head1 TEXT::PSTemplate::Exception CLASS
 
