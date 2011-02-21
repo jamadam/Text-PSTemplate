@@ -16,7 +16,7 @@ HTML example
             {% &import('path/to/heder.html', {title => $title}) %}
         </div>
         <div>
-            {% &if_equals($some_var, 'hoge')<<THEN %}
+            {% &if_equals($some_var, 'hoge')<<THEN,ELSE %}
                 {% $some_var %} is hoge
             {%THEN%}
                 {% $some_var %} is something else
