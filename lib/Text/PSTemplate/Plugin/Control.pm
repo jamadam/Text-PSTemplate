@@ -217,6 +217,17 @@ our $VERSION = '0.01';
         }
         return $output;
     }
+    
+    ### ---
+    ### Do nothing and returns null string
+    ### <!-- {%&bypass(' -->
+    ### <base href="../">
+    ### <!-- ')%} -->
+    ### ---
+    sub bypass : TplExport {
+        
+        return '';
+    }
 
 1;
 
@@ -396,6 +407,18 @@ Not written yet.
 =head2 &substr($var, $start, [$length, $alterative])
 
 Not written yet.
+
+=head2 &bypass('')
+
+This function do nothing and returns null string.
+
+    <!-- {%&bypass(' -->
+    <base href="../">
+    <!-- ')%} -->
+
+PSTemplate parses above as..
+
+    <!--  -->
 
 =head1 AUTHOR
 
