@@ -232,8 +232,13 @@ no warnings 'recursion';
         } else {
             my %args = (@_);
             if ($args{file}) {
-                $str = $self->get_file($args{file});
-                $Text::PSTemplate::file = $args{file};
+                my $name = $args{file};
+                my $file_name_trans_code = $self->get_param($ARG_FILENAME_TRANS);
+                if (ref $file_name_trans_code eq 'CODE') {
+                    $name = $file_name_trans_code->($name);
+                }
+                $str = $self->get_file($name, 1);
+                $Text::PSTemplate::file = $name;
             } elsif ($Text::PSTemplate::inline_data) {
                 $str = shift @{Text::PSTemplate->inline_data};
             } else {
@@ -333,11 +338,13 @@ no warnings 'recursion';
     ### ---
     sub get_file {
         
-        my ($self, $name) = (@_);
+        my ($self, $name, $no_translate) = (@_);
         
-        my $file_name_trans_code = $self->get_param($ARG_FILENAME_TRANS);
-        if (ref $file_name_trans_code eq 'CODE') {
-            $name = $file_name_trans_code->($name);
+        if (! $no_translate) {
+            my $file_name_trans_code = $self->get_param($ARG_FILENAME_TRANS);
+            if (ref $file_name_trans_code eq 'CODE') {
+                $name = $file_name_trans_code->($name);
+            }
         }
         
         my $encode = $self->get_param($ARG_ENCODING);
@@ -587,7 +594,11 @@ Template Parse.
 
 =head2 $instance->new_sub_template(%params);
 
-=head2 $instance->get_file($name)
+=head2 $instance->get_file($name, $no_translate)
+
+This returns the file content of given name. This method translate the file name
+translation with code reference if a code has been set beforehand. If
+$no_translate is false this translation will not occures.
 
 =head2 $instance->set_filename_trans_coderef($code_ref)
 
