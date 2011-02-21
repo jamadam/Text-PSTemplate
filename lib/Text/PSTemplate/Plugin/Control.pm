@@ -228,6 +228,19 @@ our $VERSION = '0.01';
         
         return '';
     }
+    
+    sub include : TplExport {
+        
+        my ($self, $file, $vars) = @_;
+        my $tpl = Text::PSTemplate->new;
+        $tpl->set_var(%$vars);
+        my $output = eval {$tpl->parse(file => $file)};
+        if ($@) {
+            #$tpl->err->stack($@);
+            #$tpl->err->stack($@, qq!template "$args{tpl}"!);
+        }
+        return $output;
+    }
 
 1;
 
@@ -419,6 +432,10 @@ This function do nothing and returns null string.
 PSTemplate parses above as..
 
     <!--  -->
+
+=head2 &include(FILENAME, [VARIABLES]) [EXPERIMENTAL]
+
+This function include a file content of given name into current template.
 
 =head1 AUTHOR
 
