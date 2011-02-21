@@ -1,9 +1,8 @@
 package Text::PSTemplate;
-
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 use 5.005;
 use Carp;
 no warnings 'recursion';
@@ -17,39 +16,27 @@ no warnings 'recursion';
     my $ARG_FUNC            = 7;
     my $ARG_VAR             = 8;
     
-    my %arg_name_tbl = (
-        'mother'            => $ARG_MOTHER,
-        #'delimiter_left'    => $ARG_DELIMITER_LEFT,
-        #'delimiter_right'   => $ARG_DELIMITER_RIGHT,
-        'encoding'          => $ARG_ENCODING,
-        'nonexist'          => $ARG_NONEXIST,
-        'recur_limit'       => $ARG_RECUR_LIMIT,
-    );
-    
     ### ---
     ### constractor
     ### ---
     sub new {
         
-        my $class = shift;
+        my ($class, $mother) = @_;
+        if (scalar @_ == 1) {
+            $mother = $Text::PSTemplate::self || undef;
+        }
         my $self = {
-            $ARG_MOTHER      => ($Text::PSTemplate::self || undef), 
-            $ARG_NONEXIST    => undef, 
-            $ARG_ENCODING    => undef,
-            $ARG_RECUR_LIMIT => undef,
+            $ARG_MOTHER      => $mother, 
             $ARG_FUNC        => {},
             $ARG_VAR         => {},
         };
-        while ((my $a = shift) && (my $b = shift)) {
-            $self->{$arg_name_tbl{$a}} = $b;
-        }
         
         bless $self, $class;
         
         if (! defined $self->{$ARG_MOTHER}) {
             $self->{$ARG_ENCODING}          ||= 'utf8';
             $self->{$ARG_RECUR_LIMIT}       ||= 10;
-            $self->{$ARG_NONEXIST} 		    ||= \&nonExistDie;
+            $self->{$ARG_NONEXIST}          ||= $Text::PSTemplate::Exception::DIE;
             $self->{$ARG_DELIMITER_LEFT}    ||= '{%';
             $self->{$ARG_DELIMITER_RIGHT}   ||= '%}';
         }
@@ -66,7 +53,7 @@ no warnings 'recursion';
     sub new_sub_template {
         
         my $self = shift;
-        return __PACKAGE__->new(mother => $self, @_);
+        return __PACKAGE__->new($self);
     }
     
     ### ---
@@ -98,15 +85,30 @@ no warnings 'recursion';
     }
     
     ### ---
-    ### Set params
+    ### Set Exception
     ### ---
-    sub set_param {
+    sub set_exception {
         
-        my $self = shift;
-        while ((my $a = shift) && (my $b = shift)) {
-            $self->{$arg_name_tbl{$a}} = $b;
-        }
-        return $self;
+        my ($self, $code_ref) = @_;
+        $self->{$ARG_NONEXIST} = $code_ref;
+    }
+    
+    ### ---
+    ### Set Exception
+    ### ---
+    sub set_recur_limit {
+        
+        my ($self, $limit) = @_;
+        $self->{$ARG_RECUR_LIMIT} = $limit;
+    }
+    
+    ### ---
+    ### Set Encoding
+    ### ---
+    sub set_encoding {
+        
+        my ($self, $encoding) = @_;
+        $self->{$ARG_ENCODING} = $encoding;
     }
     
     ### ---
@@ -332,40 +334,11 @@ no warnings 'recursion';
         }
         
         if ($fh and flock($fh, LOCK_EX)) {
-			my $out = do { local $/; <$fh> };
+            my $out = do { local $/; <$fh> };
             close($fh);
             return $out;
         }
         croak "Template '$name' cannot open";
-    }
-    
-    ### ---
-    ### default callback for error handle
-    ### ---
-    sub nonExistNull {
-        
-        return '';
-    }
-    
-    sub nonExistNoaction {
-        
-        my ($self, $line, $err) = (@_);
-        return 
-            $self->get_param($ARG_DELIMITER_LEFT)
-            . '\\'. $line
-            . $self->get_param($ARG_DELIMITER_RIGHT);
-    }
-    
-    sub nonExistDie {
-        
-        my ($self, $line, $err) = (@_);
-        if ($err) {
-            if ($err =~ /as a subroutine/) {
-                croak "Cannot parse template line($line)";
-            }
-            croak "$err This error was in eval($line)";
-        }
-        croak "Error occured in eval($line)";
     }
     
     ### ---
@@ -380,6 +353,42 @@ no warnings 'recursion';
         }
         return 0;
     }
+
+package Text::PSTemplate::Exception;
+use strict;
+use warnings;
+use Carp;
+    
+    ### ---
+    ### return null string
+    ### ---
+    our $NULL = sub {
+        return sub{''};
+    };
+    
+    ### ---
+    ### returns template tag itself
+    ### ---
+    our $NO_ACTION = sub {
+        my ($self, $line, $err) = (@_);
+        my $delim_l = Text::PSTemplate->mother->get_delimiter(0);
+        my $delim_r = Text::PSTemplate->mother->get_delimiter(1);
+        return $delim_l. '\\'. $line. $delim_r;
+    };
+    
+    ### ---
+    ### returns nothing and just die;
+    ### ---
+    our $DIE = sub {
+        my ($self, $line, $err) = (@_);
+        if ($err) {
+            if ($err =~ /as a subroutine/) {
+                croak "Cannot parse template line($line)";
+            }
+            croak "$err This error was in eval($line)";
+        }
+        croak "Error occured in eval($line)";
+    };
 
 1;
 
@@ -498,21 +507,11 @@ file, this returns file name.
 This can be called from template function. This Returns inline data specified
 in template
 
-=head2 $instance->set_param(%hash)
+=head2 set_encoding
 
-This can sets following parameters.
+=head2 set_exception
 
-=over
-
-=item mother
-
-=item nonexist
-
-=item encoding 
-
-=item recur_limit
-
-=back
+=head2 set_recur_limit
 
 =head2 $instance->get_param($name)
 
@@ -572,11 +571,13 @@ Template Parse.
 
 =head2 $instance->new_sub_template(%params);
 
-=head2 $instance->nonExistNull
+=head1 TEXT::PSTemplate::Exception CLASS
 
-=head2 $instance->nonExistNoaction
+=head2 $TEXT::PSTemplate::Exception::DIE();
 
-=head2 $instance->nonExistDie
+=head2 $TEXT::PSTemplate::Exception::NULL();
+
+=head2 $TEXT::PSTemplate::Exception::NO_ACTION();
 
 =head1 AUTHOR
 

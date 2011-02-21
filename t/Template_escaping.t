@@ -46,14 +46,16 @@ use Data::Dumper;
     sub error_msg_include_quote : Test {
         
         my $err = sub {q{error at 'hoge' ""}};
-        my $tpl = Text::PSTemplate->new(nonexist => $err);
+        my $tpl = Text::PSTemplate->new;
+        $tpl->set_exception($err);
         my $parsed = $tpl->parse(q!-{%$title%}-!);
         is($parsed, q{-error at 'hoge' ""-});
     }
     
     sub error_msg_include_quote_sub : Test {
         
-        my $tpl = Text::PSTemplate->new(nonexist => sub {q{error at 'hoge' ""}});
+        my $tpl = Text::PSTemplate->new;
+        $tpl->set_exception(sub {q{error at 'hoge' ""}});
         my $parsed = $tpl->parse(q!-{%&title($a)%}-!);
         is($parsed, q{-error at 'hoge' ""-});
     }

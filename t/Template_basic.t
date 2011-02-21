@@ -22,7 +22,7 @@ use Data::Dumper;
         my $tpl = Text::PSTemplate->new();
         is($tpl->get_delimiter(0), '{%');
         is($tpl->get_delimiter(1), '%}');
-        my $tpl2 = Text::PSTemplate->new(mother => $tpl);
+        my $tpl2 = Text::PSTemplate->new($tpl);
         is($tpl2->get_delimiter(0), '{%');
         is($tpl2->get_delimiter(1), '%}');
     }
@@ -55,21 +55,24 @@ use Data::Dumper;
     
     sub var_not_found : Test {
         
-        my $tpl = Text::PSTemplate->new(nonexist => sub {'not found'});
+        my $tpl = Text::PSTemplate->new;
+        $tpl->set_exception(sub {'not found'});
         my $parsed = $tpl->parse(q!{%$title%}!);
         is($parsed, 'not found');
     }
     
     sub var_not_found2 : Test {
         
-        my $tpl = Text::PSTemplate->new(nonexist => sub {$_[1]});
+        my $tpl = Text::PSTemplate->new;
+        $tpl->set_exception(sub {$_[1]});
         my $parsed = $tpl->parse(q!{%$title%}!);
         is($parsed, '$title');
     }
     
     sub var_not_found3 : Test {
         
-        my $tpl = Text::PSTemplate->new(nonexist => sub {''});
+        my $tpl = Text::PSTemplate->new;
+        $tpl->set_exception(sub {''});
         my $parsed = $tpl->parse(q!a{%$title%}b!);
         is($parsed, 'ab');
     }
@@ -93,7 +96,8 @@ EOF
         $tpl->set_func(hello => sub {
             
             my (@array) = @_;
-            my $tpl = Text::PSTemplate->new(nonexist => sub {''});
+            my $tpl = Text::PSTemplate->new;
+            $tpl->set_exception(sub {''});
             is($tpl->mother, $mother);
             my $out = '';
             for my $elem (@array) {
@@ -154,13 +158,13 @@ EOF
     sub xslate_compatible : Test {
         
         my $expected = <<'EXPECTED';
-    <ol>
-        <li>ÉvÉçÉOÉâÉ~ÉìÉOPerl Vol.1 708 pages / ISBN-13 : 978-4873110967</li>
-        <li>ÉvÉçÉOÉâÉ~ÉìÉOPerl Vol.2 1303 pages / ISBN-13 : 978-4873110974</li>
-        <li>ÑPÑÇÑÄÑsÑÇÑpÑ}Ñ}ÑyÑÇÑÄÑrÑpÑ~ÑyÑu Ñ~Ñp Perl 1152 pages / ISBN-13 : 978-5932860205</li>
-        <li>Programming Perl 1092 pages / ISBN-13 : 978-0596000271</li>
-    
-    </ol>
+<ol>
+    <li>プログラミングPerl Vol.1 708 pages / ISBN-13 : 978-4873110967</li>
+    <li>プログラミングPerl Vol.2 1303 pages / ISBN-13 : 978-4873110974</li>
+    <li>Программирование на Perl 1152 pages / ISBN-13 : 978-5932860205</li>
+    <li>Programming Perl 1092 pages / ISBN-13 : 978-0596000271</li>
+
+</ol>
 EXPECTED
     
         my $books = {
@@ -169,15 +173,15 @@ EXPECTED
                 pages => 1092,
             },
             "978-5932860205" => {
-                name => "ÑPÑÇÑÄÑsÑÇÑpÑ}Ñ}ÑyÑÇÑÄÑrÑpÑ~ÑyÑu Ñ~Ñp Perl",
+                name => "Программирование на Perl",
                 pages => 1152,
             },
             "978-4873110967" => {
-                name  => "ÉvÉçÉOÉâÉ~ÉìÉOPerl Vol.1",
+                name  => "プログラミングPerl Vol.1",
                 pages => 708,
             },
             "978-4873110974" => {
-                name  => "ÉvÉçÉOÉâÉ~ÉìÉOPerl Vol.2",
+                name  => "プログラミングPerl Vol.2",
                 pages => 1303,
             },
         };
@@ -208,10 +212,10 @@ EXPECTED
         });
         
         my $parsed = $template->parse(<<'EOF');
-    <ol>
-        {%&each($books, 'isbn')<<EOF2%}<li>{%$hash->{$isbn}->{name}%} {%$hash->{$isbn}->{pages}%} pages / ISBN-13 : {%$isbn%}</li>
-        {%EOF2%}
-    </ol>
+<ol>
+    {%&each($books, 'isbn')<<EOF2%}<li>{%$hash->{$isbn}->{name}%} {%$hash->{$isbn}->{pages}%} pages / ISBN-13 : {%$isbn%}</li>
+    {%EOF2%}
+</ol>
 EOF
         is(indent_optimize($parsed), indent_optimize($expected));
     }
@@ -227,4 +231,5 @@ EOF
     sub indent_optimize {
         my $in = shift;
         $in =~ s{\s+}{ }g;
+        return $in;
     }
