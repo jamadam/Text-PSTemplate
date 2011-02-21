@@ -449,8 +449,8 @@ This module allows you to include variables and fucntion calls in your
 templates.
 
 This module doesn't provide any template functions in default. This doesn't
-provide any controll structures such as 'if-then' or 'for'. Functions will be
-available by specifying code refs. Any controll structures are feasible by
+provide any control structures such as 'if-then' or 'for'. Functions will be
+available by specifying code refs. Any control structures are feasible by
 implementing functions by yourself. See also L<Text::PSTemplate::Plugin::Util>
 for example.
 
@@ -467,12 +467,12 @@ designers only have to learn following rules.
 
     \{% ... %}
 
-=item Perl style variable and function call
+=item Perl style variable and function calls
 
     {% $some_var %}
     {% &some_func(...) %}
 
-=item Inline data syntax [Advansed]
+=item Block syntax
 
     {% &some_func()<<EOF,EOF2 %}
     inline data
@@ -484,36 +484,9 @@ designers only have to learn following rules.
 
 =head1 METHODS
 
-=head2 Text::PSTemplate->new()
+=head2 Text::PSTemplate->new($mother)
 
 Constractor. This method takes following arguments.
-
-=over
-
-=item mother
-
-The template variables and functions inherit their mother's. This argument
-specify PSTemplate instance for the mother. 
-
-=item nonexist
-
-This paramete takes code ref for catching excepton. When variables/functions
-found in template are undefined, the parse method calls the subroutine to deal
-with the statements. 
-
-=item delimiter_left
-
-=item delimiter_right
-
-=item encoding
-
-This specifies the encode of template files.
-
-=item nonexist
-
-=item recur_limit
-
-=back
 
 =head2 Text::PSTemplate::mother()
 
@@ -525,16 +498,21 @@ instance, this returns mother instance.
 This can be called from template function. If current context is origined from
 file, this returns file name.
 
-=head2 Text::PSTemplate::inline_data()
+=head2 Text::PSTemplate::inline_data($index)
 
 This can be called from template function. This Returns inline data specified
 in template
 
-=head2 set_encoding
+=head2 $instance->set_encoding($encode)
 
-=head2 set_exception
+This setting will be thrown at file open method. Default is 'utf8'.
 
-=head2 set_recur_limit
+=head2 $instance->set_exception($code_ref)
+
+=head2 $instance->set_recur_limit($number)
+
+This class instance can have a mother instance and inherits all member
+variables. This setting limits the recursion at given number.
 
 =head2 $instance->get_param($name)
 
