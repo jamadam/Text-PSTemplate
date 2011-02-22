@@ -38,8 +38,8 @@ no warnings 'recursion';
             $self->{$ARG_ENCODING}          ||= 'utf8';
             $self->{$ARG_RECUR_LIMIT}       ||= 10;
             $self->{$ARG_NONEXIST}          ||= $Text::PSTemplate::Exception::DIE;
-            $self->{$ARG_DELIMITER_LEFT}    ||= '{%';
-            $self->{$ARG_DELIMITER_RIGHT}   ||= '%}';
+            $self->{$ARG_DELIMITER_LEFT}    ||= '<%';
+            $self->{$ARG_DELIMITER_RIGHT}   ||= '%>';
         }
         
         if ($self->_count_recursion() > $self->get_param($ARG_RECUR_LIMIT)) {
@@ -250,14 +250,14 @@ no warnings 'recursion';
         
         my $delim_l = $self->get_param($ARG_DELIMITER_LEFT);
         my $delim_r = $self->get_param($ARG_DELIMITER_RIGHT);
-        my ($left, $escape, $tag, $right) =
-            split(m{(\\*)$delim_l\s*(.+?)\s*$delim_r}s, $str, 2);
+        my ($left, $escape, $space_l, $tag, $space_r, $right) =
+            split(m{(\\*)$delim_l(\s*)(.+?)(\s*)$delim_r}s, $str, 2);
         
         if ($tag) {
             my $len = length($escape);
             my $out = ('\\' x int($len / 2));
             if ($len % 2 == 1) {
-                $out .= $delim_l. $tag. $delim_r;
+                $out .= $delim_l. $space_l. $tag. $space_r. $delim_r;
             } else {
                 if (substr($tag, 0, 1) !~ /\$|\&/) {
                     croak "Syntax error at template parse near $tag";

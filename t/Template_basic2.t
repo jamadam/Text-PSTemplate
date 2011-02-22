@@ -41,7 +41,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
 		eval {
-			$tpl->parse(q[{%&hoge()%}])
+			$tpl->parse(q[<% &hoge() %>])
 		};
 		like($@, qr/Error/);
     }
@@ -52,7 +52,7 @@ use Data::Dumper;
 		my $e = sub {'hoge'};
         $tpl->set_exception($e);
 		eval {
-			$tpl->parse(q[{%&hoge()%}])
+			$tpl->parse(q[<% &hoge() %>])
 		};
 		is($@, '');
     }
@@ -69,10 +69,10 @@ use Data::Dumper;
 		};
         $tpl->set_exception($e);
 		my $parsed = eval {
-			$tpl->parse(q[{%&hoge()%}])
+			$tpl->parse(q[<% &hoge() %>])
 		};
 		is($@, '');
-		is($parsed, '{%\&hoge()%}');
+		is($parsed, '<%\&hoge()%>');
     }
     
     sub indent_optimize {

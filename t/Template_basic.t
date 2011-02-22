@@ -20,18 +20,18 @@ use Data::Dumper;
     sub get_delimiter : Test(4) {
         
         my $tpl = Text::PSTemplate->new();
-        is($tpl->get_delimiter(0), '{%');
-        is($tpl->get_delimiter(1), '%}');
+        is($tpl->get_delimiter(0), '<%');
+        is($tpl->get_delimiter(1), '%>');
         my $tpl2 = Text::PSTemplate->new($tpl);
-        is($tpl2->get_delimiter(0), '{%');
-        is($tpl2->get_delimiter(1), '%}');
+        is($tpl2->get_delimiter(0), '<%');
+        is($tpl2->get_delimiter(1), '%>');
     }
     
     sub set_vars1 : Test {
         
         my $tpl = Text::PSTemplate->new();
         $tpl->set_var(title => 'TITLE');
-        my $parsed = $tpl->parse(q!left {%$title%} right!);
+        my $parsed = $tpl->parse(q!left <% $title %> right!);
         is($parsed, 'left TITLE right');
     }
     
@@ -39,7 +39,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new();
         $tpl->set_var(title => 'TITLE');
-        my $parsed = $tpl->parse(q!{%$title%}!);
+        my $parsed = $tpl->parse(q!<% $title %>!);
         is($parsed, 'TITLE');
     }
     
@@ -49,7 +49,7 @@ use Data::Dumper;
         $tpl->set_func(hello => sub {
             'hello '. shift;
         });
-        my $parsed = $tpl->parse(q!{%&hello('world')%}!);
+        my $parsed = $tpl->parse(q!<% &hello('world') %>!);
         is($parsed, 'hello world');
     }
     
@@ -57,7 +57,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
         $tpl->set_exception(sub {'not found'});
-        my $parsed = $tpl->parse(q!{%$title%}!);
+        my $parsed = $tpl->parse(q!<% $title %>!);
         is($parsed, 'not found');
     }
     
@@ -65,7 +65,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
         $tpl->set_exception(sub {$_[1]});
-        my $parsed = $tpl->parse(q!{%$title%}!);
+        my $parsed = $tpl->parse(q!<% $title %>!);
         is($parsed, '$title');
     }
     
@@ -73,7 +73,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
         $tpl->set_exception(sub {''});
-        my $parsed = $tpl->parse(q!a{%$title%}b!);
+        my $parsed = $tpl->parse(q!a<% $title %>b!);
         is($parsed, 'ab');
     }
     
@@ -83,7 +83,7 @@ use Data::Dumper;
         
         my $tpl_str = <<EOF;
 <div>
-    {%&hello('Takashi', 'Taro')%}
+    <% &hello('Takashi', 'Taro') %>
 </div>
 EOF
         
@@ -114,7 +114,7 @@ EOF
         my $tpl = Text::PSTemplate->new();
         
         my $html = <<'EOF';
-        {%&hello()<<END1%}takashi$a{%END1%}
+        <% &hello()<<END1 %>takashi$a<% END1 %>
 EOF
         
         my $expected = <<'EOF';
@@ -145,7 +145,7 @@ EOF
 EOF
         
         my $html = <<EOF;
-        {%&hello()<<EOF%}Hiroshi{%EOF%}
+        <% &hello()<<EOF %>Hiroshi<% EOF %>
 EOF
         my $mother = $tpl;
         $tpl->set_func(hello => sub {
@@ -213,8 +213,8 @@ EXPECTED
         
         my $parsed = $template->parse(<<'EOF');
 <ol>
-    {%&each($books, 'isbn')<<EOF2%}<li>{%$hash->{$isbn}->{name}%} {%$hash->{$isbn}->{pages}%} pages / ISBN-13 : {%$isbn%}</li>
-    {%EOF2%}
+    <% &each($books, 'isbn')<<EOF2 %><li><% $hash->{$isbn}->{name} %> <% $hash->{$isbn}->{pages} %> pages / ISBN-13 : <% $isbn %></li>
+    <% EOF2 %>
 </ol>
 EOF
         is(indent_optimize($parsed), indent_optimize($expected));

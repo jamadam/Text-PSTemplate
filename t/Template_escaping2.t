@@ -12,10 +12,10 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new();
         $tpl->set_var(title => 'TITLE');
-        is($tpl->parse(q!{%$title%}!), 'TITLE');
-        is($tpl->parse(q!\\{%$title%}!), q!{%$title%}!);
-        is($tpl->parse(q!\\\\{%$title%}!), '\\TITLE');
-        is($tpl->parse(q!\\\\\\{%$title%}!), '\\{%$title%}');
+        is($tpl->parse(q!<% $title %>!), 'TITLE');
+        is($tpl->parse(q!\\<% $title %>!), q!<% $title %>!);
+        is($tpl->parse(q!\\\\<% $title %>!), '\\TITLE');
+        is($tpl->parse(q!\\\\\\<% $title %>!), '\\<% $title %>');
     }
     
     sub indent_optimize {

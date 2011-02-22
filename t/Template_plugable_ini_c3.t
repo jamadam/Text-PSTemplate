@@ -16,7 +16,7 @@ use Data::Dumper;
 		_PlugC->set_ini({pkg => '_PlugC'});
 		#_PlugD->set_ini({pkg => '_PlugD'});
         $tpl->plug(['_PlugD']);
-        my $parsed1 = $tpl->parse(q[{%&_PlugD::put_pkg()%}]);
+        my $parsed1 = $tpl->parse(q[<%&_PlugD::put_pkg()%>]);
         is($parsed1, '_PlugC');
     }
 

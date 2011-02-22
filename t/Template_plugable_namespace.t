@@ -13,7 +13,7 @@ use Test::Plugin1;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Test::Plugin1', 'Hoge');
-        my $parsed = $tpl->parse(q[left {%&Hoge::some_function()%} right]);
+        my $parsed = $tpl->parse(q[left <%&Hoge::some_function()%> right]);
         is($parsed, 'left Test::Plugin1::some_function called right');
     }
     
@@ -21,6 +21,6 @@ use Test::Plugin1;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Test::Plugin1', '');
-        my $parsed = $tpl->parse(q[left {%&some_function()%} right]);
+        my $parsed = $tpl->parse(q[left <%&some_function()%> right]);
         is($parsed, 'left Test::Plugin1::some_function called right');
     }

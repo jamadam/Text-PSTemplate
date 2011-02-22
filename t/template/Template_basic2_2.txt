@@ -1,5 +1,5 @@
-Female: {%&if($is_female)<<THEN,ELSE%}
+Female: <% &if($is_female)<<THEN,ELSE %>
 yes
-{%THEN%}
+<% THEN %>
 no
-{%ELSE%}
+<% ELSE %>

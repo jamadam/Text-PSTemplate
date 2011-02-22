@@ -12,7 +12,7 @@ use File::Spec;
     sub basic : Test(1) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-		my $parsed = $tpl->parse(q(test{% &include('t/template/Template_plugable_control_switch.txt') %}test));
+		my $parsed = $tpl->parse(q(test<% &include('t/template/Template_plugable_control_switch.txt') %>test));
 		is($parsed, 'testoktest');
     }
     
@@ -20,6 +20,6 @@ use File::Spec;
         
         my $tpl = Text::PSTemplate::Plugable->new;
 		$tpl->set_filename_trans_coderef(sub{File::Spec->catfile('t/template', $_[0])});
-		my $parsed = $tpl->parse(q(test{% &include('Template_plugable_control_switch.txt') %}test));
+		my $parsed = $tpl->parse(q(test<% &include('Template_plugable_control_switch.txt') %>test));
 		is($parsed, 'testoktest');
     }
