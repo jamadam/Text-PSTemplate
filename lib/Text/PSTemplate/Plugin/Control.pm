@@ -229,17 +229,14 @@ our $VERSION = '0.01';
         return '';
     }
     
+    ### ---
+    ### include a file into template
+    ### ---
     sub include : TplExport {
         
         my ($self, $file, $vars) = @_;
-        my $tpl = Text::PSTemplate->new;
-        $tpl->set_var(%$vars);
-        my $output = eval {$tpl->parse_file($file)};
-        if ($@) {
-            #$tpl->err->stack($@);
-            #$tpl->err->stack($@, qq!template "$args{tpl}"!);
-        }
-        return $output;
+        my $tpl = Text::PSTemplate->new->set_var(%$vars);
+        return eval {$tpl->parse_file($file)};
     }
 
 1;
