@@ -305,6 +305,8 @@ Text::PSTemplate::Plugin::Control - Common controll structures
     <% &each($has_href, 'key' => 'name')<<TPL %>
     Key '<%$key%>' contains <%$name%>.
     <%TPL%>
+    
+    <% &include('path/to/file.txt', {some_var => 'aaa'}) %>
 
 =head1 DESCRIPTION
 
@@ -430,9 +432,11 @@ PSTemplate parses above as..
 
     <!--  -->
 
-=head2 &include(FILENAME, [VARIABLES]) [EXPERIMENTAL]
+=head2 &include(FILENAME, [VARIABLES])
 
 This function include a file content of given name into current template.
+
+    <% &include('path/to/file.txt', {some_var => 'aaa'}) %>
 
 =head1 AUTHOR
 
