@@ -631,6 +631,17 @@ This example allows common extension to be ommited.
 
 This also let you set a default template in case the template not found.
 
+=head1 TEXT::PSTemplate::File CLASS
+
+=head2 TEXT::PSTemplate::File->new($filename)
+
+This class represents a template file. With this class, you can take file
+contents with the original file path.
+
+=head2 $instance->name
+
+=head2 $instance->content
+
 =head1 TEXT::PSTemplate::Exception CLASS
 
 =head2 $TEXT::PSTemplate::Exception::DIE();
