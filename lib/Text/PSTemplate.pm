@@ -79,7 +79,7 @@ no warnings 'recursion';
     ### ---
     sub context {
         
-        return $Text::PSTemplate::file;
+        return $Text::PSTemplate::context;
     }
     
     ### ---
@@ -224,10 +224,10 @@ no warnings 'recursion';
     sub parse_file {
         
         my ($self, $file) = @_;
-        local $Text::PSTemplate::file = $Text::PSTemplate::file;
+        local $Text::PSTemplate::context = $Text::PSTemplate::context;
         my $str;
         if (ref $_[1] eq 'Text::PSTemplate::File') {
-            $Text::PSTemplate::file = $_[1]->name;
+            $Text::PSTemplate::context = $_[1]->name;
             $str = $_[1]->content;
         } else {
             my $translate_ref = $self->get_param($ARG_FILENAME_TRANS);
@@ -235,7 +235,7 @@ no warnings 'recursion';
                 $file = $translate_ref->($file);
             }
             my $file = $self->get_file($file, 1, undef);
-            $Text::PSTemplate::file = $file->name;
+            $Text::PSTemplate::context = $file->name;
             $str = $file->content;
         }
         return $self->parse($str);
@@ -248,7 +248,7 @@ no warnings 'recursion';
         
         my ($self, $str) = @_;
         if (ref $_[1] eq 'Text::PSTemplate::File') {
-            $Text::PSTemplate::file = $_[1]->name;
+            $Text::PSTemplate::context = $_[1]->name;
             $str = $_[1]->content;
         }
         return $self->parse($str);
