@@ -238,6 +238,26 @@ our $VERSION = '0.01';
         my $tpl = Text::PSTemplate->new->set_var(%$vars);
         return eval {$tpl->parse_file($file)};
     }
+    
+    ### ---
+    ### set variable
+    ### ---
+    sub set_var : TplExport {
+        
+        my $self = shift;
+        Text::PSTemplate->mother->set_var(@_);
+        return;
+    }
+    
+    ### ---
+    ### set delimiter
+    ### ---
+    sub set_delimiter : TplExport {
+        
+        my ($self, $left, $right) = @_;
+        Text::PSTemplate->mother->set_delimiter($left, $right);
+        return;
+    }
 
 1;
 
@@ -437,6 +457,10 @@ PSTemplate parses above as..
 This function include a file content of given name into current template.
 
     <% &include('path/to/file.txt', {some_var => 'aaa'}) %>
+
+=head2 &set_var(%dataset)
+
+=head2 &set_delimiter(LEFT, RIGHT)
 
 =head1 AUTHOR
 
