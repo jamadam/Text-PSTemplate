@@ -7,15 +7,15 @@ use 5.005;
 use Carp;
 no warnings 'recursion';
 
-    my $ARG_MOTHER          = 1;
-    my $ARG_DELIMITER_LEFT  = 2;
-    my $ARG_DELIMITER_RIGHT = 3;
-    my $ARG_ENCODING        = 4;
-    my $ARG_NONEXIST        = 5;
-    my $ARG_RECUR_LIMIT     = 6;
-    my $ARG_FUNC            = 7;
-    my $ARG_VAR             = 8;
-    my $ARG_FILENAME_TRANS  = 9;
+    my $MEM_MOTHER          = 1;
+    my $MEM_DELIMITER_LEFT  = 2;
+    my $MEM_DELIMITER_RIGHT = 3;
+    my $MEM_ENCODING        = 4;
+    my $MEM_NONEXIST        = 5;
+    my $MEM_RECUR_LIMIT     = 6;
+    my $MEM_FUNC            = 7;
+    my $MEM_VAR             = 8;
+    my $MEM_FILENAME_TRANS  = 9;
     
     ### ---
     ### constractor
@@ -27,23 +27,23 @@ no warnings 'recursion';
             $mother = $Text::PSTemplate::self || undef;
         }
         my $self = {
-            $ARG_MOTHER      => $mother, 
-            $ARG_FUNC        => {},
-            $ARG_VAR         => {},
+            $MEM_MOTHER      => $mother, 
+            $MEM_FUNC        => {},
+            $MEM_VAR         => {},
         };
         
         bless $self, $class;
         
-        if (! defined $self->{$ARG_MOTHER}) {
-            $self->{$ARG_ENCODING}          ||= 'utf8';
-            $self->{$ARG_RECUR_LIMIT}       ||= 10;
-            $self->{$ARG_NONEXIST}          ||= $Text::PSTemplate::Exception::DIE;
-            $self->{$ARG_DELIMITER_LEFT}    ||= '<%';
-            $self->{$ARG_DELIMITER_RIGHT}   ||= '%>';
+        if (! defined $self->{$MEM_MOTHER}) {
+            $self->{$MEM_ENCODING}          ||= 'utf8';
+            $self->{$MEM_RECUR_LIMIT}       ||= 10;
+            $self->{$MEM_NONEXIST}          ||= $Text::PSTemplate::Exception::DIE;
+            $self->{$MEM_DELIMITER_LEFT}    ||= '<%';
+            $self->{$MEM_DELIMITER_RIGHT}   ||= '%>';
         }
         
-        if ($self->_count_recursion() > $self->get_param($ARG_RECUR_LIMIT)) {
-            croak 'Deep Recursion over '. $self->get_param($ARG_RECUR_LIMIT);
+        if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
+            croak 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
         }
         return $self;
     }
@@ -54,7 +54,7 @@ no warnings 'recursion';
     sub set_filename_trans_coderef {
         
         my ($self, $coderef) = @_;
-        $self->{$ARG_FILENAME_TRANS} = $coderef;
+        $self->{$MEM_FILENAME_TRANS} = $coderef;
     }
     
     ### ---
@@ -100,7 +100,7 @@ no warnings 'recursion';
     sub set_exception {
         
         my ($self, $code_ref) = @_;
-        $self->{$ARG_NONEXIST} = $code_ref;
+        $self->{$MEM_NONEXIST} = $code_ref;
     }
     
     ### ---
@@ -109,7 +109,7 @@ no warnings 'recursion';
     sub set_recur_limit {
         
         my ($self, $limit) = @_;
-        $self->{$ARG_RECUR_LIMIT} = $limit;
+        $self->{$MEM_RECUR_LIMIT} = $limit;
     }
     
     ### ---
@@ -118,7 +118,7 @@ no warnings 'recursion';
     sub set_encoding {
         
         my ($self, $encoding) = @_;
-        $self->{$ARG_ENCODING} = $encoding;
+        $self->{$MEM_ENCODING} = $encoding;
     }
     
     ### ---
@@ -130,8 +130,8 @@ no warnings 'recursion';
             if (defined $_[0]->{$_[1]}) {
                 return $_[0]->{$_[1]};
             }
-            if (defined $_[0]->{$ARG_MOTHER}) {
-                return $_[0]->{$ARG_MOTHER}->get_param($_[1]);
+            if (defined $_[0]->{$MEM_MOTHER}) {
+                return $_[0]->{$MEM_MOTHER}->get_param($_[1]);
             }
         }
         return;
@@ -142,8 +142,8 @@ no warnings 'recursion';
     ### ---
     sub set_delimiter {
         
-        $_[0]->{$ARG_DELIMITER_LEFT} = $_[1];
-        $_[0]->{$ARG_DELIMITER_RIGHT} = $_[2];
+        $_[0]->{$MEM_DELIMITER_LEFT} = $_[1];
+        $_[0]->{$MEM_DELIMITER_RIGHT} = $_[2];
         return $_[0];
     }
     
@@ -152,12 +152,12 @@ no warnings 'recursion';
     ### ---
     sub get_delimiter {
         
-        my $name = ($ARG_DELIMITER_LEFT, $ARG_DELIMITER_RIGHT)[$_[1]];
+        my $name = ($MEM_DELIMITER_LEFT, $MEM_DELIMITER_RIGHT)[$_[1]];
         if (defined $_[0]->{$name}) {
             return $_[0]->{$name};
         }
-        if (defined $_[0]->{$ARG_MOTHER}) {
-            return $_[0]->{$ARG_MOTHER}->get_delimiter($_[1]);
+        if (defined $_[0]->{$MEM_MOTHER}) {
+            return $_[0]->{$MEM_MOTHER}->get_delimiter($_[1]);
         }
         return;
     }
@@ -169,7 +169,7 @@ no warnings 'recursion';
         
         my ($self, %args) = (@_);
         while ((my $key, my $value) = each %args) {
-            $self->{$ARG_VAR}->{$key} = $value;
+            $self->{$MEM_VAR}->{$key} = $value;
         }
         return $self;
     }
@@ -180,11 +180,11 @@ no warnings 'recursion';
     sub var {
         
         if (defined $_[1]) {
-            if (defined $_[0]->{$ARG_VAR}->{$_[1]}) {
-                return $_[0]->{$ARG_VAR}->{$_[1]};
+            if (defined $_[0]->{$MEM_VAR}->{$_[1]}) {
+                return $_[0]->{$MEM_VAR}->{$_[1]};
             }
-            if (defined $_[0]->{$ARG_MOTHER}) {
-                return $_[0]->{$ARG_MOTHER}->var($_[1]);
+            if (defined $_[0]->{$MEM_MOTHER}) {
+                return $_[0]->{$MEM_MOTHER}->var($_[1]);
             }
         }
         return;
@@ -197,7 +197,7 @@ no warnings 'recursion';
         
         my ($self, %args) = (@_);
         while ((my $key, my $value) = each %args) {
-            $self->{$ARG_FUNC}->{$key} = $value;
+            $self->{$MEM_FUNC}->{$key} = $value;
         }
         return $self;
     }
@@ -208,11 +208,11 @@ no warnings 'recursion';
     sub func {
         
         if (defined $_[1]) {
-            if (defined $_[0]->{$ARG_FUNC}->{$_[1]}) {
-                return $_[0]->{$ARG_FUNC}->{$_[1]};
+            if (defined $_[0]->{$MEM_FUNC}->{$_[1]}) {
+                return $_[0]->{$MEM_FUNC}->{$_[1]};
             }
-            if (defined $_[0]->{$ARG_MOTHER}) {
-                return $_[0]->{$ARG_MOTHER}->func($_[1]);
+            if (defined $_[0]->{$MEM_MOTHER}) {
+                return $_[0]->{$MEM_MOTHER}->func($_[1]);
             }
         }
         return;
@@ -230,7 +230,7 @@ no warnings 'recursion';
             $Text::PSTemplate::context = $_[1]->name;
             $str = $_[1]->content;
         } else {
-            my $translate_ref = $self->get_param($ARG_FILENAME_TRANS);
+            my $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
             if (ref $translate_ref eq 'CODE') {
                 $file = $translate_ref->($file);
             }
@@ -260,8 +260,8 @@ no warnings 'recursion';
         
         (defined $str) or croak 'No template string found';
         
-        my $delim_l = $self->get_param($ARG_DELIMITER_LEFT);
-        my $delim_r = $self->get_param($ARG_DELIMITER_RIGHT);
+        my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
+        my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
         my ($left, $escape, $space_l, $tag, $space_r, $right) =
             split(m{(\\*)$delim_l(\s*)(.+?)(\s*)$delim_r}s, $str, 2);
         
@@ -291,7 +291,7 @@ no warnings 'recursion';
                     $out .= $result;
                 } else {
                     no strict 'refs';
-                    $out .= $self->get_param($ARG_NONEXIST)->($self, $tag, $@);
+                    $out .= $self->get_param($MEM_NONEXIST)->($self, $tag, $@);
                 }
             }
             return $left. $out. $self->parse($right);
@@ -324,7 +324,7 @@ no warnings 'recursion';
                     } else {
                         $out .=
                         "'\Q".
-                        $self->get_param($ARG_NONEXIST)->($self, $2. $3).
+                        $self->get_param($MEM_NONEXIST)->($self, $2. $3).
                         "\E'";
                     }
                 } elsif ($2 eq '&') {
@@ -333,7 +333,7 @@ no warnings 'recursion';
                     } else {
                         $out .=
                         "'\Q".
-                        $self->get_param($ARG_NONEXIST)->($self, $2. $3).
+                        $self->get_param($MEM_NONEXIST)->($self, $2. $3).
                         "\E'";
                     }
                 } else {
@@ -352,13 +352,13 @@ no warnings 'recursion';
         
         my ($self, $name, $translate_ref) = (@_);
         if (scalar @_ == 2) {
-            $translate_ref = $self->get_param($ARG_FILENAME_TRANS);
+            $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
         }
         if (ref $translate_ref eq 'CODE') {
             $name = $translate_ref->($name);
         }
         
-        my $encode = $self->get_param($ARG_ENCODING);
+        my $encode = $self->get_param($MEM_ENCODING);
         return Text::PSTemplate::File->new($name, $encode);
     }
     
@@ -369,8 +369,8 @@ no warnings 'recursion';
         
         my ($self) = (@_);
         
-        if (defined $self->{$ARG_MOTHER}) {
-            return $self->{$ARG_MOTHER}->_count_recursion() + 1;
+        if (defined $self->{$MEM_MOTHER}) {
+            return $self->{$MEM_MOTHER}->_count_recursion() + 1;
         }
         return 0;
     }
