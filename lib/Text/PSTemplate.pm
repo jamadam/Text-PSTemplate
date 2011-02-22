@@ -462,24 +462,37 @@ Text::PSTemplate - Multi purpose template engine
 
     use Text::PSTemplate;
     
-    $template = Text::PSTemplate->new(%args);
-    $template->set_param(%args);
-    
+    $template = Text::PSTemplate->new;
+    $template->setencoding($encodiing);
+    $template->set_recur_limit($number);
+    $template->set_exception($code_ref);
+    $template->set_filename_trans_coderef($code_ref);
+    $template->set_filename_trans_coderef($code_ref);
     $template->set_delimiter($left, $right);
     
     $template->set_var(key1 => $value1, key2 => $value2);
-    $value = $template->var($name);
-    
     $template->set_func(key1 => \&func1, key2 => \&func2);
     
     $str = $template->parse($str);
+    $str = $template->parse_str($str);
+    $str = $template->parse_str($file_obj);
+    $str = $template->parse_file($filename);
     $str = $template->parse_file($file_obj);
-    $str = $template->parse_file($str);
     
     $context        = Text::PSTemplate->context();
-    $inline_data    = Text::PSTemplate->inline_data($number);
     $mother_obj     = Text::PSTemplate->mother();
+    $inline_data    = Text::PSTemplate->inline_data($number);
 
+    $template2 = $template->new_sub_template();
+    
+    $file_obj = Text::PSTemplate::File->new($filename);
+    $file_obj->content;
+    $file_obj->name;
+    
+    $code_ref = $Text::PSTemplate::NULL;
+    $code_ref = $Text::PSTemplate::NO_ACTION;
+    $code_ref = $Text::PSTemplate::DIE;
+    
 =head1 DESCRIPTION
 
 Text::PSTemplate is a multi purpose template engine.
@@ -524,22 +537,46 @@ designers only have to learn following rules.
 
 =head2 Text::PSTemplate->new($mother)
 
-Constractor. This method takes following arguments.
+Constractor. This method can take a argument $mother which should be a
+Text::PSTemplate instance. Most member attributes will be inherited from their
+mother at refering phase. So you don't have to set all settings again and
+again. Just tell a mother to the constractor. If this constractor is
+called from a template function, meaning the instanciation is recursive, this
+constractor auto detects the nearest mother to be set to new instance's mothor.
+
+If you want really new instance, give an undef to constractor explicitly.
+
+    Text::PSTemplate->new(undef)
 
 =head2 Text::PSTemplate::mother()
 
-This can be called from template function. If current context is recursed
+This can be called from template functions. If current context is recursed
 instance, this returns mother instance.
 
 =head2 Text::PSTemplate::context()
 
-This can be called from template function. If current context is origined from
-file, this returns file name.
+This can be called from template functions. If current context is origined from
+a file, this returns the file name.
 
 =head2 Text::PSTemplate::inline_data($index)
 
-This can be called from template function. This Returns inline data specified
-in template
+This can be called from template functions. This Returns inline data specified
+in templates.
+    
+In a template
+    
+    <% your_func()<<EOF1,EOF2 %>
+    foo
+    <% EOF1 %>
+    bar
+    <% EOF2 %>
+    
+Function definision
+    
+    sub your_func() {
+        my $block1 = Text::PSTemplate::inline_data(0) # foo
+        my $block2 = Text::PSTemplate::inline_data(1) # bar
+    }
 
 =head2 $instance->set_encoding($encode)
 
@@ -547,10 +584,19 @@ This setting will be thrown at file open method. Default is 'utf8'.
 
 =head2 $instance->set_exception($code_ref)
 
+This is a callback setter. If a error occurs at parsing phase, the $code_ref
+will be called. Your call back subroutine can get following arguments.
+
+    my ($self, $line, $err) = (@_);
+
+With these arguments, you can log the error, do nothing and return '', or
+reconstract the tag and return it as if the tag was escaped. See also
+Text::PSTemplate::Exception Class for example.
+
 =head2 $instance->set_recur_limit($number)
 
-This class instance can have a mother instance and inherits all member
-variables. This setting limits the recursion at given number.
+This class instance can recursively have a mother instance as an attribute.
+This setting limits the recursion at given number.
 
 =head2 $instance->get_param($name)
 
@@ -564,21 +610,22 @@ Set delimiters.
 
 Get delimiters
 
-    $instance->get_delimiter(1) # left delimiter
-    $instance->get_delimiter(2) # right delimiter
+    $instance->get_delimiter(0) # left delimiter
+    $instance->get_delimiter(1) # right delimiter
 
 =head2 $instance->set_var(%datasets)
 
-This Sets variables. It can take null string too. If you give it undef, the
-variable inherits the mother's. 
+This method Sets variables which can be referred from templates.
 
     $instance->set_var(a => 'b', c => 'd')
+
+This can take null string too. You can't set undef for value.
 
 =head2 $instance->var($name)
 
 Get template variables
 
-    $instance->var(a)
+    $instance->var('a')
 
 =head2 $instance->set_func(some_name => $code_ref)
 
@@ -590,45 +637,56 @@ Set template functions
     $instance->set_func(say_hello_to => $a)
     
     Inside template...
-    <%&say_hello_to('Fujitsu san')%>
+    <% &say_hello_to('Fujitsu san') %>
 
 =head2 $instance->func(name)
 
-Get template functions.
+Get template functions. This method is aimed at internal use.
 
 =head2 $instance->parse($str)
 
-parse_str method parses templates given in string.
+This method parses templates given in string.
+
+    $tpl->parse('...')
 
 =head2 $instance->parse_str($str)
 
 =head2 $instance->parse_str($file_obj)
 
-parse_str method parses templates given in string or Text::PSTemplate::File
+This method parses templates given in string or Text::PSTemplate::File
 instance.
+
+    $tpl->parse_str('...')
+    $tpl->parse_str($obj)
 
 =head2 $instance->parse_file($file_path)
 
 =head2 $instance->parse_file($file_obj)
 
-parse_file method parses templates given in filename or Text::PSTemplate::File
+This method parses templates given in filename or Text::PSTemplate::File
 instance.
 
-=head2 $instance->parse()
+    $tpl->parse_file($file_path)
+    $tpl->parse_file($obj)
 
-Template Parse.
+=head2 $instance->new_sub_template();
+
+Constractor. This method instanciates and set itself to mother attribute.
+
+    my $tpl2 = $tpl1->new_sub_template();
+    my $tpl3 = $tpl2->mother();
     
-    $tpl->parse('...')
-    $tpl->parse(file => $file_path)
-    $tpl->parse()
+    # tpl3 and $tpl1 are exact same
+    
+    # This does same thing
+    # my $tpl2 = Text::PSTemplate->new($tpl1); # do same thing
 
-=head2 $instance->new_sub_template(%params);
+=head2 $instance->get_file($name, $trans_ref)
 
-=head2 $instance->get_file($name, $no_translate)
-
-This returns the file content of given name. This method translate the file name
-translation with code reference if a code has been set beforehand. If
-$no_translate is false this translation will not occures.
+This returns the file content of given name. If $trans_ref is set or $instance
+already has a translation code in its attribute, the file name is translated
+with the code. You can set undef for $trans_ref then both options are
+bypassed.
 
 =head2 $instance->set_filename_trans_coderef($code_ref)
 
@@ -658,16 +716,25 @@ This also let you set a default template in case the template not found.
 
 =head1 TEXT::PSTemplate::File CLASS
 
-=head2 TEXT::PSTemplate::File->new($filename)
-
 This class represents a template file. With this class, you can take file
 contents with the original file path.
 
+=head2 TEXT::PSTemplate::File->new($filename)
+
+Constractor
+
 =head2 $instance->name
+
+Returns file name may be with path name
 
 =head2 $instance->content
 
+Returns file content
+
 =head1 TEXT::PSTemplate::Exception CLASS
+
+This class provides some common error callback subroutines. They can be thrown
+at Text::PSTemplate::set_exception() method.
 
 =head2 $TEXT::PSTemplate::Exception::DIE();
 
