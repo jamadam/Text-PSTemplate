@@ -14,5 +14,5 @@ use Data::Dumper;
 		my $a = sub {$_[0]. '.txt'};
 		$tpl->set_filename_trans_coderef($a);
 		my $str = $tpl->get_file('t/template/Template_filename_trans');
-		is($str, 'ok');
+		is($str->content, 'ok');
 	}

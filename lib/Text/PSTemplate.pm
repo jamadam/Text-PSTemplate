@@ -221,30 +221,29 @@ no warnings 'recursion';
     ### ---
     ### Parse template
     ### ---
+    sub parse_file {
+        
+        my ($self, $file) = @_;
+        local $Text::PSTemplate::file = $Text::PSTemplate::file;
+        my $str;
+        if (ref $_[0] eq 'Text::PSTemplate::File') {
+            $Text::PSTemplate::file = $_[0]->name;
+            $str = $_[0]->content;
+        } else {
+            my $translate_ref = $self->get_param($ARG_FILENAME_TRANS);
+            if (ref $translate_ref eq 'CODE') {
+                $file = $translate_ref->($file);
+            }
+            my $file = $self->get_file($file, 1, undef);
+            $Text::PSTemplate::file = $file->name;
+            $str = $file->content;
+        }
+        return $self->parse($str);
+    }
+    
     sub parse {
         
-        my $self = shift;
-        my $str;
-        local $Text::PSTemplate::file = $Text::PSTemplate::file;
-        
-        if (scalar @_ == 1) {
-            $str = shift;
-        } else {
-            my %args = (@_);
-            if ($args{file}) {
-                my $name = $args{file};
-                my $file_name_trans_code = $self->get_param($ARG_FILENAME_TRANS);
-                if (ref $file_name_trans_code eq 'CODE') {
-                    $name = $file_name_trans_code->($name);
-                }
-                $str = $self->get_file($name, 1);
-                $Text::PSTemplate::file = $name;
-            } elsif ($Text::PSTemplate::inline_data) {
-                $str = shift @{Text::PSTemplate->inline_data};
-            } else {
-                croak "Template not found";
-            }
-        }
+        my ($self, $str) = @_;
         
         (defined $str) or croak 'No template string found';
         
@@ -338,30 +337,16 @@ no warnings 'recursion';
     ### ---
     sub get_file {
         
-        my ($self, $name, $no_translate) = (@_);
-        
-        if (! $no_translate) {
-            my $file_name_trans_code = $self->get_param($ARG_FILENAME_TRANS);
-            if (ref $file_name_trans_code eq 'CODE') {
-                $name = $file_name_trans_code->($name);
-            }
+        my ($self, $name, $translate_ref) = (@_);
+        if (scalar @_ == 2) {
+            $translate_ref = $self->get_param($ARG_FILENAME_TRANS);
+        }
+        if (ref $translate_ref eq 'CODE') {
+            $name = $translate_ref->($name);
         }
         
         my $encode = $self->get_param($ARG_ENCODING);
-        my $fh;
-        
-        if ($encode) {
-            open($fh, "<:encoding($encode)", $name);
-        } else {
-            open($fh, "<:utf8", $name);
-        }
-        
-        if ($fh and flock($fh, LOCK_EX)) {
-            my $out = do { local $/; <$fh> };
-            close($fh);
-            return $out;
-        }
-        croak "Template '$name' cannot open";
+        return Text::PSTemplate::File->new($name, $encode);
     }
     
     ### ---
@@ -375,6 +360,45 @@ no warnings 'recursion';
             return $self->{$ARG_MOTHER}->_count_recursion() + 1;
         }
         return 0;
+    }
+
+package Text::PSTemplate::File;
+use strict;
+use warnings;
+use Carp;
+use Fcntl qw(:flock);
+
+    my $MEM_FILENAME    = 1;
+    my $MEM_CONTENT     = 2;
+    
+    sub new {
+        
+        my ($class, $name, $encode) = @_;
+        my $fh;
+        
+        if ($encode) {
+            open($fh, "<:encoding($encode)", $name);
+        } else {
+            open($fh, "<:utf8", $name);
+        }
+        if ($fh and flock($fh, LOCK_EX)) {
+            my $out = do { local $/; <$fh> };
+            close($fh);
+            return bless {
+                $MEM_FILENAME => $name,
+                $MEM_CONTENT => $out,
+            }, $class;
+        } else {
+            croak "Template '$name' cannot open";
+        }
+    }
+    
+    sub name {
+        return $_[0]->{$MEM_FILENAME};
+    }
+    
+    sub content {
+        return $_[0]->{$MEM_CONTENT};
     }
 
 package Text::PSTemplate::Exception;
@@ -435,8 +459,9 @@ Text::PSTemplate - Multi purpose template engine
     
     $template->set_func(key1 => \&func1, key2 => \&func2);
     
-    $str = $template->parse(file => $filename);
-    $str = $template->parse_str(str => $str);
+    $str = $template->parse($str);
+    $str = $template->parse_file($file_obj);
+    $str = $template->parse_file($str);
     
     $context        = Text::PSTemplate->context();
     $inline_data    = Text::PSTemplate->inline_data($number);
@@ -461,24 +486,24 @@ designers only have to learn following rules.
 
 =item Special tagging
 
-    {% ... %}
+    <% ... %>
 
 =item escaping
 
-    \{% ... %}
+    \<% ... %>
 
 =item Perl style variable and function calls
 
-    {% $some_var %}
-    {% &some_func(...) %}
+    <% $some_var %>
+    <% &some_func(...) %>
 
 =item Block syntax
 
-    {% &some_func()<<EOF,EOF2 %}
+    <% &some_func()<<EOF,EOF2 %>
     inline data
-    {%EOF%}
+    <%EOF%>
     inline data2
-    {%EOF2%}
+    <%EOF2%>
 
 =back
 
@@ -552,7 +577,7 @@ Set template functions
     $instance->set_func(say_hello_to => $a)
     
     Inside template...
-    {%&say_hello_to('Fujitsu san')%}
+    <%&say_hello_to('Fujitsu san')%>
 
 =head2 $instance->func(name)
 
@@ -560,7 +585,9 @@ Get template functions.
 
 =head2 $instance->parse($str)
 
-=head2 $instance->parse(file => $file_path)
+=head2 $instance->parse_file($file_obj)
+
+=head2 $instance->parse_file($file_path)
 
 =head2 $instance->parse()
 

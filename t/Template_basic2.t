@@ -17,7 +17,7 @@ use Data::Dumper;
             return $a->parse($tpl);
         };
         $tpl->set_func(put_tpl => $put_tpl);
-        my $parsed = $tpl->parse(file => 't/template/Template_basic2.txt');
+        my $parsed = $tpl->parse_file('t/template/Template_basic2.txt');
         is(indent_optimize($parsed), 'left inline template inline template2 right');
     }
     
@@ -33,7 +33,7 @@ use Data::Dumper;
         };
         $tpl->set_func(if => $if);
         $tpl->set_var(is_female => 1);
-        my $parsed = $tpl->parse(file => 't/template/Template_basic2_2.txt');
+        my $parsed = $tpl->parse_file('t/template/Template_basic2_2.txt');
         is(indent_optimize($parsed), 'Female: yes');
     }
     

@@ -183,7 +183,7 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
     }
     
     # in templates ..
-    # {% &say_hello_to('Jamadam') %}
+    # <% &say_hello_to('Jamadam') %>
 
     # Template functions can be cached into files
     
@@ -195,7 +195,7 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
     }
     
     # in templates ..
-    # {% &insert_remote_data('http://example.com/') %}
+    # <% &insert_remote_data('http://example.com/') %>
     
 =head1 DESCRIPTION
 

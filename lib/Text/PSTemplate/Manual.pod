@@ -8,34 +8,34 @@ This Document is draft!
 
 HTML example
 
-    {% &xml_declaration_if_not_ie6() %}
+    <% &xml_declaration_if_not_ie6() %>
     <html>
-    <title>{% $title %}</title>
+    <title><% $title %></title>
     <body>
         <div>
-            {% &import('path/to/heder.html', {title => $title}) %}
+            <% &import('path/to/heder.html', {title => $title}) %>
         </div>
         <div>
-            {% &if_equals($some_var, 'hoge')<<THEN,ELSE %}
-                {% $some_var %} is hoge
-            {%THEN%}
-                {% $some_var %} is something else
-            {%ELSE%}
+            <% &if_equals($some_var, 'hoge')<<THEN,ELSE %>
+                <% $some_var %> is hoge
+            <%THEN%>
+                <% $some_var %> is something else
+            <%ELSE%>
         </div>
         <dl>
-            {% &each($hash, 'key' => 'value')<<TPL %}
-                {% &if($value)<<THEN %}
-                    <dt>{% $key %}</dt>
-                    <dd>{% $value %}</dd>
-                {%THEN%}
-            {%TPL%}
+            <% &each($hash, 'key' => 'value')<<TPL %>
+                <% &if($value)<<THEN %>
+                    <dt><% $key %></dt>
+                    <dd><% $value %></dd>
+                <%THEN%>
+            <%TPL%>
         </dl>
         <p>
-            {% &your_func($any, $values, $as, $you, $like)<<EOF1,EOF2 %}
+            <% &your_func($any, $values, $as, $you, $like)<<EOF1,EOF2 %>
                 ...
-            {%EOF1%}
+            <%EOF1%>
                 ...
-            {%EOF2%}
+            <%EOF2%>
         </p>
     </body>
     </html>

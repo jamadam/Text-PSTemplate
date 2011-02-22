@@ -146,10 +146,10 @@ our $VERSION = '0.01';
         my $tpl = Text::PSTemplate->new;
         
         if (exists $case_ref->{$target}) {
-            return $tpl->parse(file => $case_ref->{$target});
+            return $tpl->parse_file($case_ref->{$target});
         } else {
             if ($default) {
-                return $tpl->parse(file => $default);
+                return $tpl->parse_file($default);
             }
         }
         return;
@@ -220,9 +220,9 @@ our $VERSION = '0.01';
     
     ### ---
     ### Do nothing and returns null string
-    ### <!-- {%&bypass(' -->
+    ### <!-- <%&bypass(' -->
     ### <base href="../">
-    ### <!-- ')%} -->
+    ### <!-- ')%> -->
     ### ---
     sub bypass : TplExport {
         
@@ -234,7 +234,7 @@ our $VERSION = '0.01';
         my ($self, $file, $vars) = @_;
         my $tpl = Text::PSTemplate->new;
         $tpl->set_var(%$vars);
-        my $output = eval {$tpl->parse(file => $file)};
+        my $output = eval {$tpl->parse_file($file)};
         if ($@) {
             #$tpl->err->stack($@);
             #$tpl->err->stack($@, qq!template "$args{tpl}"!);
@@ -252,62 +252,62 @@ Text::PSTemplate::Plugin::Control - Common controll structures
 
 =head1 SYNOPSIS
 
-    {% &if_equals($some_var, 'a', 'then', 'else') %}
+    <% &if_equals($some_var, 'a', 'then', 'else') %>
     
-    {% &if_equals($some_var, 'a')<<THEN,ELSE %}
+    <% &if_equals($some_var, 'a')<<THEN,ELSE %>
     then
-    {%THEN%}
+    <%THEN%>
     else
-    {%ELSE%}
+    <%ELSE%>
     
-    {% &if($some_var, 'true', 'not true') %}
+    <% &if($some_var, 'true', 'not true') %>
     
-    {% &if($some_var)<<THEN,ELSE %}
+    <% &if($some_var)<<THEN,ELSE %>
     true
-    {%THEN%}
+    <%THEN%>
     not true
-    {%ELSE%}
+    <%ELSE%>
     
-    {% &if_in_array($some_var, ['a','b','c'], 'found', 'not found') %}
+    <% &if_in_array($some_var, ['a','b','c'], 'found', 'not found') %>
     
-    {% &if_in_array($some_var, ['a','b','c'])<<THEN,ELSE %}
+    <% &if_in_array($some_var, ['a','b','c'])<<THEN,ELSE %>
     found
-    {%THEN%}
+    <%THEN%>
     not found
-    {%ELSE%}
+    <%ELSE%>
     
-    {% &switch($some_var, {a => 'match a', b => 'match b'}, 'default') %}
+    <% &switch($some_var, {a => 'match a', b => 'match b'}, 'default') %>
     
-    {% &switch($some_var, ['a', 'b'])<<CASE1,CASE2,DEFAULT %}
+    <% &switch($some_var, ['a', 'b'])<<CASE1,CASE2,DEFAULT %>
     match a
-    {%CASE1%}
+    <%CASE1%>
     match b
-    {%CASE2%}
+    <%CASE2%>
     default
-    {%DEFAULT%}
+    <%DEFAULT%>
     
-    {% &tpl_switch($some_var, {
+    <% &tpl_switch($some_var, {
         a => 'path/to/tpl_a.txt',
         b => 'path/to/tpl_b.txt',
-    }, 'path/to/tpl_default.txt) %}
+    }, 'path/to/tpl_default.txt) %>
     
-    {% &substr($some_var, 0, 2, '...') %}
+    <% &substr($some_var, 0, 2, '...') %>
     
-    {% &each($array_ref, 'name')<<TPL %}
-    This is {%$name%}.
-    {%TPL%}
+    <% &each($array_ref, 'name')<<TPL %>
+    This is <%$name%>.
+    <%TPL%>
 
-    {% &each($array_ref, 'index' => 'name')<<TPL %}
-    No.{%$index%} is {%$name%}.
-    {%TPL%}
+    <% &each($array_ref, 'index' => 'name')<<TPL %>
+    No.<%$index%> is <%$name%>.
+    <%TPL%>
 
-    {% &each($hash_ref, 'name')<<TPL %}
-    This is {%$name%}.
-    {%TPL%}
+    <% &each($hash_ref, 'name')<<TPL %>
+    This is <%$name%>.
+    <%TPL%>
 
-    {% &each($has_href, 'key' => 'name')<<TPL %}
-    Key '{%$key%}' contains {%$name%}.
-    {%TPL%}
+    <% &each($has_href, 'key' => 'name')<<TPL %>
+    Key '<%$key%>' contains <%$name%>.
+    <%TPL%>
 
 =head1 DESCRIPTION
 
@@ -338,14 +338,14 @@ the order of BLOCKs. So do not memorize any of them.
 Conditional branch. If $var equals to $case, $then is returned. Otherwise
 returns $else. $else if optional.
 
-    {% &if_equals($a, '1', 'matched') %}
+    <% &if_equals($a, '1', 'matched') %>
 
 Instead of arguments, you can pass 1 or 2 blocks for each conditions. The blocks
 will be parsed as template.
 
-    {% &if_equals($a, '1')<<THEN %}
-        This is {% &escape_or_something($a) %}.
-    {%THEN%}
+    <% &if_equals($a, '1')<<THEN %>
+        This is <% &escape_or_something($a) %>.
+    <%THEN%>
 
 =head2 &if($var, $then, [$else])
 
@@ -355,15 +355,15 @@ Conditional branch. If $var is a true value, returns $then. Otherwise returns
 $else. The true means 'not 0' and 'not 0 length'. The exact definition about
 true, see documents of perl itself. 
 
-    {% if($var, 'true', 'not true') %}
+    <% if($var, 'true', 'not true') %>
 
 For more about Block syntax, See if_equals function.
 
-    {% if($var)<<THEN,ELSE %}
-        This is {% &escape_or_something_if_you_need($var) %}.
-    {%THEN%}
+    <% if($var)<<THEN,ELSE %>
+        This is <% &escape_or_something_if_you_need($var) %>.
+    <%THEN%>
         not true
-    {%ELSE%}
+    <%ELSE%>
 
 =head2 &if_in_array($var, $array_ref, $then, [$else])
 
@@ -372,15 +372,15 @@ For more about Block syntax, See if_equals function.
 Conditional branch for searching in array. If $var is in the array, returns
 $then, otherwize returns $else.
 
-    {% if_in_array($var, [1,2,3,'a'], 'found', 'not found') %}
+    <% if_in_array($var, [1,2,3,'a'], 'found', 'not found') %>
 
 Block syntax is also available.
 
-    {% if_in_array($var, [1,2,3,'a'])<<THEN,ELSE %}
-        Found {% &escape_or_something_if_you_need($var) %}.
-    {%THEN%}
+    <% if_in_array($var, [1,2,3,'a'])<<THEN,ELSE %>
+        Found <% &escape_or_something_if_you_need($var) %>.
+    <%THEN%>
         Not found
-    {%ELSE%}
+    <%ELSE%>
 
 =head2 &switch($var, $hash_ref, [$default])
 
@@ -392,13 +392,13 @@ Conditional branch for switching many cases.
 
 Block syntax is also available.
 
-    &switch($var, [1, 2])<<CASE1,CASE2,DEFAULT %}
+    &switch($var, [1, 2])<<CASE1,CASE2,DEFAULT %>
         case1
-    {%CASE1%}
-        case2 {% &escape_or_something_if_you_need($var) %}
-    {%CASE2%}
+    <%CASE1%>
+        case2 <% &escape_or_something_if_you_need($var) %>
+    <%CASE2%>
         default
-    {%DEFAULT%}
+    <%DEFAULT%>
 
 =head2 &tpl_switch($var, $hash_ref)
 
@@ -425,9 +425,9 @@ Not written yet.
 
 This function do nothing and returns null string.
 
-    <!-- {%&bypass(' -->
+    <!-- <%&bypass(' -->
     <base href="../">
-    <!-- ')%} -->
+    <!-- ')%> -->
 
 PSTemplate parses above as..
 
