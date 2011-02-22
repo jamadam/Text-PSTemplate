@@ -278,7 +278,7 @@ no warnings 'recursion';
                 $tag =~ s{(<<[a-zA-Z0-9,]*)}{};
                 if (my $inline = $1) {
                     for my $a (split(',', substr($inline, 2))) {
-                        $right =~ s{(.+?)$delim_l\s*($a)\s*$delim_r}{}s;
+                        $right =~ s{(.*?)$delim_l\s*($a)\s*$delim_r}{}s;
                         push(@{$Text::PSTemplate::inline_data}, $1);
                     }
                 }
