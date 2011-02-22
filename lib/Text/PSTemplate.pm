@@ -226,9 +226,9 @@ no warnings 'recursion';
         my ($self, $file) = @_;
         local $Text::PSTemplate::file = $Text::PSTemplate::file;
         my $str;
-        if (ref $_[0] eq 'Text::PSTemplate::File') {
-            $Text::PSTemplate::file = $_[0]->name;
-            $str = $_[0]->content;
+        if (ref $_[1] eq 'Text::PSTemplate::File') {
+            $Text::PSTemplate::file = $_[1]->name;
+            $str = $_[1]->content;
         } else {
             my $translate_ref = $self->get_param($ARG_FILENAME_TRANS);
             if (ref $translate_ref eq 'CODE') {
@@ -237,6 +237,19 @@ no warnings 'recursion';
             my $file = $self->get_file($file, 1, undef);
             $Text::PSTemplate::file = $file->name;
             $str = $file->content;
+        }
+        return $self->parse($str);
+    }
+    
+    ### ---
+    ### Parse template
+    ### ---
+    sub parse_str {
+        
+        my ($self, $str) = @_;
+        if (ref $_[1] eq 'Text::PSTemplate::File') {
+            $Text::PSTemplate::file = $_[1]->name;
+            $str = $_[1]->content;
         }
         return $self->parse($str);
     }
@@ -585,9 +598,21 @@ Get template functions.
 
 =head2 $instance->parse($str)
 
-=head2 $instance->parse_file($file_obj)
+parse_str method parses templates given in string.
+
+=head2 $instance->parse_str($str)
+
+=head2 $instance->parse_str($file_obj)
+
+parse_str method parses templates given in string or Text::PSTemplate::File
+instance.
 
 =head2 $instance->parse_file($file_path)
+
+=head2 $instance->parse_file($file_obj)
+
+parse_file method parses templates given in filename or Text::PSTemplate::File
+instance.
 
 =head2 $instance->parse()
 
