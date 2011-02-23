@@ -19,11 +19,11 @@ use Data::Dumper;
             null_string => '',
             zero => 0,
         );
-        my $parsed1 = $tpl->parse(q{<% &tpl_switch($some_var1,{1 => 't/template/02_PST_Plugable_Control2.txt', 2 => ''}) %>});
+        my $parsed1 = $tpl->parse(q{<% tpl_switch($some_var1,{1 => 't/template/02_PST_Plugable_Control2.txt', 2 => ''}) %>});
         is($parsed1, 'ok');
-        my $parsed2 = $tpl->parse(q{<% &tpl_switch($some_var2,{1 => '', 2 => 't/template/02_PST_Plugable_Control2.txt'}) %>});
+        my $parsed2 = $tpl->parse(q{<% tpl_switch($some_var2,{1 => '', 2 => 't/template/02_PST_Plugable_Control2.txt'}) %>});
         is($parsed2, 'ok');
-        my $parsed3 = $tpl->parse(q{<% &tpl_switch($some_var3,{1 => '', 2 => ''}) %>});
+        my $parsed3 = $tpl->parse(q{<% tpl_switch($some_var3,{1 => '', 2 => ''}) %>});
         is($parsed3, '');
     }
     
@@ -38,9 +38,9 @@ use Data::Dumper;
             null_string => '',
             zero => 0,
         );
-        my $parsed1 = $tpl->parse(q{<% &substr('abcde', 0, 2) %>});
+        my $parsed1 = $tpl->parse(q{<% substr('abcde', 0, 2) %>});
         is($parsed1, 'ab');
-        my $parsed2 = $tpl->parse(q{<% &substr('abcde', 0, 2, '..') %>});
+        my $parsed2 = $tpl->parse(q{<% substr('abcde', 0, 2, '..') %>});
         is($parsed2, 'ab..');
     }
     
@@ -54,15 +54,15 @@ use Data::Dumper;
             scalar => 1,
             zero => 0,
         );
-        my $parsed1 = $tpl->parse(q{<% &each($array, 'name')<<EOF%><% $name %><% EOF %>});
+        my $parsed1 = $tpl->parse(q{<% each($array, 'name')<<EOF%><% $name %><% EOF %>});
         is($parsed1, '1234');
-        my $parsed2 = $tpl->parse(q{<% &each($array, 'key' => 'value')<<EOF %><% $key %><% $value %><% EOF %>});
+        my $parsed2 = $tpl->parse(q{<% each($array, 'key' => 'value')<<EOF %><% $key %><% $value %><% EOF %>});
         is($parsed2, '01122334');
-        my $parsed3 = $tpl->parse(q{<% &each($hash, 'name')<<EOF%><% $name %><% EOF %>});
+        my $parsed3 = $tpl->parse(q{<% each($hash, 'name')<<EOF%><% $name %><% EOF %>});
         is($parsed3, '12');
-        my $parsed4 = $tpl->parse(q{<% &each($hash, 'key' => 'value')<<EOF %><% $key %><% $value %><% EOF %>});
+        my $parsed4 = $tpl->parse(q{<% each($hash, 'key' => 'value')<<EOF %><% $key %><% $value %><% EOF %>});
         is($parsed4, 'a1b2');
-        my $parsed5 = $tpl->parse(q{<% &each($scalar, 'key' => 'value')<<EOF %><% $key %><% $value %><% EOF %>});
+        my $parsed5 = $tpl->parse(q{<% each($scalar, 'key' => 'value')<<EOF %><% $key %><% $value %><% EOF %>});
         is($parsed5, '01');
     }
     
@@ -74,7 +74,7 @@ use Data::Dumper;
             array => [1,2,3,4],
             respect => 'org',
         );
-        my $parsed1 = $tpl->parse(q{<% &each($array, 'respect')<<EOF%><% $respect %><% EOF %>});
+        my $parsed1 = $tpl->parse(q{<% each($array, 'respect')<<EOF%><% $respect %><% EOF %>});
         is($parsed1, '1234');
         is($tpl->var('respect'), 'org');
     }
@@ -87,7 +87,7 @@ use Data::Dumper;
             array => [1,2,3,4],
             respect => 'org',
         );
-        my $parsed1 = $tpl->parse(q{<% &each($array, 'respect')<<EOF%><% $respect %><% &set_var(respect => 'sub') %><% EOF %>});
+        my $parsed1 = $tpl->parse(q{<% each($array, 'respect')<<EOF%><% $respect %><% set_var(respect => 'sub') %><% EOF %>});
         is($parsed1, '1234');
         is($tpl->var('respect'), 'sub');
     }

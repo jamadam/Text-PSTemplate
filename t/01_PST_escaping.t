@@ -13,7 +13,7 @@ use Data::Dumper;
         my $tpl = Text::PSTemplate->new();
         $tpl->set_var(title => 'TITLE');
         $tpl->set_func(hoge => sub {return '-'. $_[0]});
-        my $parsed = $tpl->parse(q!left <%&hoge('./?a=1\&b=2')%> right!);
+        my $parsed = $tpl->parse(q!left <% hoge('./?a=1\&b=2')%> right!);
         is($parsed, 'left -./?a=1&b=2 right');
     }
     
@@ -22,7 +22,7 @@ use Data::Dumper;
         my $tpl = Text::PSTemplate->new();
         $tpl->set_var(title => 'TITLE');
         $tpl->set_func(hoge => sub {return '-'. Text::PSTemplate::inline_data(0)});
-        my $parsed = $tpl->parse(q!left <%&hoge()<<EOF%>./?a=1&b=2<%EOF%> right!);
+        my $parsed = $tpl->parse(q!left <% hoge()<<EOF%>./?a=1&b=2<%EOF%> right!);
         is($parsed, 'left -./?a=1&b=2 right');
     }
     
@@ -37,9 +37,9 @@ use Data::Dumper;
                 return '-'. Text::PSTemplate::inline_data(0);
             }
         });
-        my $parsed1 = $tpl->parse(q!left <%&hoge()<<EOF%>./?a=1&b=2<%EOF%> right!);
+        my $parsed1 = $tpl->parse(q!left <% hoge()<<EOF %>./?a=1&b=2<% EOF %> right!);
         is($parsed1, 'left -./?a=1&b=2 right');
-        my $parsed2 = $tpl->parse(q!left <%&hoge('./?a=1\&b=2')%> right!);
+        my $parsed2 = $tpl->parse(q!left <% hoge('./?a=1\&b=2') %> right!);
         is($parsed2, 'left -./?a=1&b=2 right');
     }
     
@@ -48,15 +48,15 @@ use Data::Dumper;
         my $tpl = Text::PSTemplate->new;
         $tpl->set_exception($Text::PSTemplate::Exception::TAG_ERROR_NO_ACTION);
         $tpl->set_var_exception($Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE);
-        my $parsed = $tpl->parse(q!-<%$title%>-!);
-        is($parsed, q!-<%$title%>-!);
+        my $parsed = $tpl->parse(q!-<% $title %>-!);
+        is($parsed, q!-<% $title %>-!);
     }
     
     sub error_msg_include_quote_sub : Test {
         
         my $tpl = Text::PSTemplate->new;
         $tpl->set_exception(sub {q{error at 'hoge' ""}});
-        my $parsed = $tpl->parse(q!-<%&title($a)%>-!);
+        my $parsed = $tpl->parse(q!-<% title($a) %>-!);
         is($parsed, q{-error at 'hoge' ""-});
     }
     
@@ -74,7 +74,7 @@ EOF
             return $tpl->parse("hello $name!");
         });
         is($tpl->parse(<<'EOF'), $expected);
-        <%&hello()<<END1%>takashi"<%END1%>
+        <% hello()<<END1 %>takashi"<% END1 %>
 EOF
     
     }

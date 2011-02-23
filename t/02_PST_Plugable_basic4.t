@@ -13,6 +13,6 @@ use Test::Plugin2;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug(['Test::Plugin2']);
-        my $parsed1 = $tpl->parse(q[<%&Test::Plugin2::some_function()%>]);
+        my $parsed1 = $tpl->parse(q[<% Test::Plugin2::some_function() %>]);
         is($parsed1, 'some_function');
     }

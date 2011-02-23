@@ -89,7 +89,7 @@ Text::PSTemplate::Plugable - Plugable template engine
     $tpl->set_namespace_base('Foo::Bar');
     $tpl->set_default_plugin('Foo::Bar');
     
-    $tpl->parse('...<%&say_hello_to('Kenji')%}...');
+    $tpl->parse('...<% say_hello_to('Kenji') %}...');
     
     package MyPlug1;
     use strict;
@@ -122,7 +122,7 @@ This method adds some controll structures into your PSTemplate instance.
 
 The plugins will available as follows.
 
-    <% &Path::To::SomePlugin::some_function(...) %>
+    <% Path::To::SomePlugin::some_function(...) %>
 
 Or you can set an alias name as follows.
 
@@ -130,7 +130,7 @@ Or you can set an alias name as follows.
 
 This plugin will available as follows
 
-    <% &MyNamespace::some_function(...) %>
+    <% MyNamespace::some_function(...) %>
 
 You can marge plugins into single namespace.
 
@@ -141,12 +141,12 @@ You can marge plugins into single namespace.
 =head2 $instance->set_namespace_base [experimental]
 
 This method sets a namespace base. Namespace base strips long modificated
-functions into short. If you set 'A::B' for namespace base, &A::B::func()
+functions into short. If you set 'A::B' for namespace base, A::B::func()
 can call as just func(). Also, A::B::C::func() is active as C::func().
 
 =head2 $instance->set_default_plugin [experimental]
 
-Default plugin setting causes the fucntions can be called as &::func() style.
+Default plugin setting causes the fucntions can be called as ::func() style.
 
 =head2 $instance->get_as($plug_id)
 

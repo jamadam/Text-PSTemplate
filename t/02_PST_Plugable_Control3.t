@@ -13,7 +13,7 @@ use File::Spec;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->set_var(a => 'hoge');
-		my $parsed = $tpl->parse(q(test <% &include('t/template/02_PST_Plugable_Control3.txt') %> test));
+		my $parsed = $tpl->parse(q(test <% include('t/template/02_PST_Plugable_Control3.txt') %> test));
 		is($parsed, 'test ok hoge test');
     }
     
@@ -22,7 +22,7 @@ use File::Spec;
         my $tpl = Text::PSTemplate::Plugable->new;
 		$tpl->set_filename_trans_coderef(sub{File::Spec->catfile('t/template', $_[0])});
         $tpl->set_var(a => 'hoge');
-		my $parsed = $tpl->parse(q(test <% &include('02_PST_Plugable_Control3.txt') %> test));
+		my $parsed = $tpl->parse(q(test <% include('02_PST_Plugable_Control3.txt') %> test));
 		is($parsed, 'test ok hoge test');
     }
     
@@ -31,7 +31,7 @@ use File::Spec;
         my $tpl = Text::PSTemplate::Plugable->new;
 		$tpl->set_filename_trans_coderef(sub{File::Spec->catfile('t/template', $_[0])});
         $tpl->set_var(a => 'hoge');
-		my $parsed = $tpl->parse(q(test <% &include('02_PST_Plugable_Control3.txt', {a => 'foo'}) %> test));
+		my $parsed = $tpl->parse(q(test <% include('02_PST_Plugable_Control3.txt', {a => 'foo'}) %> test));
 		is($parsed, 'test ok foo test');
     }
     
@@ -39,7 +39,7 @@ use File::Spec;
         
         my $tpl = Text::PSTemplate::Plugable->new;
 		my $parsed = $tpl->parse(<<'EOF');
-<% &set_var(var1 => 'a', var2 => 'b') %>
+<% set_var(var1 => 'a', var2 => 'b') %>
 <% $var1 %><% $var2 %>
 EOF
 
@@ -53,7 +53,7 @@ EOF
         
         my $tpl = Text::PSTemplate::Plugable->new;
 		my $parsed = $tpl->parse(<<'EOF');
-<% &set_var(var1 => 'a', var2 => 'b') %><% &set_delimiter('%%', '%%') %>
+<% set_var(var1 => 'a', var2 => 'b') %><% set_delimiter('%%', '%%') %>
 %% $var1 %%%% $var2 %%
 EOF
 

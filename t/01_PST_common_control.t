@@ -15,8 +15,8 @@ use Data::Dumper;
 		$inst->set_var(var1 => 'value1');
 		$inst->set_var(var2 => [3,4,5]);
 		my $parsed = $inst->parse(<<'EOF');
-<% &if($var1 eq 'value1')<<THEN,ELSE %>then<% THEN %>else<% ELSE %>
-<% &each($var2, 'this')<<SUB %>"<% $this %>" found
+<% if($var1 eq 'value1')<<THEN,ELSE %>then<% THEN %>else<% ELSE %>
+<% each($var2, 'this')<<SUB %>"<% $this %>" found
 <% SUB %>
 EOF
 		my $expected = <<'EOF';

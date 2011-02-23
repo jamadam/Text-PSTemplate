@@ -67,12 +67,12 @@ Text::PSTemplate::Plugin::Extends - Port of Extends syntax from Django
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <link rel="stylesheet" href="style.css" />
-        <title><% &placeholder('title')<<DEFULT %>My amazing site<% DEFULT %></title>
+        <title><% placeholder('title')<<DEFULT %>My amazing site<% DEFULT %></title>
     </head>
     
     <body>
         <div id="sidebar">
-            <% &placeholder('sidebar')<<DEFULT %>
+            <% placeholder('sidebar')<<DEFULT %>
             <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/blog/">Blog</a></li>
@@ -81,16 +81,16 @@ Text::PSTemplate::Plugin::Extends - Port of Extends syntax from Django
         </div>
     
         <div id="content">
-            <% &placeholder('content')<<DEFULT %><% DEFULT %>
+            <% placeholder('content')<<DEFULT %><% DEFULT %>
         </div>
     </body>
     </html>
     
     child.html
     
-    <% &extends('base.html')<<EXTENDS %>
-        <% &block('title')<<BLOCK %>My amazing blog<% BLOCK %>
-        <% &block('content')<<BLOCK %><% &each($blog_entries, 'entry')<<ENTRIES %>
+    <% extends('base.html')<<EXTENDS %>
+        <% block('title')<<BLOCK %>My amazing blog<% BLOCK %>
+        <% block('content')<<BLOCK %><% each($blog_entries, 'entry')<<ENTRIES %>
             <h2><% $entry->{title} %></h2>
             <p><% $entry->{body} %></p>
         <% ENTRIES %><% BLOCK %>

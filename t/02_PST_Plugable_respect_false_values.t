@@ -12,21 +12,21 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug(['Test::_Plugin']);
-        my $parsed = $tpl->parse(q[left <%&Test::_Plugin::zero()%> right]);
+        my $parsed = $tpl->parse(q[left <% Test::_Plugin::zero() %> right]);
         is($parsed, 'left 0 right');
     }
 	
     sub null_string : Test(1) {
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug(['Test::_Plugin']);
-        my $parsed = $tpl->parse(q[left <%&Test::_Plugin::null_string()%> right]);
+        my $parsed = $tpl->parse(q[left <% Test::_Plugin::null_string() %> right]);
         is($parsed, 'left  right');
 	}
 	
     sub undefined : Test(1) {
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug(['Test::_Plugin']);
-        my $parsed = $tpl->parse(q[left <%&Test::_Plugin::undefined()%> right]);
+        my $parsed = $tpl->parse(q[left <% Test::_Plugin::undefined() %> right]);
         is($parsed, 'left  right');
 	}
 

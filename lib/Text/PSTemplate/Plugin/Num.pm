@@ -35,7 +35,9 @@ Text::PSTemplate::Plugin::Num -
 
 =head1 TEMPLATE FUNCTIONS
 
-=head2 commify
+=head2 commify($num)
+
+Conver to comma separated number
 
 =head1 AUTHOR
 

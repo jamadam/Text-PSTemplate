@@ -41,7 +41,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
 		eval {
-			$tpl->parse(q[<% &hoge() %>])
+			$tpl->parse(q[<% hoge() %>])
 		};
 		like($@, qr/not defined/);
     }
@@ -52,7 +52,7 @@ use Data::Dumper;
 		my $e = sub {'hoge'};
         $tpl->set_exception($e);
 		eval {
-			$tpl->parse(q[<% &hoge() %>])
+			$tpl->parse(q[<% hoge() %>])
 		};
 		is($@, '');
     }
@@ -69,10 +69,10 @@ use Data::Dumper;
 		};
         $tpl->set_exception($e);
 		my $parsed = eval {
-			$tpl->parse(q[<% &hoge() %>])
+			$tpl->parse(q[<% hoge() %>])
 		};
 		is($@, '');
-		is($parsed, '<% &hoge() %>');
+		is($parsed, '<% hoge() %>');
     }
     
     sub exception_in_args : Test(2) {
@@ -88,10 +88,10 @@ use Data::Dumper;
         $tpl->set_exception($e);
 		$tpl->set_func(myfunc => sub {'a'});
 		my $parsed = eval {
-			$tpl->parse(q[<% &myfunc(&hoge()) %>])
+			$tpl->parse(q[<% myfunc(&hoge()) %>])
 		};
 		is($@, '');
-		is($parsed, '<% &myfunc(&hoge()) %>');
+		is($parsed, '<% myfunc(&hoge()) %>');
     }
     
     sub indent_optimize {

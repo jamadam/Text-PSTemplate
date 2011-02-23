@@ -310,9 +310,6 @@ no warnings 'recursion';
             if ($len % 2 == 1) {
                 $out .= $delim_l. $space_l. $tag. $space_r. $delim_r;
             } else {
-                if (substr($tag, 0, 1) !~ /\$|\&/) {
-                    $tag = '&'. $tag;
-                }
                 local $Text::PSTemplate::inline_data;
                 $tag =~ s{(<<[a-zA-Z0-9,]*)}{};
                 if (my $inline = $1) {
@@ -324,7 +321,12 @@ no warnings 'recursion';
                 
                 local $Text::PSTemplate::self = $self;
                 
-                my $interp = eval {$self->_interpolate($tag)};
+                my $interp;
+                if (substr($tag, 0, 1) !~ /\$|\&/) {
+                    $interp = eval {$self->_interpolate('&'.$tag)};
+                } else {
+                    $interp = eval {$self->_interpolate($tag)};
+                }
                 
                 if ($@) {
                     my $org = $space_l. $tag. $space_r;
@@ -578,11 +580,11 @@ designers only have to learn following rules.
 =item Perl style variable and function calls
 
     <% $some_var %>
-    <% &some_func(...) %>
+    <% some_func(...) %>
 
 =item Block syntax
 
-    <% &some_func()<<EOF,EOF2 %>
+    <% some_func()<<EOF,EOF2 %>
     inline data
     <%EOF%>
     inline data2
@@ -698,7 +700,7 @@ Set template functions
     $instance->set_func(say_hello_to => $a)
     
     Inside template...
-    <% &say_hello_to('Fujitsu san') %>
+    <% say_hello_to('Fujitsu san') %>
 
 =head2 $instance->func(name)
 

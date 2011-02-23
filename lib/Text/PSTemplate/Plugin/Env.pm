@@ -74,25 +74,25 @@ as THEN or ELSE etc. These keywords are just a example. As the matter of
 fact, you can say 'EOF' for all of them. The template engine only matters
 the order of BLOCKs. So do not memorize any of them. 
 
-=head2 &env($name)
+=head2 env($name)
 
 Not written yet.
 
-=head2 &if_env($name, $then, $else)
+=head2 if_env($name, $then, $else)
 
-=head2 &if_env($name)<<THEN,ELSE
-
-Not written yet.
-
-=head2 &if_env_equals($name, $then, $else)
-
-=head2 &if_env_equals($name)<<THEN,ELSE
+=head2 if_env($name)<<THEN,ELSE
 
 Not written yet.
 
-=head2 &if_env_like($name, $pattern, $then, $else)
+=head2 if_env_equals($name, $then, $else)
 
-=head2 &if_env_like($name, $pattern)<<THEN,ELSE
+=head2 if_env_equals($name)<<THEN,ELSE
+
+Not written yet.
+
+=head2 if_env_like($name, $pattern, $then, $else)
+
+=head2 if_env_like($name, $pattern)<<THEN,ELSE
 
 Not written yet.
 

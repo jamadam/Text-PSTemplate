@@ -270,33 +270,33 @@ Text::PSTemplate::Plugin::Control - Common controll structures
 
 =head1 SYNOPSIS
 
-    <% &if_equals($some_var, 'a', 'then', 'else') %>
+    <% if_equals($some_var, 'a', 'then', 'else') %>
     
-    <% &if_equals($some_var, 'a')<<THEN,ELSE %>
+    <% if_equals($some_var, 'a')<<THEN,ELSE %>
     then
     <%THEN%>
     else
     <%ELSE%>
     
-    <% &if($some_var, 'true', 'not true') %>
+    <% if($some_var, 'true', 'not true') %>
     
-    <% &if($some_var)<<THEN,ELSE %>
+    <% if($some_var)<<THEN,ELSE %>
     true
     <%THEN%>
     not true
     <%ELSE%>
     
-    <% &if_in_array($some_var, ['a','b','c'], 'found', 'not found') %>
+    <% if_in_array($some_var, ['a','b','c'], 'found', 'not found') %>
     
-    <% &if_in_array($some_var, ['a','b','c'])<<THEN,ELSE %>
+    <% if_in_array($some_var, ['a','b','c'])<<THEN,ELSE %>
     found
     <%THEN%>
     not found
     <%ELSE%>
     
-    <% &switch($some_var, {a => 'match a', b => 'match b'}, 'default') %>
+    <% switch($some_var, {a => 'match a', b => 'match b'}, 'default') %>
     
-    <% &switch($some_var, ['a', 'b'])<<CASE1,CASE2,DEFAULT %>
+    <% switch($some_var, ['a', 'b'])<<CASE1,CASE2,DEFAULT %>
     match a
     <%CASE1%>
     match b
@@ -304,30 +304,30 @@ Text::PSTemplate::Plugin::Control - Common controll structures
     default
     <%DEFAULT%>
     
-    <% &tpl_switch($some_var, {
+    <% tpl_switch($some_var, {
         a => 'path/to/tpl_a.txt',
         b => 'path/to/tpl_b.txt',
     }, 'path/to/tpl_default.txt) %>
     
-    <% &substr($some_var, 0, 2, '...') %>
+    <% substr($some_var, 0, 2, '...') %>
     
-    <% &each($array_ref, 'name')<<TPL %>
+    <% each($array_ref, 'name')<<TPL %>
     This is <%$name%>.
     <%TPL%>
 
-    <% &each($array_ref, 'index' => 'name')<<TPL %>
+    <% each($array_ref, 'index' => 'name')<<TPL %>
     No.<%$index%> is <%$name%>.
     <%TPL%>
 
-    <% &each($hash_ref, 'name')<<TPL %>
+    <% each($hash_ref, 'name')<<TPL %>
     This is <%$name%>.
     <%TPL%>
 
-    <% &each($has_href, 'key' => 'name')<<TPL %>
+    <% each($has_href, 'key' => 'name')<<TPL %>
     Key '<%$key%>' contains <%$name%>.
     <%TPL%>
     
-    <% &include('path/to/file.txt', {some_var => 'aaa'}) %>
+    <% include('path/to/file.txt', {some_var => 'aaa'}) %>
 
 =head1 DESCRIPTION
 
@@ -351,25 +351,25 @@ as THEN or ELSE etc. These keywords are just a example. As the matter of
 fact, you can say 'EOF' for all of them. The template engine only matters
 the order of BLOCKs. So do not memorize any of them. 
 
-=head2 &if_equals($var, $case, $then, [$else])
+=head2 if_equals($var, $case, $then, [$else])
 
-=head2 &if_equals($var, $case)<<THEN[,ELSE]
+=head2 if_equals($var, $case)<<THEN[,ELSE]
 
 Conditional branch. If $var equals to $case, $then is returned. Otherwise
 returns $else. $else if optional.
 
-    <% &if_equals($a, '1', 'matched') %>
+    <% if_equals($a, '1', 'matched') %>
 
 Instead of arguments, you can pass 1 or 2 blocks for each conditions. The blocks
 will be parsed as template.
 
-    <% &if_equals($a, '1')<<THEN %>
-        This is <% &escape_or_something($a) %>.
+    <% if_equals($a, '1')<<THEN %>
+        This is <% escape_or_something($a) %>.
     <%THEN%>
 
-=head2 &if($var, $then, [$else])
+=head2 if($var, $then, [$else])
 
-=head2 &if($var)<<THEN[,ELSE]
+=head2 if($var)<<THEN[,ELSE]
 
 Conditional branch. If $var is a true value, returns $then. Otherwise returns
 $else. The true means 'not 0' and 'not 0 length'. The exact definition about
@@ -380,14 +380,14 @@ true, see documents of perl itself.
 For more about Block syntax, See if_equals function.
 
     <% if($var)<<THEN,ELSE %>
-        This is <% &escape_or_something_if_you_need($var) %>.
+        This is <% escape_or_something_if_you_need($var) %>.
     <%THEN%>
         not true
     <%ELSE%>
 
-=head2 &if_in_array($var, $array_ref, $then, [$else])
+=head2 if_in_array($var, $array_ref, $then, [$else])
 
-=head2 &if_in_array($var, $array_ref)<<THEN[,ELSE]
+=head2 if_in_array($var, $array_ref)<<THEN[,ELSE]
 
 Conditional branch for searching in array. If $var is in the array, returns
 $then, otherwize returns $else.
@@ -397,71 +397,71 @@ $then, otherwize returns $else.
 Block syntax is also available.
 
     <% if_in_array($var, [1,2,3,'a'])<<THEN,ELSE %>
-        Found <% &escape_or_something_if_you_need($var) %>.
+        Found <% escape_or_something_if_you_need($var) %>.
     <%THEN%>
         Not found
     <%ELSE%>
 
-=head2 &switch($var, $hash_ref, [$default])
+=head2 switch($var, $hash_ref, [$default])
 
-=head2 &switch($var, $array_ref, [$default])<<CASE1,CASE2,...
+=head2 switch($var, $array_ref, [$default])<<CASE1,CASE2,...
 
 Conditional branch for switching many cases.
 
-    &switch($var, {1 => 'case1', 2 => 'case2'}, 'default')
+    switch($var, {1 => 'case1', 2 => 'case2'}, 'default')
 
 Block syntax is also available.
 
-    &switch($var, [1, 2])<<CASE1,CASE2,DEFAULT %>
+    switch($var, [1, 2])<<CASE1,CASE2,DEFAULT %>
         case1
     <%CASE1%>
-        case2 <% &escape_or_something_if_you_need($var) %>
+        case2 <% escape_or_something_if_you_need($var) %>
     <%CASE2%>
         default
     <%DEFAULT%>
 
-=head2 &tpl_switch($var, $hash_ref)
+=head2 tpl_switch($var, $hash_ref)
 
 Conditional branch for switching many cases. This function parses file templates
 for each cases and returns the parsed string.
 
-=head2 &if_like($var, $pattern, $then, $else)
+=head2 if_like($var, $pattern, $then, $else)
 
-=head2 &if_like($var, $pattern)<<THEN,ELSE
-
-Not written yet.
-
-=head2 &each($var, $value)<<TPL
-
-=head2 &each($var, $key => $value)<<TPL
+=head2 if_like($var, $pattern)<<THEN,ELSE
 
 Not written yet.
 
-=head2 &substr($var, $start, [$length, $alterative])
+=head2 each($var, $value)<<TPL
+
+=head2 each($var, $key => $value)<<TPL
 
 Not written yet.
 
-=head2 &bypass('')
+=head2 substr($var, $start, [$length, $alterative])
+
+Not written yet.
+
+=head2 bypass('')
 
 This function do nothing and returns null string.
 
-    <!-- <%&bypass(' -->
+    <!-- <% bypass(' -->
     <base href="../">
-    <!-- ')%> -->
+    <!-- ') %> -->
 
 PSTemplate parses above as..
 
     <!--  -->
 
-=head2 &include(FILENAME, [VARIABLES])
+=head2 include(FILENAME, [VARIABLES])
 
 This function include a file content of given name into current template.
 
-    <% &include('path/to/file.txt', {some_var => 'aaa'}) %>
+    <% include('path/to/file.txt', {some_var => 'aaa'}) %>
 
-=head2 &set_var(%dataset)
+=head2 set_var(%dataset)
 
-=head2 &set_delimiter(LEFT, RIGHT)
+=head2 set_delimiter(LEFT, RIGHT)
 
 =head1 AUTHOR
 
