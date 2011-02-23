@@ -2,3 +2,6 @@ Revision history for Text-PSTemplate
 
 0.01 2011/02/07
   - initial release
+
+0.15 2011/02/23
+  - FIX: set_var in if blocks haven't work

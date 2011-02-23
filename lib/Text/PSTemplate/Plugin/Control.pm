@@ -13,7 +13,7 @@ our $VERSION = '0.01';
         
         my ($self, $target, $array_ref, $then, $else) = @_;
         
-        my $tpl = Text::PSTemplate->new;
+        my $tpl = Text::PSTemplate->mother;
         
         if (grep {$_ eq $target} @$array_ref) {
             if ($then) {
@@ -38,7 +38,7 @@ our $VERSION = '0.01';
         
         my ($self, $condition, $then, $else) = @_;
         
-        my $tpl = Text::PSTemplate->new;
+        my $tpl = Text::PSTemplate->mother;
         
         if ($condition) {
             if ($then) {
@@ -88,7 +88,7 @@ our $VERSION = '0.01';
         
         my ($self, $target, $pattern, $then, $else) = @_;
         
-        my $tpl = Text::PSTemplate->new;
+        my $tpl = Text::PSTemplate->mother;
         
         if ($target =~ /$pattern/) {
             if ($then) {
@@ -113,7 +113,7 @@ our $VERSION = '0.01';
         
         my ($self, $target, $case_ref, $default) = @_;
         
-        my $tpl = Text::PSTemplate->new;
+        my $tpl = Text::PSTemplate->mother;
         
         if (ref $case_ref eq 'ARRAY') {
             my $i = 0;
@@ -143,7 +143,7 @@ our $VERSION = '0.01';
         
         my ($self, $target, $case_ref, $default) = @_;
         
-        my $tpl = Text::PSTemplate->new;
+        my $tpl = Text::PSTemplate->mother;
         
         if (exists $case_ref->{$target}) {
             return $tpl->parse_file($case_ref->{$target});
@@ -164,6 +164,7 @@ our $VERSION = '0.01';
         
         my $tplstr = Text::PSTemplate::inline_data(0);
         my $tpl = Text::PSTemplate->new;
+        $tpl->bypass_mother_search;
         
         if (! ref $data) {
             $data = [$data];

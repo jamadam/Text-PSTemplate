@@ -57,6 +57,19 @@ use Data::Dumper;
         is($parsed6, 'not exists');
     }
     
+    sub if_with_set_var : Test(2) {
+        
+        my $tpl = Text::PSTemplate::Plugable->new;
+        
+        $tpl->set_var(
+            respect => 'org',
+            some_var1=> 1,
+        );
+        my $parsed1 = $tpl->parse(q{<% &if($some_var1)<<THEN %><% &set_var(respect => 'sub') %><% THEN %>});
+        is($parsed1, '');
+        is($tpl->var('respect'), 'sub');
+    }
+    
     sub if_in_array : Test(5) {
         
         my $tpl = Text::PSTemplate::Plugable->new;

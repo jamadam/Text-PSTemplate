@@ -65,3 +65,29 @@ use Data::Dumper;
         my $parsed5 = $tpl->parse(q{<% &each($scalar, 'key' => 'value')<<EOF %><% $key %><% $value %><% EOF %>});
         is($parsed5, '01');
     }
+    
+    sub each_not_affect_mother : Test(2) {
+        
+        my $tpl = Text::PSTemplate::Plugable->new;
+        
+        $tpl->set_var(
+            array => [1,2,3,4],
+            respect => 'org',
+        );
+        my $parsed1 = $tpl->parse(q{<% &each($array, 'respect')<<EOF%><% $respect %><% EOF %>});
+        is($parsed1, '1234');
+        is($tpl->var('respect'), 'org');
+    }
+    
+    sub each_affects_mother : Test(2) {
+        
+        my $tpl = Text::PSTemplate::Plugable->new;
+        
+        $tpl->set_var(
+            array => [1,2,3,4],
+            respect => 'org',
+        );
+        my $parsed1 = $tpl->parse(q{<% &each($array, 'respect')<<EOF%><% $respect %><% &set_var(respect => 'sub') %><% EOF %>});
+        is($parsed1, '1234');
+        is($tpl->var('respect'), 'sub');
+    }

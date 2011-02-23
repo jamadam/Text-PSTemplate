@@ -2,20 +2,21 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 use 5.005;
 use Carp;
 no warnings 'recursion';
 
-    my $MEM_MOTHER          = 1;
-    my $MEM_DELIMITER_LEFT  = 2;
-    my $MEM_DELIMITER_RIGHT = 3;
-    my $MEM_ENCODING        = 4;
-    my $MEM_NONEXIST        = 5;
-    my $MEM_RECUR_LIMIT     = 6;
-    my $MEM_FUNC            = 7;
-    my $MEM_VAR             = 8;
-    my $MEM_FILENAME_TRANS  = 9;
+    my $MEM_MOTHER                  = 1;
+    my $MEM_DELIMITER_LEFT          = 2;
+    my $MEM_DELIMITER_RIGHT         = 3;
+    my $MEM_ENCODING                = 4;
+    my $MEM_NONEXIST                = 5;
+    my $MEM_RECUR_LIMIT             = 6;
+    my $MEM_FUNC                    = 7;
+    my $MEM_VAR                     = 8;
+    my $MEM_FILENAME_TRANS          = 9;
+    my $MEM_BYPASS_MOTHER_SEARCH    = 10;
     
     ### ---
     ### constractor
@@ -71,7 +72,25 @@ no warnings 'recursion';
     ### ---
     sub mother {
         
-        return $Text::PSTemplate::self;
+        if (ref $_[0]) {
+            if ($_[0]->{$MEM_MOTHER}->{$MEM_BYPASS_MOTHER_SEARCH}) {
+                return $_[0]->{$MEM_MOTHER}->mother;
+            }
+            return $_[0]->{$MEM_MOTHER};
+        } else {
+            if ($Text::PSTemplate::self->{$MEM_BYPASS_MOTHER_SEARCH}) {
+                return $Text::PSTemplate::self->mother;
+            }
+            return $Text::PSTemplate::self;
+        }
+    }
+    
+    ### ---
+    ### Get current file name
+    ### ---
+    sub bypass_mother_search {
+        
+        $_[0]->{$MEM_BYPASS_MOTHER_SEARCH} = 1;
     }
     
     ### ---
@@ -713,6 +732,8 @@ This example allows common extension to be ommited.
     $tpl->set_filename_trans_coderef($trans)
 
 This also let you set a default template in case the template not found.
+
+=head2 $instance->bypass_mother_search()
 
 =head1 TEXT::PSTemplate::File CLASS
 

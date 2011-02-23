@@ -6,7 +6,9 @@ lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Manual.pod
 lib/Text/PSTemplate/Plugable.pm
 lib/Text/PSTemplate/Plugin/Control.pm
+lib/Text/PSTemplate/Plugin/Developer.pod
 lib/Text/PSTemplate/Plugin/Env.pm
+lib/Text/PSTemplate/Plugin/Extends.pm
 lib/Text/PSTemplate/Plugin/Num.pm
 lib/Text/PSTemplate/PluginBase.pm
 Makefile.PL
@@ -21,6 +23,7 @@ t/01_PST_deep_recursion2.t
 t/01_PST_escaping.t
 t/01_PST_escaping2.t
 t/01_PST_filename_trans.t
+t/01_PST_skip_bubbling.t
 t/02_PST_Plugable_basic.t
 t/02_PST_Plugable_basic2.t
 t/02_PST_Plugable_basic3.t
@@ -32,6 +35,7 @@ t/02_PST_Plugable_incrementally_added.t
 t/02_PST_Plugable_ini_c3.t
 t/02_PST_Plugable_namespace.t
 t/02_PST_Plugable_respect_false_values.t
+t/03_PST_Plugable_Extends.t
 t/99_pod.t
 t/99_podcoverage.t
 t/lib/PST_common_control.pm
@@ -47,6 +51,9 @@ t/template/01_PST_filename_trans.txt
 t/template/02_PST_Plugable_Control1.txt
 t/template/02_PST_Plugable_Control2.txt
 t/template/02_PST_Plugable_Control3.txt
+t/template/03_PST_Plugable_Extends1.txt
+t/template/03_PST_Plugable_Extends2.txt
+t/template/03_PST_Plugable_Extends3.txt
 t/template/Template_basic2.txt
 t/template/Template_basic2_2.txt
 t/template/Template_filename_trans.txt
