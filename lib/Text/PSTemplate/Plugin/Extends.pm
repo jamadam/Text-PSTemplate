@@ -30,8 +30,8 @@ use Text::PSTemplate;
     sub block : TplExport {
         
         my ($self, $name) = @_;
-        my $tpl = Text::PSTemplate::mother;
-        $tpl->mother->set_var($name => $tpl->parse(Text::PSTemplate::inline_data(0)));
+        my $tpl = Text::PSTemplate->mother;
+        $tpl->set_var($name => $tpl->parse(Text::PSTemplate::inline_data(0)));
         return;
     }
     

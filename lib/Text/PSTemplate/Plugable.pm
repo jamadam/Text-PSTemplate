@@ -14,9 +14,9 @@ our @CORE_LIST = qw(Control Num Env Extends);
 	sub new {
 		
 		my $class = shift;
-		my $self = $class->SUPER::new($_[0]);
+		my $self = $class->SUPER::new(@_);
 		
-        if (! $_[0]) {
+        if (! scalar @_) {
             for my $name (@CORE_LIST) {
                 $self->plug('Text::PSTemplate::Plugin::'. $name, '');
             }
