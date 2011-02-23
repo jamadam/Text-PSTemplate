@@ -8,3 +8,6 @@ Revision history for Text-PSTemplate
 
 0.16 2011/02/23
   - FIX: EXCEPTION class constants renamed and some added
+
+0.17 2011/02/23
+  - FIX: BLOCK syntax sometimes didn't work propery.

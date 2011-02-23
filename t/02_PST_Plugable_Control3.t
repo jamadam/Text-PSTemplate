@@ -62,3 +62,30 @@ EOF
 ab
 EOF
     }
+    
+    sub bypass : Test(1) {
+        
+        my $tpl = Text::PSTemplate::Plugable->new;
+		my $parsed = $tpl->parse(q{<% bypass('aa') %>});
+		is($parsed, q{});
+    }
+    
+    sub regix_capture_bug : Test(1) {
+        
+        my $tpl = Text::PSTemplate::Plugable->new;
+		my $parsed = $tpl->parse(<<EOF);
+<% if(1)<<EOF1 %>
+	<% if(1)<<EOF2 %>1<% EOF2 %>
+	<% if(1, '1')%>
+	<% if(1)<<EOF2 %>1<% EOF2 %>
+<% EOF1 %>
+EOF
+
+		is($parsed, <<EOF);
+
+	1
+	1
+	1
+
+EOF
+    }

@@ -2,7 +2,7 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.15';
+our $VERSION = '0.17';
 use 5.005;
 use Carp;
 no warnings 'recursion';
@@ -311,11 +311,12 @@ no warnings 'recursion';
                 $out .= $delim_l. $space_l. $tag. $space_r. $delim_r;
             } else {
                 local $Text::PSTemplate::inline_data;
-                $tag =~ s{(<<[a-zA-Z0-9,]*)}{};
-                if (my $inline = $1) {
+                if ($tag =~ s{(<<[a-zA-Z0-9,]+)}{}) {
+                    my $inline = $1;
                     for my $a (split(',', substr($inline, 2))) {
-                        $right =~ s{(.*?)$delim_l\s*($a)\s*$delim_r}{}s;
-                        push(@{$Text::PSTemplate::inline_data}, $1);
+                        if ($right =~ s{(.*?)$delim_l\s*($a)\s*$delim_r}{}s) {
+                            push(@{$Text::PSTemplate::inline_data}, $1);
+                        }
                     }
                 }
                 
