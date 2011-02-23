@@ -743,7 +743,8 @@ Constractor. This method instanciates and set itself to mother attribute.
     # tpl3 and $tpl1 are exact same
     
     # This does same thing
-    # my $tpl2 = Text::PSTemplate->new($tpl1); # do same thing
+    # my $tpl2 = Text::PSTemplate->new($tpl1);
+    # my $tpl3 = $tpl2->mother();
 
 =head2 $instance->get_file($name, $trans_ref)
 
@@ -783,7 +784,9 @@ This also let you set a default template in case the template not found.
 =head1 TEXT::PSTemplate::File CLASS
 
 This class represents a template file. With this class, you can take file
-contents with the original file path.
+contents with the original file path. This class instance can be thrown at
+parse_file method and parse_str method. This is useful if you have to iterate
+template parse for same file.
 
 =head2 TEXT::PSTemplate::File->new($filename)
 
@@ -800,17 +803,34 @@ Returns file content
 =head1 TEXT::PSTemplate::Exception CLASS
 
 This class provides some common error callback subroutines. They can be thrown
-at Text::PSTemplate::set_exception() method.
+at exception setters.
 
-=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_NULL();
+    Text::PSTemplate::set_exception($code_ref)
+    Text::PSTemplate::set_var_exception($code_ref)
+    Text::PSTemplate::set_func_exception($code_ref)
 
-=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_DIE();
+=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_NULL;
 
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_DIE();
+This callback returns null string.
 
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NULL();
+=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
 
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NO_ACTION();
+This callback dies with message. This is the default option for both function
+parse errors and variable parse errors.
+
+=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_DIE;
+
+This callback dies with message. This is the default option for tag parse.
+
+=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NULL;
+
+This callback returns null string. The template will be parsed as if the tag wasn't
+there. This is good if you don't want wrong tags visible to public.
+
+=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NO_ACTION;
+
+This callback returns tag description itself. The template will be parsed as if
+the tag was escaped.
 
 =head1 AUTHOR
 
