@@ -43,7 +43,7 @@ use Data::Dumper;
 		eval {
 			$tpl->parse(q[<% &hoge() %>])
 		};
-		like($@, qr/Error/);
+		like($@, qr/not defined/);
     }
     
     sub no_exception : Test(1) {
@@ -64,7 +64,7 @@ use Data::Dumper;
 	        my ($self, $line, $err) = (@_);
 			return 
 				$self->get_delimiter(0)
-				. '\\'. $line
+				. $line
 				. $self->get_delimiter(1);
 		};
         $tpl->set_exception($e);
@@ -72,7 +72,26 @@ use Data::Dumper;
 			$tpl->parse(q[<% &hoge() %>])
 		};
 		is($@, '');
-		is($parsed, '<%\&hoge()%>');
+		is($parsed, '<% &hoge() %>');
+    }
+    
+    sub exception_in_args : Test(2) {
+        
+        my $tpl = Text::PSTemplate->new;
+		my $e = sub {
+	        my ($self, $line, $err) = (@_);
+			return 
+				$self->get_delimiter(0)
+				. $line
+				. $self->get_delimiter(1);
+		};
+        $tpl->set_exception($e);
+		$tpl->set_func(myfunc => sub {'a'});
+		my $parsed = eval {
+			$tpl->parse(q[<% &myfunc(&hoge()) %>])
+		};
+		is($@, '');
+		is($parsed, '<% &myfunc(&hoge()) %>');
     }
     
     sub indent_optimize {

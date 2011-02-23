@@ -31,7 +31,6 @@ use Text::PSTemplate;
         
         my ($self, $name) = @_;
         my $tpl = Text::PSTemplate::mother;
-        #my $tpl = Text::PSTemplate->new;
         $tpl->mother->set_var($name => $tpl->parse(Text::PSTemplate::inline_data(0)));
         return;
     }
@@ -43,7 +42,6 @@ use Text::PSTemplate;
         
         my ($self, $name) = @_;
         my $tpl = Text::PSTemplate::mother;
-        #my $tpl = Text::PSTemplate->new;
         if (my $val = $tpl->var($name)) {
             return $val;
         } else {

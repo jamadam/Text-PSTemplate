@@ -45,11 +45,11 @@ use Data::Dumper;
     
     sub error_msg_include_quote : Test {
         
-        my $err = sub {q{error at 'hoge' ""}};
         my $tpl = Text::PSTemplate->new;
-        $tpl->set_exception($err);
+        $tpl->set_exception($Text::PSTemplate::Exception::TAG_ERROR_NO_ACTION);
+        $tpl->set_var_exception($Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE);
         my $parsed = $tpl->parse(q!-<%$title%>-!);
-        is($parsed, q{-error at 'hoge' ""-});
+        is($parsed, q!-<%$title%>-!);
     }
     
     sub error_msg_include_quote_sub : Test {

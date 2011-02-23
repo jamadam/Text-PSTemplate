@@ -5,3 +5,6 @@ Revision history for Text-PSTemplate
 
 0.15 2011/02/23
   - FIX: set_var in if blocks haven't work
+
+0.16 2011/02/23
+  - FIX: EXCEPTION class constants renamed and some added

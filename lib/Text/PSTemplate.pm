@@ -11,12 +11,14 @@ no warnings 'recursion';
     my $MEM_DELIMITER_LEFT          = 2;
     my $MEM_DELIMITER_RIGHT         = 3;
     my $MEM_ENCODING                = 4;
-    my $MEM_NONEXIST                = 5;
-    my $MEM_RECUR_LIMIT             = 6;
-    my $MEM_FUNC                    = 7;
-    my $MEM_VAR                     = 8;
-    my $MEM_FILENAME_TRANS          = 9;
-    my $MEM_BYPASS_MOTHER_SEARCH    = 10;
+    my $MEM_RECUR_LIMIT             = 5;
+    my $MEM_FUNC                    = 6;
+    my $MEM_VAR                     = 7;
+    my $MEM_FILENAME_TRANS          = 8;
+    my $MEM_BYPASS_MOTHER_SEARCH    = 9;
+    my $MEM_NONEXIST                = 10;
+    my $MEM_FUNC_NONEXIST           = 11;
+    my $MEM_VAR_NONEXIST            = 12;
     
     ### ---
     ### constractor
@@ -27,20 +29,20 @@ no warnings 'recursion';
         if (scalar @_ == 1) {
             $mother = $Text::PSTemplate::self || undef;
         }
-        my $self = {
+        my $self = bless {
             $MEM_MOTHER      => $mother, 
             $MEM_FUNC        => {},
             $MEM_VAR         => {},
-        };
+        }, $class;
         
-        bless $self, $class;
-        
-        if (! defined $self->{$MEM_MOTHER}) {
-            $self->{$MEM_ENCODING}          ||= 'utf8';
-            $self->{$MEM_RECUR_LIMIT}       ||= 10;
-            $self->{$MEM_NONEXIST}          ||= $Text::PSTemplate::Exception::DIE;
-            $self->{$MEM_DELIMITER_LEFT}    ||= '<%';
-            $self->{$MEM_DELIMITER_RIGHT}   ||= '%>';
+        if (! defined $mother) {
+            $self->{$MEM_ENCODING}          = 'utf8';
+            $self->{$MEM_RECUR_LIMIT}       = 10;
+            $self->{$MEM_FUNC_NONEXIST}     = $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
+            $self->{$MEM_VAR_NONEXIST}      = $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
+            $self->{$MEM_NONEXIST}          = $Text::PSTemplate::Exception::TAG_ERROR_DIE;
+            $self->{$MEM_DELIMITER_LEFT}    = '<%';
+            $self->{$MEM_DELIMITER_RIGHT}   = '%>';
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
@@ -120,6 +122,24 @@ no warnings 'recursion';
         
         my ($self, $code_ref) = @_;
         $self->{$MEM_NONEXIST} = $code_ref;
+    }
+    
+    ### ---
+    ### Set Exception
+    ### ---
+    sub set_func_exception {
+        
+        my ($self, $code_ref) = @_;
+        $self->{$MEM_FUNC_NONEXIST} = $code_ref;
+    }
+    
+    ### ---
+    ### Set Exception
+    ### ---
+    sub set_var_exception {
+        
+        my ($self, $code_ref) = @_;
+        $self->{$MEM_VAR_NONEXIST} = $code_ref;
     }
     
     ### ---
@@ -291,7 +311,7 @@ no warnings 'recursion';
                 $out .= $delim_l. $space_l. $tag. $space_r. $delim_r;
             } else {
                 if (substr($tag, 0, 1) !~ /\$|\&/) {
-                    croak "Syntax error at template parse near $tag";
+                    $tag = '&'. $tag;
                 }
                 local $Text::PSTemplate::inline_data;
                 $tag =~ s{(<<[a-zA-Z0-9,]*)}{};
@@ -304,13 +324,19 @@ no warnings 'recursion';
                 
                 local $Text::PSTemplate::self = $self;
                 
-                my $result = eval $self->_interpolate($tag); ## no critic
+                my $interp = eval {$self->_interpolate($tag)};
                 
-                if (defined $result) {
-                    $out .= $result;
+                if ($@) {
+                    my $org = $space_l. $tag. $space_r;
+                    $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
                 } else {
-                    no strict 'refs';
-                    $out .= $self->get_param($MEM_NONEXIST)->($self, $tag, $@);
+                    my $result = eval $interp; ## no critic
+                    if ($@) {
+                        my $org = $space_l. $tag. $space_r;
+                        $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
+                    } else {
+                        $out .= $result;
+                    }
                 }
             }
             return $left. $out. $self->parse($right);
@@ -341,18 +367,16 @@ no warnings 'recursion';
                     if (defined $self->var($3)) {
                         $out .= qq!\$self->var('$3')!;
                     } else {
-                        $out .=
-                        "'\Q".
-                        $self->get_param($MEM_NONEXIST)->($self, $2. $3).
+                        $out .= "'\Q".
+                        $self->get_param($MEM_VAR_NONEXIST)->($self, $2.$3, 'variable').
                         "\E'";
                     }
                 } elsif ($2 eq '&') {
                     if ($self->func($3)) {
                         $out .= qq!\$self->func('$3')->!;
                     } else {
-                        $out .=
-                        "'\Q".
-                        $self->get_param($MEM_NONEXIST)->($self, $2. $3).
+                        $out .= "'\Q".
+                        $self->get_param($MEM_FUNC_NONEXIST)->($self, $2.$3, 'function').
                         "\E'";
                     }
                 } else {
@@ -441,24 +465,36 @@ use Carp;
     ### ---
     ### return null string
     ### ---
-    our $NULL = sub {
-        return sub{''};
+    our $PARTIAL_NONEXIST_NULL = sub {
+        return '';
+    };
+    
+    our $PARTIAL_NONEXIST_DIE = sub {
+        my ($self, $var, $type) = (@_);
+        croak "$type $var not defined";
+    };
+    
+    ### ---
+    ### return null string
+    ### ---
+    our $TAG_ERROR_NULL = sub {
+        return '';
     };
     
     ### ---
     ### returns template tag itself
     ### ---
-    our $NO_ACTION = sub {
+    our $TAG_ERROR_NO_ACTION = sub {
         my ($self, $line, $err) = (@_);
         my $delim_l = Text::PSTemplate->mother->get_delimiter(0);
         my $delim_r = Text::PSTemplate->mother->get_delimiter(1);
-        return $delim_l. '\\'. $line. $delim_r;
+        return $delim_l. $line. $delim_r;
     };
     
     ### ---
     ### returns nothing and just die;
     ### ---
-    our $DIE = sub {
+    our $TAG_ERROR_DIE = sub {
         my ($self, $line, $err) = (@_);
         if ($err) {
             if ($err =~ /as a subroutine/) {
@@ -508,9 +544,11 @@ Text::PSTemplate - Multi purpose template engine
     $file_obj->content;
     $file_obj->name;
     
-    $code_ref = $Text::PSTemplate::NULL;
-    $code_ref = $Text::PSTemplate::NO_ACTION;
-    $code_ref = $Text::PSTemplate::DIE;
+    $code_ref = $Text::PSTemplate::PARTIAL_NULL;
+    $code_ref = $Text::PSTemplate::PARTIAL_DIE;
+    $code_ref = $Text::PSTemplate::TAG_NULL;
+    $code_ref = $Text::PSTemplate::TAG_NO_ACTION;
+    $code_ref = $Text::PSTemplate::TAG_DIE;
     
 =head1 DESCRIPTION
 
@@ -611,6 +649,10 @@ will be called. Your call back subroutine can get following arguments.
 With these arguments, you can log the error, do nothing and return '', or
 reconstract the tag and return it as if the tag was escaped. See also
 Text::PSTemplate::Exception Class for example.
+
+=head2 $instance->set_var_exception($code_ref)
+
+=head2 $instance->set_func_exception($code_ref)
 
 =head2 $instance->set_recur_limit($number)
 
@@ -757,11 +799,15 @@ Returns file content
 This class provides some common error callback subroutines. They can be thrown
 at Text::PSTemplate::set_exception() method.
 
-=head2 $TEXT::PSTemplate::Exception::DIE();
+=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_NULL();
 
-=head2 $TEXT::PSTemplate::Exception::NULL();
+=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_DIE();
 
-=head2 $TEXT::PSTemplate::Exception::NO_ACTION();
+=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_DIE();
+
+=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NULL();
+
+=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NO_ACTION();
 
 =head1 AUTHOR
 

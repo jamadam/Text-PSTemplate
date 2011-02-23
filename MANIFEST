@@ -17,6 +17,7 @@ README
 t/00_load.t
 t/01_PST_basic.t
 t/01_PST_basic2.t
+t/01_PST_basic3.t
 t/01_PST_common_control.t
 t/01_PST_deep_recursion.t
 t/01_PST_deep_recursion2.t

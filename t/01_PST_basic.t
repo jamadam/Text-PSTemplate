@@ -49,22 +49,24 @@ use Data::Dumper;
         $tpl->set_func(hello => sub {
             'hello '. shift;
         });
-        my $parsed = $tpl->parse(q!<% &hello('world') %>!);
+        my $parsed = $tpl->parse(q!<% hello('world') %>!);
         is($parsed, 'hello world');
     }
     
     sub var_not_found : Test {
         
         my $tpl = Text::PSTemplate->new;
-        $tpl->set_exception(sub {'not found'});
-        my $parsed = $tpl->parse(q!<% $title %>!);
-        is($parsed, 'not found');
+        $tpl->set_var_exception($Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE);
+        my $parsed = eval {
+            $tpl->parse(q!<% $title %>!)
+        };
+        like($@, qr/variable \$title not defined/);
     }
     
     sub var_not_found2 : Test {
         
         my $tpl = Text::PSTemplate->new;
-        $tpl->set_exception(sub {$_[1]});
+        $tpl->set_var_exception(sub {$_[1]});
         my $parsed = $tpl->parse(q!<% $title %>!);
         is($parsed, '$title');
     }
@@ -83,7 +85,7 @@ use Data::Dumper;
         
         my $tpl_str = <<EOF;
 <div>
-    <% &hello('Takashi', 'Taro') %>
+    <% hello('Takashi', 'Taro') %>
 </div>
 EOF
         
@@ -114,7 +116,7 @@ EOF
         my $tpl = Text::PSTemplate->new();
         
         my $html = <<'EOF';
-        <% &hello()<<END1 %>takashi$a<% END1 %>
+        <% hello()<<END1 %>takashi$a<% END1 %>
 EOF
         
         my $expected = <<'EOF';
@@ -145,7 +147,7 @@ EOF
 EOF
         
         my $html = <<EOF;
-        <% &hello()<<EOF %>Hiroshi<% EOF %>
+        <% hello()<<EOF %>Hiroshi<% EOF %>
 EOF
         my $mother = $tpl;
         $tpl->set_func(hello => sub {
@@ -213,7 +215,7 @@ EXPECTED
         
         my $parsed = $template->parse(<<'EOF');
 <ol>
-    <% &each($books, 'isbn')<<EOF2 %><li><% $hash->{$isbn}->{name} %> <% $hash->{$isbn}->{pages} %> pages / ISBN-13 : <% $isbn %></li>
+    <% each($books, 'isbn')<<EOF2 %><li><% $hash->{$isbn}->{name} %> <% $hash->{$isbn}->{pages} %> pages / ISBN-13 : <% $isbn %></li>
     <% EOF2 %>
 </ol>
 EOF
