@@ -29,6 +29,7 @@ t/02_PST_Plugable_basic.t
 t/02_PST_Plugable_basic2.t
 t/02_PST_Plugable_basic3.t
 t/02_PST_Plugable_basic4.t
+t/02_PST_Plugable_basic5.t
 t/02_PST_Plugable_Control1.t
 t/02_PST_Plugable_Control2.t
 t/02_PST_Plugable_Control3.t

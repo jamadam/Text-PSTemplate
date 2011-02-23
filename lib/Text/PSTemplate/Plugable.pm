@@ -7,20 +7,22 @@ use Text::PSTemplate::PluginBase;
 use Text::PSTemplate::Plugin::Control;
 use Text::PSTemplate::Plugin::Num;
 use Text::PSTemplate::Plugin::Env;
+use Text::PSTemplate::Plugin::Extends;
 
-our $VERSION = '0.01';
-our @CORE_LIST = qw(Control Num Env);
+our @CORE_LIST = qw(Control Num Env Extends);
 
 	sub new {
 		
 		my $class = shift;
-		my $tpl = bless $class->SUPER::new(@_), $class;
+		my $self = $class->SUPER::new($_[0]);
 		
-		for my $name (@CORE_LIST) {
-			$tpl->plug('Text::PSTemplate::Plugin::'. $name, '');
-		}
+        if (! $_[0]) {
+            for my $name (@CORE_LIST) {
+                $self->plug('Text::PSTemplate::Plugin::'. $name, '');
+            }
+        }
 		
-		return $tpl;
+		return $self;
 	}
 	
     sub plug {

@@ -66,7 +66,7 @@ no warnings 'recursion';
     sub new_sub_template {
         
         my $self = shift;
-        return __PACKAGE__->new($self);
+        return (ref $self)->new($self);
     }
     
     ### ---
@@ -521,7 +521,7 @@ Text::PSTemplate - Multi purpose template engine
     use Text::PSTemplate;
     
     $template = Text::PSTemplate->new;
-    $template->setencoding($encodiing);
+    $template->set_encoding($encodiing);
     $template->set_recur_limit($number);
     $template->set_exception($code_ref);
     $template->set_filename_trans_coderef($code_ref);
@@ -587,9 +587,9 @@ designers only have to learn following rules.
 
     <% some_func()<<EOF,EOF2 %>
     inline data
-    <%EOF%>
+    <% EOF %>
     inline data2
-    <%EOF2%>
+    <% EOF2 %>
 
 =back
 
