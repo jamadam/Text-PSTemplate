@@ -26,9 +26,14 @@ no warnings 'recursion';
     sub new {
         
         my ($class, $mother) = @_;
-        if (scalar @_ == 1) {
+        
+        if (ref $class) {
+            $mother ||= $class;
+            $class = ref $class;
+        } elsif (scalar @_ == 1) {
             $mother = $Text::PSTemplate::self || undef;
         }
+        
         my $self = bless {
             $MEM_MOTHER      => $mother, 
             $MEM_FUNC        => {},
@@ -52,21 +57,11 @@ no warnings 'recursion';
     }
     
     ### ---
-    ### Set file name transform callback
-    ### ---
-    sub set_filename_trans_coderef {
-        
-        my ($self, $coderef) = @_;
-        $self->{$MEM_FILENAME_TRANS} = $coderef;
-    }
-    
-    ### ---
-    ### Sub template factory
+    ### Sub template factory[deprecated]
     ### ---
     sub new_sub_template {
         
-        my $self = shift;
-        return (ref $self)->new($self);
+        return shift->new;
     }
     
     ### ---
@@ -398,6 +393,9 @@ no warnings 'recursion';
     sub get_file {
         
         my ($self, $name, $translate_ref) = (@_);
+        if (! $name) {
+            croak 'file name is empty';
+        }
         if (scalar @_ == 2) {
             $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
         }
@@ -407,6 +405,15 @@ no warnings 'recursion';
         
         my $encode = $self->get_param($MEM_ENCODING);
         return Text::PSTemplate::File->new($name, $encode);
+    }
+    
+    ### ---
+    ### Set file name transform callback
+    ### ---
+    sub set_filename_trans_coderef {
+        
+        my ($self, $coderef) = @_;
+        $self->{$MEM_FILENAME_TRANS} = $coderef;
     }
     
     ### ---
@@ -436,10 +443,14 @@ use Fcntl qw(:flock);
         my ($class, $name, $encode) = @_;
         my $fh;
         
+        if (! $name) {
+            croak 'file name is empty';
+        }
+        
         if ($encode) {
-            open($fh, "<:encoding($encode)", $name);
+            open($fh, "<:encoding($encode)", $name) || croak "$name cannot open";
         } else {
-            open($fh, "<:utf8", $name);
+            open($fh, "<:utf8", $name) || croak "$name cannot open";
         }
         if ($fh and flock($fh, LOCK_EX)) {
             my $out = do { local $/; <$fh> };
@@ -541,8 +552,6 @@ Text::PSTemplate - Multi purpose template engine
     $context        = Text::PSTemplate->context();
     $mother_obj     = Text::PSTemplate->mother();
     $inline_data    = Text::PSTemplate->inline_data($number);
-
-    $template2 = $template->new_sub_template();
     
     $file_obj = Text::PSTemplate::File->new($filename);
     $file_obj->content;
@@ -734,18 +743,9 @@ instance.
     $tpl->parse_file($file_path)
     $tpl->parse_file($obj)
 
-=head2 $instance->new_sub_template();
+=head2 $instance->new_sub_template() [deprecated]
 
-Constractor. This method instanciates and set itself to mother attribute.
-
-    my $tpl2 = $tpl1->new_sub_template();
-    my $tpl3 = $tpl2->mother();
-    
-    # tpl3 and $tpl1 are exact same
-    
-    # This does same thing
-    # my $tpl2 = Text::PSTemplate->new($tpl1);
-    # my $tpl3 = $tpl2->mother();
+This is an arias to new method.
 
 =head2 $instance->get_file($name, $trans_ref)
 

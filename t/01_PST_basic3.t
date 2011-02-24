@@ -18,7 +18,7 @@ use Data::Dumper;
     sub var_undef2 : Test(2) {
         
         my $tpl = Text::PSTemplate->new();
-		my $tpl2 = $tpl->new_sub_template;
+		my $tpl2 = Text::PSTemplate->new($tpl);
 		$tpl->set_var(a => 'a');
 		$tpl2->set_var(a => undef);
 		is($tpl->var('a'), 'a');

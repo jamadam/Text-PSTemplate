@@ -9,22 +9,22 @@ use Text::PSTemplate::Plugin::Num;
 use Text::PSTemplate::Plugin::Env;
 use Text::PSTemplate::Plugin::Extends;
 
-our @CORE_LIST = qw(Control Num Env Extends);
+    our @CORE_LIST = qw(Control Num Env Extends);
 
-	sub new {
-		
-		my $class = shift;
-		my $self = $class->SUPER::new(@_);
-		
+    sub new {
+        
+        my $class = shift;
+        my $self = $class->SUPER::new(@_);
+        
         if (! scalar @_) {
             for my $name (@CORE_LIST) {
                 $self->plug('Text::PSTemplate::Plugin::'. $name, '');
             }
         }
-		
-		return $self;
-	}
-	
+        
+        return $self;
+    }
+    
     sub plug {
         
         my ($self, $plugin, $as) = (@_);
@@ -41,22 +41,22 @@ our @CORE_LIST = qw(Control Num Env Extends);
         }
     }
     
-	sub get_as {
-		
-		my ($self, $plug_id) = @_;
-		return $self->{pluged}->{$plug_id}->{as};
-	}
-	
-	sub get_base {
-		
-		my ($self, $plug_id) = @_;
-		if (my $namespace_base = $self->{namespace_base}) {
-			$plug_id =~ s{^$namespace_base\:\:}{};
-			return $plug_id;
-		}
-		return;
-	}
-	
+    sub get_as {
+        
+        my ($self, $plug_id) = @_;
+        return $self->{pluged}->{$plug_id}->{as};
+    }
+    
+    sub get_base {
+        
+        my ($self, $plug_id) = @_;
+        if (my $namespace_base = $self->{namespace_base}) {
+            $plug_id =~ s{^$namespace_base\:\:}{};
+            return $plug_id;
+        }
+        return;
+    }
+    
     sub set_namespace_base {
         
         my $self = shift;

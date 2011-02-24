@@ -7,8 +7,6 @@ use 5.005;
 use Scalar::Util qw{blessed};
 use Class::C3;
 use base qw(Class::FileCacheable::Lite);
-
-our $VERSION = '0.01';
     
     my %_tpl_exports = ();
     
