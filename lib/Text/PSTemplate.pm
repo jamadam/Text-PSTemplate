@@ -297,55 +297,56 @@ no warnings 'recursion';
         
         my ($self, $str) = @_;
         
-        (defined $str) or croak 'No template string found';
+        if (! defined $str) {
+            croak 'No template string found';
+        }
         
         my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
         my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
         my ($left, $escape, $space_l, $tag, $space_r, $right) =
             split(m{(\\*)$delim_l(\s*)(.+?)(\s*)$delim_r}s, $str, 2);
         
-        if ($tag) {
-            my $len = length($escape);
-            my $out = ('\\' x int($len / 2));
-            if ($len % 2 == 1) {
-                $out .= $delim_l. $space_l. $tag. $space_r. $delim_r;
-            } else {
-                local $Text::PSTemplate::inline_data;
-                if ($tag =~ s{(<<[a-zA-Z0-9,]+)}{}) {
-                    my $inline = $1;
-                    for my $a (split(',', substr($inline, 2))) {
-                        if ($right =~ s{(.*?)$delim_l\s*($a)\s*$delim_r}{}s) {
-                            push(@{$Text::PSTemplate::inline_data}, $1);
-                        }
+        if (! $tag) {
+            return $str;
+        }
+        
+        my $len = length($escape);
+        my $out = ('\\' x int($len / 2));
+        if ($len % 2 == 1) {
+            $out .= $delim_l. $space_l. $tag. $space_r. $delim_r;
+        } else {
+            local $Text::PSTemplate::inline_data;
+            local $Text::PSTemplate::self = $self;
+            
+            if ($tag =~ s{<<([a-zA-Z0-9,]+)}{}) {
+                for my $a (split(',', $1)) {
+                    if ($right =~ s{(.*?)$delim_l\s*$a\s*$delim_r}{}s) {
+                        push(@{$Text::PSTemplate::inline_data}, $1);
                     }
                 }
-                
-                local $Text::PSTemplate::self = $self;
-                
-                my $interp;
-                if (substr($tag, 0, 1) !~ /\$|\&/) {
-                    $interp = eval {$self->_interpolate('&'.$tag)};
-                } else {
-                    $interp = eval {$self->_interpolate($tag)};
-                }
-                
+            }
+            
+            my $interp;
+            if (substr($tag, 0, 1) !~ /\$|\&/) {
+                $interp = eval {$self->_interpolate('&'.$tag)};
+            } else {
+                $interp = eval {$self->_interpolate($tag)};
+            }
+            
+            if ($@) {
+                my $org = $space_l. $tag. $space_r;
+                $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
+            } else {
+                my $result = eval $interp; ## no critic
                 if ($@) {
                     my $org = $space_l. $tag. $space_r;
                     $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
                 } else {
-                    my $result = eval $interp; ## no critic
-                    if ($@) {
-                        my $org = $space_l. $tag. $space_r;
-                        $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
-                    } else {
-                        $out .= $result;
-                    }
+                    $out .= $result;
                 }
             }
-            return $left. $out. $self->parse($right);
-        } else {
-            return $str;
         }
+        return $left. $out. $self->parse($right);
     }
     
     ### ---
