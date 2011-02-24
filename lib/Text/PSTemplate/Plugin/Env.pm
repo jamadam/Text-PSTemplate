@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
+use Text::PSTemplate::Plugin::Control;
 
 our $VERSION = '0.01';
     
@@ -39,7 +40,7 @@ our $VERSION = '0.01';
     sub if_env_like : TplExport {
         
         my ($self, $key, @args) = @_;
-        return $self->if_like($ENV{$key}, @args);
+        return $self->Text::PSTemplate::Plugin::Control::if_like($ENV{$key}, @args);
     }
 
 1;

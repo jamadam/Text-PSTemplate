@@ -19,9 +19,9 @@ use Data::Dumper;
             null_string => '',
             zero => 0,
         );
-        my $parsed1 = $tpl->parse(q{<% tpl_switch($some_var1,{1 => 't/template/02_PST_Plugable_Control2.txt', 2 => ''}) %>});
+        my $parsed1 = $tpl->parse(q{<% tpl_switch($some_var1,{1 => 't/template/03_PST_Plugable_Control2.txt', 2 => ''}) %>});
         is($parsed1, 'ok');
-        my $parsed2 = $tpl->parse(q{<% tpl_switch($some_var2,{1 => '', 2 => 't/template/02_PST_Plugable_Control2.txt'}) %>});
+        my $parsed2 = $tpl->parse(q{<% tpl_switch($some_var2,{1 => '', 2 => 't/template/03_PST_Plugable_Control2.txt'}) %>});
         is($parsed2, 'ok');
         my $parsed3 = $tpl->parse(q{<% tpl_switch($some_var3,{1 => '', 2 => ''}) %>});
         is($parsed3, '');
