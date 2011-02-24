@@ -22,7 +22,7 @@ our $VERSION = '0.01';
     sub if_env : TplExport {
         
         my ($self, $key, @args) = @_;
-        return $self->if($ENV{$key}, @args);
+        return $self->Text::PSTemplate::Plugin::Control::if($ENV{$key}, @args);
     }
     
     ### ---
@@ -31,7 +31,7 @@ our $VERSION = '0.01';
     sub if_env_equals : TplExport {
         
         my ($self, $key, @args) = @_;
-        return $self->if_equals($ENV{$key}, @args);
+        return $self->Text::PSTemplate::Plugin::Control::if_equals($ENV{$key}, @args);
     }
     
     ### ---
