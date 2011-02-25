@@ -74,7 +74,7 @@ use Data::Dumper;
     sub var_not_found3 : Test {
         
         my $tpl = Text::PSTemplate->new;
-        $tpl->set_exception(sub {''});
+        $tpl->set_var_exception(sub {''});
         my $parsed = $tpl->parse(q!a<% $title %>b!);
         is($parsed, 'ab');
     }
@@ -155,71 +155,6 @@ EOF
             return "hello $target!";
         });
         is($tpl->parse($html), $expected);
-    }
-    
-    sub xslate_compatible : Test {
-        
-        my $expected = <<'EXPECTED';
-<ol>
-    <li>プログラミングPerl Vol.1 708 pages / ISBN-13 : 978-4873110967</li>
-    <li>プログラミングPerl Vol.2 1303 pages / ISBN-13 : 978-4873110974</li>
-    <li>Программирование на Perl 1152 pages / ISBN-13 : 978-5932860205</li>
-    <li>Programming Perl 1092 pages / ISBN-13 : 978-0596000271</li>
-
-</ol>
-EXPECTED
-    
-        my $books = {
-            "978-0596000271" => {
-                name  => "Programming Perl",
-                pages => 1092,
-            },
-            "978-5932860205" => {
-                name => "Программирование на Perl",
-                pages => 1152,
-            },
-            "978-4873110967" => {
-                name  => "プログラミングPerl Vol.1",
-                pages => 708,
-            },
-            "978-4873110974" => {
-                name  => "プログラミングPerl Vol.2",
-                pages => 1303,
-            },
-        };
-        
-        my $template = Text::PSTemplate->new;
-        $template->set_var(
-            title    => "Perl Books",
-            books    => $books,
-        );
-        $template->set_func(dump => sub {
-            my $a = Dumper(shift);
-            $a =~ s{\$VAR1 = }{}g;
-            return $a;
-        });
-        $template->set_func(each => sub {
-            my ($hash, $as, $tpl) = (@_);
-            $tpl ||= Text::PSTemplate::inline_data(0);
-            my $template2 = Text::PSTemplate->new;
-            my $out = '';
-            for my $k (keys %$hash) {
-                $template2->set_var(
-                    'hash'  => $hash,
-                    $as     => $k,
-                );
-                $out .= $template2->parse($tpl);
-            }
-            $out;
-        });
-        
-        my $parsed = $template->parse(<<'EOF');
-<ol>
-    <% each($books, 'isbn')<<EOF2 %><li><% $hash->{$isbn}->{name} %> <% $hash->{$isbn}->{pages} %> pages / ISBN-13 : <% $isbn %></li>
-    <% EOF2 %>
-</ol>
-EOF
-        is(indent_optimize($parsed), indent_optimize($expected));
     }
     
     sub compress_html {

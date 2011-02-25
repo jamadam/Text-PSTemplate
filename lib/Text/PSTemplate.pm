@@ -298,22 +298,22 @@ no warnings 'recursion';
         
         my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
         my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
-        my ($left, $escape, $space_l, $tag, $space_r, $right) =
-            split(m{(\\*)$delim_l(\s*)(.+?)(\s*)$delim_r}s, $str, 2);
+        my ($left, $escape, $space_l, $prefix, $tag, $space_r, $right) =
+            split(m{(\\*)$delim_l(\s*)([\&\$]*)(.+?)(\s*)$delim_r}s, $str, 2);
         
-        if (! $tag) {
+        if (! defined $tag) {
             return $str;
         }
         
         my $len = length($escape);
         my $out = ('\\' x int($len / 2));
         if ($len % 2 == 1) {
-            $out .= $delim_l. $space_l. $tag. $space_r. $delim_r;
+            $out .= $delim_l. $space_l. $prefix. $tag. $space_r. $delim_r;
         } else {
             local $Text::PSTemplate::inline_data;
             local $Text::PSTemplate::self = $self;
             
-            if ($tag =~ s{<<([a-zA-Z0-9,]+)}{}) {
+            if ($tag =~ s{<<([a-zA-Z0-9_,]+)}{}) {
                 for my $a (split(',', $1)) {
                     if ($right =~ s{(.*?)$delim_l\s*$a\s*$delim_r}{}s) {
                         push(@{$Text::PSTemplate::inline_data}, $1);
@@ -321,20 +321,20 @@ no warnings 'recursion';
                 }
             }
             
-            my $interp;
-            if (substr($tag, 0, 1) !~ /\$|\&/) {
-                $interp = eval {$self->_interpolate('&'.$tag)};
-            } else {
-                $interp = eval {$self->_interpolate($tag)};
-            }
+            my $interp = ($prefix || '&'). $tag;
+            eval {
+                $interp =~ s{(\\*)([\$\&])([\w:]+)}{
+                    $self->_interpolate_partial($1, $2, $3)
+                }ge;
+            };
             
             if ($@) {
-                my $org = $space_l. $tag. $space_r;
+                my $org = $space_l. $prefix. $tag. $space_r;
                 $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
             } else {
                 my $result = eval $interp; ## no critic
                 if ($@) {
-                    my $org = $space_l. $tag. $space_r;
+                    my $org = $space_l. $prefix. $tag. $space_r;
                     $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
                 } else {
                     $out .= $result;
@@ -344,47 +344,42 @@ no warnings 'recursion';
         return $left. $out. $self->parse($right);
     }
     
-    ### ---
-    ### interpolate variables and functions
-    ### ---
-    sub _interpolate {
+    sub _interpolate_partial {
         
-        my ($self, $str) = (@_);
-        $str =~ s{(\\*)([\$\&])([\w:]+)}{
-            my $out;
-            my $escaped;
-            if ($1) {
-                my $len = length($1);
-                $out = '\\' x int($len / 2);
-                if ($len % 2 == 1) {
-                    $escaped = 1;
-                    $out .= $2. $3;
-                }
+        my ($self, $escape, $prefix, $ident)= @_;
+        my $out;
+        my $escaped;
+        if ($escape) {
+            my $len = length($escape);
+            $out = '\\' x int($len / 2);
+            if ($len % 2 == 1) {
+                $escaped = 1;
+                $out .= $prefix. $ident;
             }
-            if (! $escaped) {
-                if ($2 eq '$') {
-                    if (defined $self->var($3)) {
-                        $out .= qq!\$self->var('$3')!;
-                    } else {
-                        $out .= "'\Q".
-                        $self->get_param($MEM_VAR_NONEXIST)->($self, $2.$3, 'variable').
-                        "\E'";
-                    }
-                } elsif ($2 eq '&') {
-                    if ($self->func($3)) {
-                        $out .= qq!\$self->func('$3')->!;
-                    } else {
-                        $out .= "'\Q".
-                        $self->get_param($MEM_FUNC_NONEXIST)->($self, $2.$3, 'function').
-                        "\E'";
-                    }
+        }
+        if (! $escaped) {
+            if ($prefix eq '$') {
+                if (defined $self->var($ident)) {
+                    $out .= qq{\$self->var('$ident')};
+                    #$out .= "'\Q". $self->var($ident). "\E'";
                 } else {
-                    $out .= $2. $3;
+                    $out .= "'\Q".
+                    $self->get_param($MEM_VAR_NONEXIST)->($self, '$'.$ident, 'variable').
+                    "\E'";
                 }
+            } elsif ($prefix eq '&') {
+                if ($self->func($ident)) {
+                    $out .= qq!\$self->func('$ident')->!;
+                } else {
+                    $out .= "'\Q".
+                    $self->get_param($MEM_FUNC_NONEXIST)->($self, '&'.$ident, 'function').
+                    "\E'";
+                }
+            } else {
+                $out .= $prefix . $ident;
             }
-            $out;
-        }ge;
-        return $str;
+        }
+        return $out;
     }
     
     ### ---

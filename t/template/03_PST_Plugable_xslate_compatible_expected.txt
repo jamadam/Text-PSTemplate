@@ -1,0 +1,6 @@
+<ol>
+    <li>プログラミングPerl Vol.1 708 pages / ISBN-13 : 978-4873110967</li>
+    <li>プログラミングPerl Vol.2 1303 pages / ISBN-13 : 978-4873110974</li>
+    <li>Программирование на Perl 1152 pages / ISBN-13 : 978-5932860205</li>
+    <li>Programming Perl 1092 pages / ISBN-13 : 978-0596000271</li>
+</ol>

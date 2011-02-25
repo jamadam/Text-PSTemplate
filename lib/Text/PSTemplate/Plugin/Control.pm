@@ -243,6 +243,22 @@ our $VERSION = '0.01';
     ### ---
     ### set variable
     ### ---
+    sub extract : TplExport {
+        
+        my ($self, $obj, $name) = @_;
+        
+        if (ref $obj eq 'ARRAY') {
+            return $obj->[$name];
+        }
+        if (ref $obj eq 'HASH') {
+            return $obj->{$name};
+        }
+        return;
+    }
+    
+    ### ---
+    ### set variable
+    ### ---
     sub set_var : TplExport {
         
         my $self = shift;
@@ -462,6 +478,8 @@ This function include a file content of given name into current template.
 =head2 set_var(%dataset)
 
 =head2 set_delimiter(LEFT, RIGHT)
+
+=head2 extract($obj, $key)
 
 =head1 AUTHOR
 
