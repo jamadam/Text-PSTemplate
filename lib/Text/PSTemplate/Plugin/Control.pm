@@ -296,35 +296,35 @@ Text::PSTemplate::Plugin::Control - Common controll structures
     
     <% if_equals($some_var, 'a')<<THEN,ELSE %>
     then
-    <%THEN%>
+    <% THEN %>
     else
-    <%ELSE%>
+    <% ELSE %>
     
     <% if($some_var, 'true', 'not true') %>
     
     <% if($some_var)<<THEN,ELSE %>
     true
-    <%THEN%>
+    <% THEN %>
     not true
-    <%ELSE%>
+    <% ELSE %>
     
     <% if_in_array($some_var, ['a','b','c'], 'found', 'not found') %>
     
     <% if_in_array($some_var, ['a','b','c'])<<THEN,ELSE %>
     found
-    <%THEN%>
+    <% THEN %>
     not found
-    <%ELSE%>
+    <% ELSE %>
     
     <% switch($some_var, {a => 'match a', b => 'match b'}, 'default') %>
     
     <% switch($some_var, ['a', 'b'])<<CASE1,CASE2,DEFAULT %>
     match a
-    <%CASE1%>
+    <% CASE1 %>
     match b
-    <%CASE2%>
+    <% CASE2 %>
     default
-    <%DEFAULT%>
+    <% DEFAULT %>
     
     <% tpl_switch($some_var, {
         a => 'path/to/tpl_a.txt',
@@ -335,19 +335,19 @@ Text::PSTemplate::Plugin::Control - Common controll structures
     
     <% each($array_ref, 'name')<<TPL %>
     This is <%$name%>.
-    <%TPL%>
+    <% TPL %>
 
     <% each($array_ref, 'index' => 'name')<<TPL %>
     No.<%$index%> is <%$name%>.
-    <%TPL%>
+    <% TPL %>
 
     <% each($hash_ref, 'name')<<TPL %>
     This is <%$name%>.
-    <%TPL%>
+    <% TPL %>
 
     <% each($has_href, 'key' => 'name')<<TPL %>
     Key '<%$key%>' contains <%$name%>.
-    <%TPL%>
+    <% TPL %>
     
     <% include('path/to/file.txt', {some_var => 'aaa'}) %>
 
@@ -387,7 +387,7 @@ will be parsed as template.
 
     <% if_equals($a, '1')<<THEN %>
         This is <% escape_or_something($a) %>.
-    <%THEN%>
+    <% THEN %>
 
 =head2 if($var, $then, [$else])
 
@@ -403,9 +403,9 @@ For more about Block syntax, See if_equals function.
 
     <% if($var)<<THEN,ELSE %>
         This is <% escape_or_something_if_you_need($var) %>.
-    <%THEN%>
+    <% THEN %>
         not true
-    <%ELSE%>
+    <% ELSE %>
 
 =head2 if_in_array($var, $array_ref, $then, [$else])
 
@@ -420,9 +420,9 @@ Block syntax is also available.
 
     <% if_in_array($var, [1,2,3,'a'])<<THEN,ELSE %>
         Found <% escape_or_something_if_you_need($var) %>.
-    <%THEN%>
+    <% THEN %>
         Not found
-    <%ELSE%>
+    <% ELSE %>
 
 =head2 switch($var, $hash_ref, [$default])
 
@@ -436,11 +436,11 @@ Block syntax is also available.
 
     switch($var, [1, 2])<<CASE1,CASE2,DEFAULT %>
         case1
-    <%CASE1%>
+    <% CASE1 %>
         case2 <% escape_or_something_if_you_need($var) %>
-    <%CASE2%>
+    <% CASE2 %>
         default
-    <%DEFAULT%>
+    <% DEFAULT %>
 
 =head2 tpl_switch($var, $hash_ref)
 
