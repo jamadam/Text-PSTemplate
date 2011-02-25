@@ -68,6 +68,7 @@ use Text::PSTemplate::Plugin::Extends;
         my $self = shift;
         $self->{default_plugin} = shift;
     }
+
 1;
 
 __END__

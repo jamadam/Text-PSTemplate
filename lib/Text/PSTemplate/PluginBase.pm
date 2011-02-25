@@ -7,7 +7,8 @@ use 5.005;
 use Scalar::Util qw{blessed};
 use Class::C3;
 use base qw(Class::FileCacheable::Lite);
-    
+use Carp;
+
     my %_tpl_exports = ();
     
     ### ---
@@ -148,6 +149,16 @@ use base qw(Class::FileCacheable::Lite);
         
         return $self;
     }
+    
+    ### ---
+    ### die with context
+    ### ---
+    sub die {
+        
+        my $at =
+            (Text::PSTemplate::context) ? ' at '. Text::PSTemplate::context : '';
+        Carp::croak $_[1]. $at;
+    }
 
 1;
 
@@ -242,6 +253,8 @@ have ini setting for given key by itself, this method searches the super class's
 ini with C3 algorithm.
 
     my $value = $myplug->ini($some_key);
+
+=head2 $instance->die($message)
 
 =head1 ATTRIBUTE
 

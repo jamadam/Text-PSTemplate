@@ -336,6 +336,10 @@ no warnings 'recursion';
                 if ($@) {
                     my $org = $space_l. $prefix. $tag. $space_r;
                     $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
+                } elsif(! defined $result) {
+                    my $org = $space_l. $prefix. $tag. $space_r;
+                    my $err = "Parse resulted undefined.";
+                    $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $err);
                 } else {
                     $out .= $result;
                 }

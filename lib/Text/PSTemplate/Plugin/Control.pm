@@ -248,9 +248,15 @@ our $VERSION = '0.01';
         my ($self, $obj, $name) = @_;
         
         if (ref $obj eq 'ARRAY') {
+            if (! defined $obj->[$name]) {
+                $self->die('Undefined');
+            }
             return $obj->[$name];
         }
         if (ref $obj eq 'HASH') {
+            if (! defined $obj->{$name}) {
+                $self->croak('Undefined');
+            }
             return $obj->{$name};
         }
         return;

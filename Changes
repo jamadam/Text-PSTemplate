@@ -11,3 +11,6 @@ Revision history for Text-PSTemplate
 
 0.17 2011/02/23
   - FIX: BLOCK syntax sometimes didn't work propery.
+
+0.18 2011/02/25
+  - FIX: PluginBase->die() added for report message with template file name
