@@ -220,8 +220,9 @@ no warnings 'recursion';
             if (defined $_[0]->{$MEM_MOTHER}) {
                 return $_[0]->{$MEM_MOTHER}->var($_[1]);
             }
+            return;
         }
-        return;
+        return $_[0]->{$MEM_VAR};
     }
     
     ### ---

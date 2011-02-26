@@ -181,10 +181,7 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
     my $tpl = Text::PSTemplate::Plugable->new;
     
     $tpl->plug('MyPlug1');
-    
-    # or
-    
-    $tpl->plug('MyPlug1', 'AnyNamespace');
+    $tpl->plug('MyPlug1', 'Your::Namespace');
     
     package MyPlug1;
     
@@ -198,7 +195,7 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
     }
     
     # in templates ..
-    # <% say_hello_to('Jamadam') %>
+    # <% Your::Namespace::say_hello_to('Jamadam') %>
 
     # Template functions can be cached into files
     
