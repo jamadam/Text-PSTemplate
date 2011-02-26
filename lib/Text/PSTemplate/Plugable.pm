@@ -75,22 +75,19 @@ Text::PSTemplate::Plugable - Plugable template engine
     
     my $tpl = Text::PSTemplate::Plugable->new;
     
-    $tpl->plug(['MyPlug1', 'MyPlug2' ...]);
-    # or..
-    $tpl->plug('MyPlug1','My::Name::Space');
-    $tpl->plug('MyPlug2','My::Name::Space');
-    #...
+    $tpl->plug('MyPlug');
+    $tpl->plug('MyPlug','My::Name::Space');
     
     $tpl->set_namespace_base('Foo::Bar');
     $tpl->set_default_plugin('Foo::Bar');
     
-    $tpl->parse('...<% say_hello_to('Kenji') %}...');
+    $tpl->parse('...<% say_hello_to('Nick') %>...');
     
-    package MyPlug1;
+    package MyPlug;
     use strict;
     use warnings;
     use base qw(Text::PSTemplate::PluginBase);
-    sub say_hello_to : TplExport {
+    sub say_hello_to : TplExport(chop => 1) {
         my ($plugin, $name) = (@_);
         return "Hello $name";
     }
@@ -102,38 +99,41 @@ This extends some feature to Text::PSTemplate plugable.
 
 =head1 METHODS
 
-=head2 Text:PSTemplate::Plugable->new(%args)
+=head2 Text:PSTemplate::Plugable->new($mother)
 
 Constractor. This only does SUPER::new and loads some core plugins. See also
 new constractor of L<Text:PSTemplate>.
 
     my $template = Text:PSTemplate::Plugable->new();
 
-=head2 $instance->plug($array_ref, $namespace)
+=head2 $instance->plug($package, $namespace)
 
-This method adds some controll structures into your PSTemplate instance.
+This method activates a plugin into your template instance.
 
     $instance->plug('Path::To::SomePlugin');
 
-The plugins will available as follows.
+The functions will available as follows.
 
     <% Path::To::SomePlugin::some_function(...) %>
 
-Or you can set an alias name as follows.
+You can load plugins into specific namespaces.
 
     $instance->plug('Path::To::SomePlugin', 'MyNamespace');
 
-This plugin will available as follows
+This functions will available as follows
 
     <% MyNamespace::some_function(...) %>
 
-You can marge plugins into single namespace.
+You can marge plugins into single namespace or even the root namespace which
+used by core plugins.
 
-    $instance->plug(['Plugin1','Plugin2',...], 'MyNamespace');
+    $instance->plug('Plugin1', 'MyNamespace');
+    $instance->plug('Plugin2', 'MyNamespace');
+    $instance->plug('Plugin1', '');
 
-=head2 $instance->get_plugin
+=head2 $instance->get_plugin($name)
 
-	Returns plugin instance for given name.
+This method returns the plugin instance for given name.
 
 =head2 $instance->get_base($plug_id) [experimental];
 

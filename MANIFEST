@@ -19,6 +19,7 @@ t/01_PST_basic.t
 t/01_PST_basic2.t
 t/01_PST_basic3.t
 t/01_PST_common_control.t
+t/01_PST_crop.t
 t/01_PST_deep_recursion.t
 t/01_PST_deep_recursion2.t
 t/01_PST_dereference.t
@@ -32,6 +33,7 @@ t/02_PST_Plugable_basic2.t
 t/02_PST_Plugable_basic3.t
 t/02_PST_Plugable_basic4.t
 t/02_PST_Plugable_basic5.t
+t/02_PST_Plugable_chop.t
 t/02_PST_Plugable_incrementally_added.t
 t/02_PST_Plugable_ini_c3.t
 t/02_PST_Plugable_namespace.t

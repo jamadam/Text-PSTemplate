@@ -14,3 +14,10 @@ Revision history for Text-PSTemplate
 
 0.18 2011/02/25
   - FIX: PluginBase->die() added for report message with template file name
+
+0.19 2011/02/26
+  - Plugin architecture stoped resorting to singleton pattern.
+
+0.20 2011/02/26
+  - ADD: New feature chop added. Plugins now can manage behaviors with line
+    breaks

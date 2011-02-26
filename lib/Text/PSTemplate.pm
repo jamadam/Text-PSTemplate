@@ -288,6 +288,12 @@ no warnings 'recursion';
         return $self->parse($str);
     }
     
+    sub set_chop {
+        
+        my ($class, $mode) = @_;
+        $Text::PSTemplate::chop = $mode;
+    }
+    
     sub parse {
         
         my ($self, $str) = @_;
@@ -295,7 +301,6 @@ no warnings 'recursion';
         if (! defined $str) {
             croak 'No template string found';
         }
-        
         my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
         my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
         my ($left, $escape, $space_l, $prefix, $tag, $space_r, $right) =
@@ -312,6 +317,7 @@ no warnings 'recursion';
         } else {
             local $Text::PSTemplate::inline_data;
             local $Text::PSTemplate::self = $self;
+            local $Text::PSTemplate::chop;
             
             if ($tag =~ s{<<([a-zA-Z0-9_,]+)}{}) {
                 for my $a (split(',', $1)) {
@@ -332,7 +338,13 @@ no warnings 'recursion';
                 my $org = $space_l. $prefix. $tag. $space_r;
                 $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
             } else {
+                
                 my $result = eval $interp; ## no critic
+                
+                if ($Text::PSTemplate::chop) {
+                    $right =~ s{^(?:\r\n|\r|\n)}{};
+                }
+            
                 if ($@) {
                     my $org = $space_l. $prefix. $tag. $space_r;
                     $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
@@ -536,7 +548,6 @@ Text::PSTemplate - Multi purpose template engine
     $template->set_recur_limit($number);
     $template->set_exception($code_ref);
     $template->set_filename_trans_coderef($code_ref);
-    $template->set_filename_trans_coderef($code_ref);
     $template->set_delimiter($left, $right);
     
     $template->set_var(key1 => $value1, key2 => $value2);
@@ -626,6 +637,11 @@ instance, this returns mother instance.
 
 This can be called from template functions. If current context is origined from
 a file, this returns the file name.
+
+=head2 Text::PSTemplate::set_chop($mode)
+
+This method set the behavior of the parser how they should treat follow up line
+breaks. If argument $mode is 1, line breaks will not to be output. 0 is default.
 
 =head2 Text::PSTemplate::inline_data($index)
 

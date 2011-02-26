@@ -105,8 +105,8 @@ use Carp;
     ### ---
     sub TplExport : ATTR(CHECK) {
         
-        my($pkg, $sym, undef, undef, undef, undef) = @_;
-        push(@{$_tpl_exports{$pkg}}, $sym);
+        my($pkg, $sym, undef, undef, $data, undef) = @_;
+        push(@{$_tpl_exports{$pkg}}, [$sym, $data ? {@$data} : {}]);
     }
     
     ### ---
@@ -140,13 +140,14 @@ use Carp;
         
         my $_tpl_exports = _get_tpl_exports($org);
         
-        foreach my $sym (@$_tpl_exports) {
-            my $ref = \&$sym;
+        foreach my $func (@$_tpl_exports) {
+            my $ref = \&{$func->[0]};
             my $rapper = sub {
+                Text::PSTemplate->set_chop($func->[1]->{chop});
                 my $ret = $self->$ref(@_);
                 return (defined $ret ? $ret : '');
             };
-            my $subname = ((scalar *$sym) =~ m{([^:]+$)})[0];
+            my $subname = ((scalar *{$func->[0]}) =~ m{([^:]+$)})[0];
             for my $namespace (@namespaces) {
                 $tpl->set_func($namespace. $subname => $rapper);
             }
@@ -263,11 +264,17 @@ ini with C3 algorithm.
 
 =head1 ATTRIBUTE
 
-=head2 TplExport
+=head2 TplExport[(chop => 1)]
 
 This attribute makes the subroutine availabe in templates.
 
     sub your_func : TplExport {
+        
+    }
+
+chop => 1 causes the following line breaks to be ommited.
+
+    sub your_func : TplExport(chop => 1) {
         
     }
 
