@@ -44,7 +44,6 @@ use File::Spec;
 EOF
 
 		is($parsed, <<'EOF');
-
 ab
 EOF
     }
@@ -53,12 +52,12 @@ EOF
         
         my $tpl = Text::PSTemplate::Plugable->new;
 		my $parsed = $tpl->parse(<<'EOF');
-<% set_var(var1 => 'a', var2 => 'b') %><% set_delimiter('%%', '%%') %>
+<% set_var(var1 => 'a', var2 => 'b') %>
+<% set_delimiter('%%', '%%') %>
 %% $var1 %%%% $var2 %%
 EOF
 
 		is($parsed, <<'EOF');
-
 ab
 EOF
     }

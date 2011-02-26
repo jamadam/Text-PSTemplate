@@ -264,7 +264,7 @@ ini with C3 algorithm.
 
 =head1 ATTRIBUTE
 
-=head2 TplExport[(chop => 1)]
+=head2 TplExport [(chop => 1)]
 
 This attribute makes the subroutine availabe in templates.
 

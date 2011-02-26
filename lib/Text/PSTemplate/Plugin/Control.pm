@@ -225,7 +225,7 @@ our $VERSION = '0.01';
     ### <base href="../">
     ### <!-- ')%> -->
     ### ---
-    sub bypass : TplExport {
+    sub bypass : TplExport(chop => 1) {
         
         return '';
     }
@@ -265,7 +265,7 @@ our $VERSION = '0.01';
     ### ---
     ### set variable
     ### ---
-    sub set_var : TplExport {
+    sub set_var : TplExport(chop => 1) {
         
         my $self = shift;
         Text::PSTemplate->mother->set_var(@_);
@@ -275,7 +275,7 @@ our $VERSION = '0.01';
     ### ---
     ### set delimiter
     ### ---
-    sub set_delimiter : TplExport {
+    sub set_delimiter : TplExport(chop => 1) {
         
         my ($self, $left, $right) = @_;
         Text::PSTemplate->mother->set_delimiter($left, $right);
