@@ -11,8 +11,7 @@ use Data::Dumper;
     sub ini : Test(1) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-		Test::_Plugin->set_ini({locale => 'jp'});
-        $tpl->plug(['Test::_Plugin']);
+        $tpl->plug('Test::_Plugin')->set_ini({locale => 'jp'});
         my $parsed1 = $tpl->parse(q[<% Test::_Plugin::put_locale() %>]);
         is($parsed1, 'jp');
     }
@@ -20,8 +19,8 @@ use Data::Dumper;
 	sub cascading_ini : Test(2) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-		Test::_Plugin->set_ini({locale => 'jp'});
-        $tpl->plug(['Test::_Plugin', 'Test::_Plugin::Sub']);
+        $tpl->plug('Test::_Plugin')->set_ini({locale => 'jp'});
+        $tpl->plug('Test::_Plugin::Sub');
         my $parsed1 = $tpl->parse(q[<% Test::_Plugin::put_locale() %>]);
         is($parsed1, 'jp');
         my $parsed3 = $tpl->parse(q[<% Test::_Plugin::Sub::put_locale() %>]);
@@ -31,9 +30,9 @@ use Data::Dumper;
 	sub cascading_ini_with_shortcut : Test(2) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-		Test::_Plugin->set_ini({locale => 'jp'});
 		$tpl->set_default_plugin('Test::_Plugin');
-        $tpl->plug(['Test::_Plugin', 'Test::_Plugin::Sub']);
+        $tpl->plug('Test::_Plugin')->set_ini({locale => 'jp'});
+		$tpl->plug('Test::_Plugin::Sub');
         my $parsed1 = $tpl->parse(q[<% put_locale() %>]);
         is($parsed1, 'jp');
         my $parsed3 = $tpl->parse(q[<% ::Sub::put_locale() %>]);

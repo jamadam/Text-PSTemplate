@@ -30,21 +30,13 @@ use Text::PSTemplate::Plugin::Extends;
         my ($self, $plugin, $as) = (@_);
         
         $self->{pluged} ||= {};
-        
-        if (ref $plugin eq 'ARRAY') {
-            foreach my $plug_name (@{$plugin}) {
-                $plug_name->new($self);
-            }
-        } else {
-            $self->{pluged}->{$plugin} = {as => $as};
-            $plugin->new($self);
-        }
+        return $plugin->new($self, $as);
     }
     
-    sub get_as {
+    sub get_plugin {
         
-        my ($self, $plug_id) = @_;
-        return $self->{pluged}->{$plug_id}->{as};
+        my ($self, $name) = @_;
+        return $self->{pluged}->{$name};
     }
     
     sub get_base {
@@ -138,6 +130,10 @@ This plugin will available as follows
 You can marge plugins into single namespace.
 
     $instance->plug(['Plugin1','Plugin2',...], 'MyNamespace');
+
+=head2 $instance->get_plugin
+
+	Returns plugin instance for given name.
 
 =head2 $instance->get_base($plug_id) [experimental];
 

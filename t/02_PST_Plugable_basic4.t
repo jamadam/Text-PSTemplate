@@ -12,7 +12,7 @@ use Test::Plugin2;
     sub ini : Test(1) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->plug(['Test::Plugin2']);
+        $tpl->plug('Test::Plugin2');
         my $parsed1 = $tpl->parse(q[<% Test::Plugin2::some_function() %>]);
         is($parsed1, 'some_function');
     }

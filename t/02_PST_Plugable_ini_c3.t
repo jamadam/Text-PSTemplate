@@ -11,11 +11,11 @@ use Data::Dumper;
     sub ini_c3 : Test(1) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-		_PlugA->set_ini({pkg => '_PlugA'});
-		#_PlugB->set_ini({pkg => '_PlugB'});
-		_PlugC->set_ini({pkg => '_PlugC'});
-		#_PlugD->set_ini({pkg => '_PlugD'});
-        $tpl->plug(['_PlugD']);
+        $tpl->plug('_PlugD');
+		$tpl->get_plugin('_PlugA')->set_ini({pkg => '_PlugA'});
+		#$tpl->get_plugin('_PlugB')->set_ini({pkg => '_PlugB'});
+		$tpl->get_plugin('_PlugC')->set_ini({pkg => '_PlugC'});
+		#$tpl->get_plugin('_PlugD')->set_ini({pkg => '_PlugD'});
         my $parsed1 = $tpl->parse(q[<% _PlugD::put_pkg() %>]);
         is($parsed1, '_PlugC');
     }

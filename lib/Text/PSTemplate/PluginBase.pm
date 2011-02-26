@@ -11,29 +11,38 @@ use Carp;
 
     my %_tpl_exports = ();
     
+    my $MEM_INI = 1;
+    my $MEM_AS  = 2;
+    my $MEM_TPL = 3;
+    
     ### ---
     ### Constractor
     ### ---
     sub new {
         
-        my ($class, $tpl) = (@_);
+        my ($class, $tpl, $as) = (@_);
+        
+        if (! $tpl || ! $tpl->isa('Text::PSTemplate::Plugable')) {
+            croak 'template is not given';
+        }
+        
         no strict 'refs';
-        my $instance = \${$class. '::_instance'};
-        if (! blessed($$instance)) {
+        my $instance = $tpl->{pluged}->{$class};
+        if (! blessed($instance)) {
             foreach my $pkg (@{$class. '::ISA'}) {
                 if ($pkg ne __PACKAGE__) {
                     $pkg->new($tpl);
                 }
             }
-            $$instance = bless {ini => {}}, $class;
+            $instance = bless {
+                $MEM_INI    => {},
+                $MEM_TPL    => $tpl,
+                $MEM_AS     => $as,
+            }, $class;
+            $instance->_set_tpl_funcs($tpl);
+            $tpl->{pluged}->{$class} = $instance;
         }
-        if ($tpl && $tpl->isa('Text::PSTemplate::Plugable')) {
-            if (! exists $tpl->{pluged}->{$class}->{ok}) {
-                $$instance->_set_tpl_funcs($tpl);
-                $tpl->{pluged}->{$class}->{ok} = 1;
-            }
-        }
-        return $$instance;
+        return $instance;
     }
     
     ### ---
@@ -43,8 +52,8 @@ use Carp;
         
         my ($self, $name) = (@_);
         
-        if (exists $self->{ini}->{$name}) {
-            return $self->{ini}->{$name};
+        if (exists $self->{$MEM_INI}->{$name}) {
+            return $self->{$MEM_INI}->{$name};
         } else {
             no strict 'refs';
             for my $pkg (Class::C3::calculateMRO(ref $self)) {
@@ -52,7 +61,7 @@ use Carp;
                     return (undef) if wantarray;
                     return;
                 }
-                my $ret = $pkg->new->{ini}->{$name};
+                my $ret = $self->{$MEM_TPL}->{pluged}->{$pkg}->{$MEM_INI}->{$name};
                 if (defined $ret) {
                     return $ret;
                 }
@@ -87,10 +96,7 @@ use Carp;
     sub set_ini {
         
         my ($self, $hash) = (@_);
-        if (! blessed $self) {
-            $self = $self->new;
-        }
-        $self->{ini} = $hash || {};
+        $self->{$MEM_INI} = $hash || {};
         return $self;
     }
     
@@ -113,9 +119,8 @@ use Carp;
         my @namespaces = ();
         
         my $org = ref $self;
-        my $as = $tpl->get_as($org);
-        if (defined $as) {
-            push(@namespaces, $as);
+        if (defined $self->{$MEM_AS}) {
+            push(@namespaces, $self->{$MEM_AS});
         } else {
             my $org = $org;
             if (my $short = $tpl->get_base($org)) {
