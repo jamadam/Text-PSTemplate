@@ -302,6 +302,78 @@ no warnings 'recursion';
         if (! defined $str) {
             croak 'No template string found';
         }
+        my $out = '';
+        while ($str) {
+            my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
+            my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
+            my ($left, $escape, $space_l, $prefix, $tag, $space_r, $right) =
+                split(m{(\\*)$delim_l(\s*)([\&\$]*)(.+?)(\s*)$delim_r}s, $str, 2);
+            
+            if (! defined $tag) {
+                return $out. $str;
+            }
+            
+            $out .= $left;
+            
+            my $len = length($escape);
+            $out .= ('\\' x int($len / 2));
+            if ($len % 2 == 1) {
+                $out .= $delim_l. $space_l. $prefix. $tag. $space_r. $delim_r;
+            } else {
+                local $Text::PSTemplate::inline_data;
+                local $Text::PSTemplate::self = $self;
+                local $Text::PSTemplate::chop;
+                
+                if ($tag =~ s{<<([a-zA-Z0-9_,]+)}{}) {
+                    for my $a (split(',', $1)) {
+                        if ($right =~ s{(.*?)$delim_l\s*$a\s*$delim_r}{}s) {
+                            push(@{$Text::PSTemplate::inline_data}, $1);
+                        }
+                    }
+                }
+                
+                my $interp = ($prefix || '&'). $tag;
+                eval {
+                    $interp =~ s{(\\*)([\$\&])([\w:]+)}{
+                        $self->_interpolate_partial($1, $2, $3)
+                    }ge;
+                };
+                
+                if ($@) {
+                    my $org = $space_l. $prefix. $tag. $space_r;
+                    $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
+                } else {
+                    
+                    my $result = eval $interp; ## no critic
+                    
+                    if ($Text::PSTemplate::chop) {
+                        $right =~ s{^(?:\r\n|\r|\n)}{};
+                    }
+                
+                    if ($@) {
+                        my $org = $space_l. $prefix. $tag. $space_r;
+                        $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
+                    } elsif(! defined $result) {
+                        my $org = $space_l. $prefix. $tag. $space_r;
+                        my $err = "Parse resulted undefined.";
+                        $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                    } else {
+                        $out .= $result;
+                    }
+                }
+            }
+            $str = $right;
+        }
+        return $out;
+    }
+    
+    sub parse_old {
+        
+        my ($self, $str) = @_;
+        
+        if (! defined $str) {
+            croak 'No template string found';
+        }
         my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
         my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
         my ($left, $escape, $space_l, $prefix, $tag, $space_r, $right) =
