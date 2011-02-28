@@ -1,6 +1,4 @@
 Changes
-lib/Class/C3.pm
-lib/Class/C3/next.pm
 lib/Class/FileCacheable/Lite.pm
 lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Manual.pod
