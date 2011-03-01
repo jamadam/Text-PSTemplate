@@ -98,7 +98,7 @@ Text::PSTemplate::Plugin::Extends - Port to extends syntax of Django
 
 =head1 DESCRIPTION
 
-This is a Plugin for Text::PSTemplate. This adds Common controll structures into
+This is a Plugin for Text::PSTemplate. This adds Common control structures into
 your template engine.
 
 To activate this plugin, your template have to load it as follows

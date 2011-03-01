@@ -214,12 +214,10 @@ Text::PSTemplate::PlugBase - Plugin Abstract Class
 This is an Abstract Class which represents plugins for
 Text::PSTemplate::Plugable.
 
-The Plugins are thought of singleton pattern so each plugins instanciates the
-one and only one instance. The new constractor also behave as instance
-getter. The plugin classes can contain subroutins with TplExport attribute.
+The plugin classes can contain subroutins with TplExport attribute.
 These subroutins are targeted as template function.
 
-Text::PSTemplate::PluginBase is a sub class of Class::FileCacheable so
+Text::PSTemplate::PluginBase is also a sub class of Class::FileCacheable so
 subtoutins can have FileCacheable attribute. See also
 L<Class::FileCacheable>.
 
@@ -233,8 +231,7 @@ This class also capable of managing ini datas for each plugins.
 
 =head2 Text::PSTemplate::PluginBase->new($template)
 
-Constractor and instance getter. This makes an singleton instance for the
-plugin. This takes plugable template instance as argument.
+Constractor. This takes template instance as argument.
 
     my $tpl = Text::PSTemplate::Plugable->new;
     my $myplug = My::Plug->new($tpl);
