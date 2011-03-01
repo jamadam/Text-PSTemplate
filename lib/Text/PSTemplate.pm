@@ -106,11 +106,13 @@ no warnings 'recursion';
         my ($index, $args) = @_;
         if (defined $index) {
             my $data = $Text::PSTemplate::inline_data->[$index];
-            if ($_[1]->{chop_left}) {
-                $data =~ s{^(?:\r\n|\r|\n)}{};
-            }
-            if ($_[1]->{chop_right}) {
-                $data =~ s{(?:\r\n|\r|\n)$}{};
+            if ($data && $_[1]) {
+                if ($_[1]->{chop_left}) {
+                    $data =~ s{^(?:\r\n|\r|\n)}{};
+                }
+                if ($_[1]->{chop_right}) {
+                    $data =~ s{(?:\r\n|\r|\n)$}{};
+                }
             }
             return $data;
         } else {

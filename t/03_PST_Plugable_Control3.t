@@ -69,7 +69,7 @@ EOF
 		is($parsed, q{});
     }
     
-    sub regix_capture_bug : Test(1) {
+    sub regex_capture_bug : Test(1) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
 		my $parsed = $tpl->parse(<<EOF);
@@ -81,10 +81,8 @@ EOF
 EOF
 
 		is($parsed, <<EOF);
-
 	1
 	1
 	1
-
 EOF
     }

@@ -14,7 +14,7 @@ our $VERSION = '0.01';
         my ($self, $file) = @_;
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Extends::_Sub', '');
-        $tpl->parse(Text::PSTemplate::inline_data(0));
+        $tpl->parse(Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1}));
         return $tpl->parse_file($file);
     }
 
@@ -31,7 +31,7 @@ use Text::PSTemplate;
         
         my ($self, $name) = @_;
         my $tpl = Text::PSTemplate->mother;
-        $tpl->set_var($name => $tpl->parse(Text::PSTemplate::inline_data(0)));
+        $tpl->set_var($name => $tpl->parse(Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})));
         return;
     }
     
@@ -45,7 +45,7 @@ use Text::PSTemplate;
         if (my $val = $tpl->var($name)) {
             return $val;
         } else {
-            return $tpl->parse(Text::PSTemplate::inline_data(0));
+            return $tpl->parse(Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1}));
         }
     }
 

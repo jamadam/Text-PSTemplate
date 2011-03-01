@@ -18,13 +18,13 @@ our $VERSION = '0.01';
         if (grep {$_ eq $target} @$array_ref) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -43,13 +43,13 @@ our $VERSION = '0.01';
         if ($condition) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -68,13 +68,13 @@ our $VERSION = '0.01';
         if ($target eq $value) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -93,13 +93,13 @@ our $VERSION = '0.01';
         if ($target =~ /$pattern/) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -119,12 +119,12 @@ our $VERSION = '0.01';
             my $i = 0;
             for (; $i < scalar @$case_ref; $i++) {
                 if ($target eq $case_ref->[$i]) {
-                    return $tpl->parse(Text::PSTemplate::inline_data($i));
+                    return $tpl->parse(Text::PSTemplate::inline_data($i, {chop_left => 1, chop_right => 1}));
                 }
             }
             if (defined $default) {
                 return $tpl->parse($default);
-            } elsif (my $inline = Text::PSTemplate::inline_data($i)) {
+            } elsif (my $inline = Text::PSTemplate::inline_data($i, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } elsif (ref $case_ref eq 'HASH') {
@@ -162,7 +162,7 @@ our $VERSION = '0.01';
         
         my ($self, $data, $asign1, $asign2) = @_;
         
-        my $tplstr = Text::PSTemplate::inline_data(0);
+        my $tplstr = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1});
         my $tpl = Text::PSTemplate->new;
         $tpl->bypass_mother_search;
         
