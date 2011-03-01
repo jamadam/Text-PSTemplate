@@ -60,13 +60,6 @@ package NT::Plugin::DB::RowTemplate;
 use strict;
 use warnings;
 use base qw(Text::PSTemplate);
-
-	sub new {
-		
-		my $class = shift;
-		my $mother = Text::PSTemplate->mother;
-		return $class->SUPER::new;
-	}
 	
 	sub set_table_info {
 		

@@ -6,7 +6,7 @@ use Text::PSTemplate::Plugable;
 
     __PACKAGE__->runtests;
     
-    sub die_in_plugin : Test(1) {
+    sub die_in_plugin : Test(2) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
 		$tpl->plug('Test::_Plugin','');
@@ -14,6 +14,7 @@ use Text::PSTemplate::Plugable;
 			$tpl->parse_file('t/template/01_PST_die_at.txt');
 		};
         like($@, qr/01_PST_die_at.txt/);
+        like($@, qr/ERROR/);
     }
 
 package Test::_Plugin;

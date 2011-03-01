@@ -221,9 +221,9 @@ our $VERSION = '0.01';
     
     ### ---
     ### Do nothing and returns null string
-    ### <!-- <%&bypass(' -->
+    ### <!-- <% bypass(' -->
     ### <base href="../">
-    ### <!-- ')%> -->
+    ### <!-- ') %> -->
     ### ---
     sub bypass : TplExport(chop => 1) {
         

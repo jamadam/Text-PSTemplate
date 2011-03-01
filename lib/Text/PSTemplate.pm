@@ -103,10 +103,25 @@ no warnings 'recursion';
     ### ---
     sub inline_data {
         
-        if (defined $_[0]) {
-            return $Text::PSTemplate::inline_data->[$_[0]];
+        my ($index, $args) = @_;
+        if (defined $index) {
+            my $data = $Text::PSTemplate::inline_data->[$index];
+            if ($_[1]->{chop_left}) {
+                $data =~ s{^(?:\r\n|\r|\n)}{};
+            }
+            if ($_[1]->{chop_right}) {
+                $data =~ s{(?:\r\n|\r|\n)$}{};
+            }
+            return $data;
         } else {
-            return $Text::PSTemplate::inline_data;
+            my @data = $Text::PSTemplate::inline_data;
+            if ($_[1]->{chop_left}) {
+                @data =  [map {my $a = $_; $a =~ s{^(?:\r\n|\r|\n)}{}} @data];
+            }
+            if ($_[1]->{chop_right}) {
+                @data =  [map {my $a = $_; $a =~ s{(?:\r\n|\r|\n)$}{}} @data];
+            }
+            return \@data;
         }
     }
     
