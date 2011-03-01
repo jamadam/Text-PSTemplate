@@ -3,8 +3,6 @@ use strict;
 use warnings;
 use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
-
-our $VERSION = '0.01';
     
     ### ---
     ### Parse inline template if the variable is in array

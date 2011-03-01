@@ -57,14 +57,6 @@ no warnings 'recursion';
     }
     
     ### ---
-    ### Sub template factory[deprecated]
-    ### ---
-    sub new_sub_template {
-        
-        return shift->new;
-    }
-    
-    ### ---
     ### Get mother in caller context
     ### ---
     sub mother {
@@ -776,10 +768,6 @@ instance.
 
     $tpl->parse_file($file_path)
     $tpl->parse_file($obj)
-
-=head2 $instance->new_sub_template() [deprecated]
-
-This is an arias to new method.
 
 =head2 $instance->get_file($name, $trans_ref)
 

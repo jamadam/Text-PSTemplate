@@ -4,8 +4,6 @@ use warnings;
 use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
 use Text::PSTemplate::Plugin::Control;
-
-our $VERSION = '0.01';
     
     ### ---
     ### Get Environment variable

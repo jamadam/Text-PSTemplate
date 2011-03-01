@@ -9,7 +9,7 @@ use Text::PSTemplate::Plugin::Num;
 use Text::PSTemplate::Plugin::Env;
 use Text::PSTemplate::Plugin::Extends;
 
-    our @CORE_LIST = qw(Control Num Env Extends);
+    my @CORE_LIST = qw(Control Num Env Extends);
 
     sub new {
         
