@@ -114,14 +114,7 @@ no warnings 'recursion';
             }
             return $data;
         } else {
-            my @data = $Text::PSTemplate::inline_data;
-            if ($_[1]->{chop_left}) {
-                @data =  [map {my $a = $_; $a =~ s{^(?:\r\n|\r|\n)}{}} @data];
-            }
-            if ($_[1]->{chop_right}) {
-                @data =  [map {my $a = $_; $a =~ s{(?:\r\n|\r|\n)$}{}} @data];
-            }
-            return \@data;
+            return $Text::PSTemplate::inline_data;
         }
     }
     
@@ -583,7 +576,7 @@ Text::PSTemplate - Multi purpose template engine
     
     $context        = Text::PSTemplate->context();
     $mother_obj     = Text::PSTemplate->mother();
-    $inline_data    = Text::PSTemplate->inline_data($number);
+    $inline_data    = Text::PSTemplate->inline_data($number, $options);
     
     $file_obj = Text::PSTemplate::File->new($filename);
     $file_obj->content;
@@ -665,7 +658,7 @@ a file, this returns the file name.
 This method set the behavior of the parser how they should treat follow up line
 breaks. If argument $mode is 1, line breaks will not to be output. 0 is default.
 
-=head2 Text::PSTemplate::inline_data($index)
+=head2 Text::PSTemplate::inline_data($index, $options)
 
 This can be called from template functions. This Returns inline data specified
 in templates.
@@ -681,8 +674,10 @@ In a template
 Function definision
     
     sub your_func() {
-        my $block1 = Text::PSTemplate::inline_data(0) # foo
-        my $block2 = Text::PSTemplate::inline_data(1) # bar
+        my $block1 = Text::PSTemplate::inline_data(0) # foo with newline chara
+        my $block2 = Text::PSTemplate::inline_data(1) # bar with newline chara
+        my $block1 = Text::PSTemplate::inline_data(0, {chop_left => 1}) # foo
+        my $block2 = Text::PSTemplate::inline_data(1, {chop_right => 1}) # bar
     }
 
 =head2 $instance->set_encoding($encode)
