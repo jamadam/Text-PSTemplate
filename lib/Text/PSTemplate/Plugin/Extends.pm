@@ -107,6 +107,8 @@ To activate this plugin, your template have to load it as follows
     my $tpl = Text::PSTemplate::Plugable->new;
     $tpl->plug('Text::PSTemplate::Plugin::Control', '');
 
+Since this has promoted to core plugin, you don't have to explicitly load it.
+
 =head1 TEMPLATE FUNCTIONS
 
 =head2 extends

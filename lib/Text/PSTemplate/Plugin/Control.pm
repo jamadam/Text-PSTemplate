@@ -201,23 +201,6 @@ use Text::PSTemplate;
     }
     
     ### ---
-    ### Substr
-    ### ---
-    sub substr : TplExport {
-        
-        my ($self, $target, $start, $length, $alter) = @_;
-        
-        defined $target or return '';
-        
-        my $output = substr($target, $start, $length);
-        
-        if ($alter && length($target) != length($output)) {
-            $output .= $alter;
-        }
-        return $output;
-    }
-    
-    ### ---
     ### Do nothing and returns null string
     ### <!-- <% bypass(' -->
     ### <base href="../">
@@ -278,6 +261,34 @@ use Text::PSTemplate;
         my ($self, $left, $right) = @_;
         Text::PSTemplate->mother->set_delimiter($left, $right);
         return;
+    }
+	
+    ### ---
+	### output default instead of false value
+    ### ---
+    sub default : TplExport {
+        
+		my ($self, $value, $default) = @_;
+		if ($value) {
+			return $value;
+		}
+		return $default;
+    }
+    
+    ### ---
+	### Counter 
+    ### ---
+    sub with : TplExport {
+        
+        my ($self, $dataset) = @_;
+        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tplstr = Text::PSTemplate::inline_data(0);
+        my $out = '';
+        while (my ($key, $value) = CORE::each(%$dataset)) {
+            $tpl->set_var($key => $value);
+            $out .= $tpl->parse($tplstr);
+        }
+        return $out;
     }
 
 1;
@@ -348,6 +359,8 @@ Text::PSTemplate::Plugin::Control - Common controll structures
     <% TPL %>
     
     <% include('path/to/file.txt', {some_var => 'aaa'}) %>
+    
+    <% default($var, $default) %>
 
 =head1 DESCRIPTION
 
@@ -457,10 +470,6 @@ Not written yet.
 
 Not written yet.
 
-=head2 substr($var, $start, [$length, $alterative])
-
-Not written yet.
-
 =head2 bypass('')
 
 This function do nothing and returns null string.
@@ -484,6 +493,10 @@ This function include a file content of given name into current template.
 =head2 set_delimiter(LEFT, RIGHT)
 
 =head2 extract($obj, $key)
+
+=head2 default($var, $default)
+
+=head2 with($dataset)
 
 =head1 AUTHOR
 

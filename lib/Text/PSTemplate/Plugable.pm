@@ -5,11 +5,11 @@ use Carp;
 use base qw(Text::PSTemplate);
 use Text::PSTemplate::PluginBase;
 use Text::PSTemplate::Plugin::Control;
-use Text::PSTemplate::Plugin::Num;
 use Text::PSTemplate::Plugin::Env;
 use Text::PSTemplate::Plugin::Extends;
+use Text::PSTemplate::Plugin::Util;
 
-    my @CORE_LIST = qw(Control Num Env Extends);
+    my @CORE_LIST = qw(Control Env Extends Util);
 
     sub new {
         

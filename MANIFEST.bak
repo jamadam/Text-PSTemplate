@@ -7,7 +7,6 @@ lib/Text/PSTemplate/Plugin/Control.pm
 lib/Text/PSTemplate/Plugin/Developer.pod
 lib/Text/PSTemplate/Plugin/Env.pm
 lib/Text/PSTemplate/Plugin/Extends.pm
-lib/Text/PSTemplate/Plugin/Num.pm
 lib/Text/PSTemplate/PluginBase.pm
 Makefile.PL
 MANIFEST
@@ -16,6 +15,7 @@ t/00_load.t
 t/01_PST_basic.t
 t/01_PST_basic2.t
 t/01_PST_basic3.t
+t/01_PST_chop_inline_data.t
 t/01_PST_common_control.t
 t/01_PST_crop.t
 t/01_PST_deep_recursion.t

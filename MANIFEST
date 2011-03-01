@@ -7,7 +7,7 @@ lib/Text/PSTemplate/Plugin/Control.pm
 lib/Text/PSTemplate/Plugin/Developer.pod
 lib/Text/PSTemplate/Plugin/Env.pm
 lib/Text/PSTemplate/Plugin/Extends.pm
-lib/Text/PSTemplate/Plugin/Num.pm
+lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
 Makefile.PL
 MANIFEST
@@ -45,6 +45,7 @@ t/03_PST_Plugable_Control5.t
 t/03_PST_Plugable_die_at.t
 t/03_PST_Plugable_Env.t
 t/03_PST_Plugable_Extends.t
+t/03_PST_Plugable_Util.t
 t/03_PST_Plugable_xslate_compatible.t
 t/99_pod.t
 t/99_podcoverage.t
