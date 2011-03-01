@@ -174,6 +174,15 @@ no warnings 'recursion';
     }
     
     ### ---
+    ### Set chop option which reduce newline chars
+    ### ---
+    sub set_chop {
+        
+        my ($class, $mode) = @_;
+        $Text::PSTemplate::chop = $mode;
+    }
+    
+    ### ---
     ### Set delimiter
     ### ---
     sub set_delimiter {
@@ -291,12 +300,6 @@ no warnings 'recursion';
         return $self->parse($str);
     }
     
-    sub set_chop {
-        
-        my ($class, $mode) = @_;
-        $Text::PSTemplate::chop = $mode;
-    }
-    
     sub parse {
         
         my ($self, $str) = @_;
@@ -386,7 +389,6 @@ no warnings 'recursion';
             if ($prefix eq '$') {
                 if (defined $self->var($ident)) {
                     $out .= qq{\$self->var('$ident')};
-                    #$out .= "'\Q". $self->var($ident). "\E'";
                 } else {
                     $out .= "'\Q".
                     $self->get_param($MEM_VAR_NONEXIST)->($self, '$'.$ident, 'variable').
