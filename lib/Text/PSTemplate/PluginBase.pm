@@ -8,6 +8,7 @@ use Scalar::Util qw{blessed};
 use Class::C3;
 use base qw(Class::FileCacheable::Lite);
 use Carp;
+use Scalar::Util qw(weaken);
 
     my %_tpl_exports = ();
     
@@ -41,6 +42,8 @@ use Carp;
             }, $class;
             $instance->_set_tpl_funcs($tpl);
             $tpl->{pluged}->{$class} = $instance;
+            weaken $instance->{$MEM_TPL};
+            weaken $tpl->{pluged}->{$class};
         }
         return $instance;
     }
