@@ -30,7 +30,7 @@ no warnings 'recursion';
             $mother ||= $class;
             $class = ref $class;
         } elsif (scalar @_ == 1) {
-            $mother = $Text::PSTemplate::self || undef;
+            $mother = $Text::PSTemplate::self;
         }
         
         my $self = bless {
@@ -42,14 +42,14 @@ no warnings 'recursion';
         if (! defined $mother) {
             $self->{$MEM_ENCODING}          = 'utf8';
             $self->{$MEM_RECUR_LIMIT}       = 10;
-            $self->{$MEM_FUNC_NONEXIST}     =
-                $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
-            $self->{$MEM_VAR_NONEXIST}      =
-                $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
-            $self->{$MEM_NONEXIST}          =
-                $Text::PSTemplate::Exception::TAG_ERROR_DIE;
             $self->{$MEM_DELIMITER_LEFT}    = '<%';
             $self->{$MEM_DELIMITER_RIGHT}   = '%>';
+            $self->{$MEM_FUNC_NONEXIST}     =
+                            $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
+            $self->{$MEM_VAR_NONEXIST}      =
+                            $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
+            $self->{$MEM_NONEXIST}          =
+                            $Text::PSTemplate::Exception::TAG_ERROR_DIE;
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {

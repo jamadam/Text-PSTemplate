@@ -54,7 +54,6 @@ __END__
 =head1 NAME
 
 Text::PSTemplate::Plugin::Extends - Port to extends syntax of Django
-[EXPERIMENTAL]
 
 =head1 SYNOPSIS
 
