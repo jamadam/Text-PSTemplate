@@ -2,7 +2,7 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.19';
+our $VERSION = '0.21';
 use 5.005;
 use Carp;
 no warnings 'recursion';
@@ -15,10 +15,9 @@ no warnings 'recursion';
     my $MEM_FUNC                    = 6;
     my $MEM_VAR                     = 7;
     my $MEM_FILENAME_TRANS          = 8;
-    my $MEM_BYPASS_MOTHER_SEARCH    = 9;
-    my $MEM_NONEXIST                = 10;
-    my $MEM_FUNC_NONEXIST           = 11;
-    my $MEM_VAR_NONEXIST            = 12;
+    my $MEM_NONEXIST                = 9;
+    my $MEM_FUNC_NONEXIST           = 10;
+    my $MEM_VAR_NONEXIST            = 11;
     
     ### ---
     ### constractor
@@ -43,9 +42,12 @@ no warnings 'recursion';
         if (! defined $mother) {
             $self->{$MEM_ENCODING}          = 'utf8';
             $self->{$MEM_RECUR_LIMIT}       = 10;
-            $self->{$MEM_FUNC_NONEXIST}     = $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
-            $self->{$MEM_VAR_NONEXIST}      = $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
-            $self->{$MEM_NONEXIST}          = $Text::PSTemplate::Exception::TAG_ERROR_DIE;
+            $self->{$MEM_FUNC_NONEXIST}     =
+                $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
+            $self->{$MEM_VAR_NONEXIST}      =
+                $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
+            $self->{$MEM_NONEXIST}          =
+                $Text::PSTemplate::Exception::TAG_ERROR_DIE;
             $self->{$MEM_DELIMITER_LEFT}    = '<%';
             $self->{$MEM_DELIMITER_RIGHT}   = '%>';
         }
@@ -62,24 +64,21 @@ no warnings 'recursion';
     sub mother {
         
         if (ref $_[0]) {
-            if ($_[0]->{$MEM_MOTHER}->{$MEM_BYPASS_MOTHER_SEARCH}) {
-                return $_[0]->{$MEM_MOTHER}->mother;
-            }
             return $_[0]->{$MEM_MOTHER};
         } else {
-            if ($Text::PSTemplate::self->{$MEM_BYPASS_MOTHER_SEARCH}) {
-                return $Text::PSTemplate::self->mother;
-            }
             return $Text::PSTemplate::self;
         }
     }
     
     ### ---
-    ### Get current file name
+    ### Get file context mother
     ### ---
-    sub bypass_mother_search {
+    sub get_file_mother {
         
-        $_[0]->{$MEM_BYPASS_MOTHER_SEARCH} = 1;
+        return
+            $Text::PSTemplate::contextual_mother
+            || Text::PSTemplate::mother->mother
+            || Text::PSTemplate::mother;
     }
     
     ### ---
@@ -284,6 +283,7 @@ no warnings 'recursion';
             $Text::PSTemplate::context = $file->name;
             $str = $file->content;
         }
+        local $Text::PSTemplate::contextual_mother = $Text::PSTemplate::mother;
         return $self->parse($str);
     }
     
@@ -294,6 +294,8 @@ no warnings 'recursion';
         
         my ($self, $str) = @_;
         if (ref $_[1] eq 'Text::PSTemplate::File') {
+            local $Text::PSTemplate::contextual_mother =
+                                                    $Text::PSTemplate::mother;
             $Text::PSTemplate::context = $_[1]->name;
             $str = $_[1]->content;
         }
@@ -312,7 +314,7 @@ no warnings 'recursion';
             my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
             my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
             my ($left, $escape, $space_l, $prefix, $tag, $space_r, $right) =
-                split(m{(\\*)$delim_l(\s*)([\&\$]*)(.+?)(\s*)$delim_r}s, $str, 2);
+            split(m{(\\*)$delim_l(\s*)([\&\$]*)(.+?)(\s*)$delim_r}s, $str, 2);
             
             if (! defined $tag) {
                 return $out. $str;
@@ -357,11 +359,13 @@ no warnings 'recursion';
                 
                     if ($@) {
                         my $org = $space_l. $prefix. $tag. $space_r;
-                        $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
+                        $out .=
+                            $self->get_param($MEM_NONEXIST)->($self, $org, $@);
                     } elsif(! defined $result) {
                         my $org = $space_l. $prefix. $tag. $space_r;
                         my $err = "Parse resulted undefined.";
-                        $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                        $out .=
+                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
                     } else {
                         $out .= $result;
                     }
@@ -391,7 +395,8 @@ no warnings 'recursion';
                     $out .= qq{\$self->var('$ident')};
                 } else {
                     $out .= "'\Q".
-                    $self->get_param($MEM_VAR_NONEXIST)->($self, '$'.$ident, 'variable').
+                    $self->get_param(
+                            $MEM_VAR_NONEXIST)->($self, '$'.$ident, 'variable').
                     "\E'";
                 }
             } elsif ($prefix eq '&') {
@@ -399,7 +404,8 @@ no warnings 'recursion';
                     $out .= qq!\$self->func('$ident')->!;
                 } else {
                     $out .= "'\Q".
-                    $self->get_param($MEM_FUNC_NONEXIST)->($self, '&'.$ident, 'function').
+                    $self->get_param(
+                        $MEM_FUNC_NONEXIST)->($self, '&'.$ident, 'function').
                     "\E'";
                 }
             } else {
@@ -470,7 +476,8 @@ use Fcntl qw(:flock);
         }
         
         if ($encode) {
-            open($fh, "<:encoding($encode)", $name) || croak "$name cannot open";
+            open($fh, "<:encoding($encode)", $name)
+                                                || croak "$name cannot open";
         } else {
             open($fh, "<:utf8", $name) || croak "$name cannot open";
         }
@@ -644,6 +651,11 @@ If you want really new instance, give an undef to constractor explicitly.
 This can be called from template functions. If current context is recursed
 instance, this returns mother instance.
 
+=head2 Text::PSTemplate::get_file_mother()
+
+This can be called from template functions. This returns file-contextual mother
+template instance. 
+
 =head2 Text::PSTemplate::context()
 
 This can be called from template functions. If current context is origined from
@@ -803,8 +815,6 @@ This example allows common extension to be ommited.
     $tpl->set_filename_trans_coderef($trans)
 
 This also let you set a default template in case the template not found.
-
-=head2 $instance->bypass_mother_search()
 
 =head1 TEXT::PSTemplate::File CLASS
 

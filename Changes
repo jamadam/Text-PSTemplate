@@ -21,3 +21,7 @@ Revision history for Text-PSTemplate
 0.20 2011/02/26
   - ADD: New feature chop added. Plugins now can manage behaviors with line
     breaks
+
+0.21 2011/03/03
+  - Mother search bypass architecture no longer available. New feature
+    get_file_mother added instead.

@@ -25,8 +25,8 @@ t/01_PST_dereference.t
 t/01_PST_escaping.t
 t/01_PST_escaping2.t
 t/01_PST_filename_trans.t
+t/01_PST_get_file_context_mother.t
 t/01_PST_new_sub_template.t
-t/01_PST_skip_bubbling.t
 t/02_PST_Plugable_basic.t
 t/02_PST_Plugable_basic2.t
 t/02_PST_Plugable_basic3.t
@@ -37,6 +37,7 @@ t/02_PST_Plugable_incrementally_added.t
 t/02_PST_Plugable_ini_c3.t
 t/02_PST_Plugable_namespace.t
 t/02_PST_Plugable_respect_false_values.t
+t/02_PST_Plugable_weaken.t
 t/03_PST_Plugable_Control1.t
 t/03_PST_Plugable_Control2.t
 t/03_PST_Plugable_Control3.t
@@ -58,6 +59,8 @@ t/template/01_PST_basic.txt
 t/template/01_PST_basic_2.txt
 t/template/01_PST_die_at.txt
 t/template/01_PST_filename_trans.txt
+t/template/01_PST_get_file_context_mother.txt
+t/template/01_PST_get_file_context_mother2.txt
 t/template/03_PST_Plugable_Control1.txt
 t/template/03_PST_Plugable_Control2.txt
 t/template/03_PST_Plugable_Control3.txt

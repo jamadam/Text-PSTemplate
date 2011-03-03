@@ -162,8 +162,6 @@ use Text::PSTemplate;
         
         my $tplstr = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1});
         my $tpl = Text::PSTemplate->new;
-        $tpl->bypass_mother_search;
-        
         if (! ref $data) {
             $data = [$data];
         }
@@ -244,12 +242,22 @@ use Text::PSTemplate;
     }
     
     ### ---
-    ### set variable
+    ### set variable[deprecated]
     ### ---
     sub set_var : TplExport(chop => 1) {
         
         my $self = shift;
-        Text::PSTemplate->mother->set_var(@_);
+        Text::PSTemplate->get_file_mother->set_var(@_);
+        return;
+    }
+    
+    ### ---
+    ### assign variables
+    ### ---
+    sub assign : TplExport(chop => 1) {
+        
+        my $self = shift;
+        Text::PSTemplate->get_file_mother->set_var(@_);
         return;
     }
     
@@ -259,7 +267,7 @@ use Text::PSTemplate;
     sub set_delimiter : TplExport(chop => 1) {
         
         my ($self, $left, $right) = @_;
-        Text::PSTemplate->mother->set_delimiter($left, $right);
+        Text::PSTemplate->get_file_mother->set_delimiter($left, $right);
         return;
     }
 	
@@ -488,7 +496,18 @@ This function include a file content of given name into current template.
 
     <% include('path/to/file.txt', {some_var => 'aaa'}) %>
 
-=head2 set_var(%dataset)
+=head2 assign(%dataset)
+
+=head2 set_var(%dataset) [deprecated]
+
+Assigns variables with given dataset. The variables are available in current
+file context. 
+
+    <% set_var({some_name => 'some value'}) %>
+    <% $some_name %>
+
+Note that the variable is always inherited in sub templates. This means the
+assign does not affect mother templates but sub templates.
 
 =head2 set_delimiter(LEFT, RIGHT)
 
