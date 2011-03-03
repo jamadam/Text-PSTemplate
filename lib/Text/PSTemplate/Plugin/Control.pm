@@ -216,7 +216,7 @@ use Text::PSTemplate;
         
         my ($self, $file, $vars) = @_;
         my $tpl = Text::PSTemplate->new->set_var(%$vars);
-        return eval {$tpl->parse_file($file)};
+        return $tpl->parse_file($file);
     }
     
     ### ---

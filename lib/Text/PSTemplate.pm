@@ -351,8 +351,11 @@ no warnings 'recursion';
                     $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
                 } else {
                     
-                    my $result =
-                        eval '{package Text::PSTemplate::_Template;'. $interp.'}'; ## no critic
+                    my $result;
+                    {
+                        package Text::PSTemplate::_Template;
+                        $result = eval $interp; ## no critic
+                    }
                     
                     if ($Text::PSTemplate::chop) {
                         $right =~ s{^(?:\r\n|\r|\n)}{};
@@ -542,10 +545,8 @@ use Carp;
     our $TAG_ERROR_DIE = sub {
         my ($self, $line, $err) = (@_);
         if ($err) {
-            if ($err =~ /as a subroutine/) {
-                croak "Cannot parse template line($line)";
-            }
-            croak "$err This error was in eval($line)";
+            chop($err);
+            croak "$err within eval($line)";
         }
         croak "Error occured in eval($line)";
     };
