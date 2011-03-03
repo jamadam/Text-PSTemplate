@@ -351,7 +351,8 @@ no warnings 'recursion';
                     $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
                 } else {
                     
-                    my $result = eval $interp; ## no critic
+                    my $result =
+                        eval '{package Text::PSTemplate::_Template;'. $interp.'}'; ## no critic
                     
                     if ($Text::PSTemplate::chop) {
                         $right =~ s{^(?:\r\n|\r|\n)}{};
