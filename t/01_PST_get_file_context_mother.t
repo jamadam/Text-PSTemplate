@@ -8,11 +8,11 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
 	
-    sub get_file_mother : Test(2) {
+    sub get_current_file_parser : Test(2) {
         
         my $tpl = Text::PSTemplate->new;
 		$tpl->set_func(a => sub {
-			my $tpl2 = Text::PSTemplate::get_file_mother;
+			my $tpl2 = Text::PSTemplate::get_current_file_parser;
 			is($tpl2, $tpl);
 			return 'ok';
 		});

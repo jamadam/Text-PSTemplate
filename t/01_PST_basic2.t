@@ -12,7 +12,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new();
         my $put_tpl = sub {
-            my $tpl = Text::PSTemplate::inline_data(0);
+            my $tpl = Text::PSTemplate::get_block(0);
             my $a = Text::PSTemplate->new();
             return $a->parse($tpl);
         };
@@ -26,9 +26,9 @@ use Data::Dumper;
         my $tpl = Text::PSTemplate->new();
         my $if = sub {
             if ($_[0]) {
-                return Text::PSTemplate::inline_data(0);
+                return Text::PSTemplate::get_block(0);
             } else {
-                return Text::PSTemplate::inline_data(1);
+                return Text::PSTemplate::get_block(1);
             }
         };
         $tpl->set_func(if => $if);

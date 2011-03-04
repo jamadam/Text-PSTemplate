@@ -67,7 +67,7 @@ following to block ending tag.
     <% EOF %> <--this is the target line break
 
 Reducing the line breaks inside the block is also possible. See also
-Text::PSTemplate::inline_data() options.
+Text::PSTemplate::get_block() options.
 
 =back
 
@@ -77,8 +77,8 @@ Text::PSTemplate::inline_data() options.
 
     sub your_func : TplExport {
         
-        my $mother1 = Text::PSTemplate:mother;
-        my $mother2 = Text::PSTemplate:get_file_mother;
+        my $mother1 = Text::PSTemplate:get_current_parser;
+        my $mother2 = Text::PSTemplate:get_current_file_parser;
     }
 
 With Text::PSTemplate::mother, you can get a template instance witch is the one
@@ -91,10 +91,10 @@ instance which is the one current file is being parsed by.
 
     sub your_func : TplExport {
         
-        my $mother = Text::PSTemplate:context;
+        my $mother = Text::PSTemplate:get_current_filename;
     }
 
-With Text::PSTemplate:context, you can get current file name.
+With Text::PSTemplate::get_current_filename, you can get current file name.
 
 =head3 Getting block data
 

@@ -100,7 +100,7 @@ EOF
             my (@array) = @_;
             my $tpl = Text::PSTemplate->new;
             $tpl->set_exception(sub {''});
-            is($tpl->mother, $mother);
+            is($tpl->get_current_parser, $mother);
             my $out = '';
             for my $elem (@array) {
                 $out .= $tpl->parse("hello $elem! ");
@@ -111,7 +111,7 @@ EOF
         is($tpl->parse($tpl_str), $expected);
     }
     
-    sub inline_data2 : Test(1) {
+    sub get_block2 : Test(1) {
         
         my $tpl = Text::PSTemplate->new();
         
@@ -125,7 +125,7 @@ EOF
         my $mother = $tpl;
         $tpl->set_var(a => 'a');
         $tpl->set_func(hello => sub {
-            my (@array) = (Text::PSTemplate::inline_data(0));
+            my (@array) = (Text::PSTemplate::get_block(0));
             my $tpl = Text::PSTemplate->new();
             my $out = '';
             for my $elem (@array) {
@@ -138,7 +138,7 @@ EOF
         is($tpl->parse($html), $expected);
     }
     
-    sub inline_data : Test(1) {
+    sub get_block : Test(1) {
         
         my $tpl = Text::PSTemplate->new();
         
@@ -151,7 +151,7 @@ EOF
 EOF
         my $mother = $tpl;
         $tpl->set_func(hello => sub {
-            my $target =  shift || Text::PSTemplate::inline_data(0);
+            my $target =  shift || Text::PSTemplate::get_block(0);
             return "hello $target!";
         });
         is($tpl->parse($html), $expected);

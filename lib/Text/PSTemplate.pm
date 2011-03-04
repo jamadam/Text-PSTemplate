@@ -2,7 +2,7 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 use 5.005;
 use Carp;
 no warnings 'recursion';
@@ -61,7 +61,7 @@ no warnings 'recursion';
     ### ---
     ### Get mother in caller context
     ### ---
-    sub mother {
+    sub get_current_parser {
         
         if (ref $_[0]) {
             return $_[0]->{$MEM_MOTHER};
@@ -73,30 +73,30 @@ no warnings 'recursion';
     ### ---
     ### Get file context mother
     ### ---
-    sub get_file_mother {
+    sub get_current_file_parser {
         
         return
-            $Text::PSTemplate::contextual_mother
-            || Text::PSTemplate::mother->mother
-            || Text::PSTemplate::mother;
+            $Text::PSTemplate::current_file_parser
+            || Text::PSTemplate::get_current_parser->get_current_parser
+            || Text::PSTemplate::get_current_parser;
     }
     
     ### ---
     ### Get current file name
     ### ---
-    sub context {
+    sub get_current_filename {
         
-        return $Text::PSTemplate::context;
+        return $Text::PSTemplate::current_filename;
     }
     
     ### ---
     ### Get inline data
     ### ---
-    sub inline_data {
+    sub get_block {
         
         my ($index, $args) = @_;
         if (defined $index) {
-            my $data = $Text::PSTemplate::inline_data->[$index];
+            my $data = $Text::PSTemplate::block->[$index];
             if ($data && $_[1]) {
                 if ($_[1]->{chop_left}) {
                     $data =~ s{^(?:\r\n|\r|\n)}{};
@@ -107,7 +107,7 @@ no warnings 'recursion';
             }
             return $data;
         } else {
-            return $Text::PSTemplate::inline_data;
+            return $Text::PSTemplate::block;
         }
     }
     
@@ -269,10 +269,11 @@ no warnings 'recursion';
     sub parse_file {
         
         my ($self, $file) = @_;
-        local $Text::PSTemplate::context = $Text::PSTemplate::context;
+        local $Text::PSTemplate::current_filename =
+                                            $Text::PSTemplate::current_filename;
         my $str;
         if (ref $_[1] eq 'Text::PSTemplate::File') {
-            $Text::PSTemplate::context = $_[1]->name;
+            $Text::PSTemplate::current_filename = $_[1]->name;
             $str = $_[1]->content;
         } else {
             my $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
@@ -280,10 +281,11 @@ no warnings 'recursion';
                 $file = $translate_ref->($file);
             }
             my $file = $self->get_file($file, 1, undef);
-            $Text::PSTemplate::context = $file->name;
+            $Text::PSTemplate::current_filename = $file->name;
             $str = $file->content;
         }
-        local $Text::PSTemplate::contextual_mother = $Text::PSTemplate::mother;
+        local $Text::PSTemplate::current_file_parser =
+                                        $Text::PSTemplate::get_current_parser;
         return $self->parse($str);
     }
     
@@ -294,9 +296,9 @@ no warnings 'recursion';
         
         my ($self, $str) = @_;
         if (ref $_[1] eq 'Text::PSTemplate::File') {
-            local $Text::PSTemplate::contextual_mother =
-                                                    $Text::PSTemplate::mother;
-            $Text::PSTemplate::context = $_[1]->name;
+            local $Text::PSTemplate::current_file_parser =
+                                        $Text::PSTemplate::get_current_parser;
+            $Text::PSTemplate::current_filename = $_[1]->name;
             $str = $_[1]->content;
         }
         return $self->parse($str);
@@ -327,14 +329,14 @@ no warnings 'recursion';
             if ($len % 2 == 1) {
                 $out .= $delim_l. $space_l. $prefix. $tag. $space_r. $delim_r;
             } else {
-                local $Text::PSTemplate::inline_data;
+                local $Text::PSTemplate::block;
                 local $Text::PSTemplate::self = $self;
                 local $Text::PSTemplate::chop;
                 
                 if ($tag =~ s{<<([a-zA-Z0-9_,]+)}{}) {
                     for my $a (split(',', $1)) {
                         if ($right =~ s{(.*?)$delim_l\s*$a\s*$delim_r}{}s) {
-                            push(@{$Text::PSTemplate::inline_data}, $1);
+                            push(@{$Text::PSTemplate::block}, $1);
                         }
                     }
                 }
@@ -534,8 +536,8 @@ use Carp;
     ### ---
     our $TAG_ERROR_NO_ACTION = sub {
         my ($self, $line, $err) = (@_);
-        my $delim_l = Text::PSTemplate->mother->get_delimiter(0);
-        my $delim_r = Text::PSTemplate->mother->get_delimiter(1);
+        my $delim_l = Text::PSTemplate::get_current_parser->get_delimiter(0);
+        my $delim_r = Text::PSTemplate::get_current_parser->get_delimiter(1);
         return $delim_l. $line. $delim_r;
     };
     
@@ -579,9 +581,9 @@ Text::PSTemplate - Multi purpose template engine
     $str = $template->parse_file($filename);
     $str = $template->parse_file($file_obj);
     
-    $context        = Text::PSTemplate->context();
-    $mother_obj     = Text::PSTemplate->mother();
-    $inline_data    = Text::PSTemplate->inline_data($number, $options);
+    $filename       = Text::PSTemplate::get_current_filename();
+    $mother_obj     = Text::PSTemplate::get_current_parser();
+    $block_data     = Text::PSTemplate::get_block($number, $options);
     
     $file_obj = Text::PSTemplate::File->new($filename);
     $file_obj->content;
@@ -648,17 +650,17 @@ If you want really new instance, give an undef to constractor explicitly.
 
     Text::PSTemplate->new(undef)
 
-=head2 Text::PSTemplate::mother()
+=head2 Text::PSTemplate::get_current_parser()
 
 This can be called from template functions. If current context is recursed
 instance, this returns mother instance.
 
-=head2 Text::PSTemplate::get_file_mother()
+=head2 Text::PSTemplate::get_current_file_parser()
 
 This can be called from template functions. This returns file-contextual mother
 template instance. 
 
-=head2 Text::PSTemplate::context()
+=head2 Text::PSTemplate::get_current_filename()
 
 This can be called from template functions. If current context is origined from
 a file, this returns the file name.
@@ -668,7 +670,7 @@ a file, this returns the file name.
 This method set the behavior of the parser how they should treat follow up line
 breaks. If argument $mode is 1, line breaks will not to be output. 0 is default.
 
-=head2 Text::PSTemplate::inline_data($index, $options)
+=head2 Text::PSTemplate::get_block($index, $options)
 
 This can be called from template functions. This Returns inline data specified
 in templates.
@@ -684,10 +686,10 @@ In a template
 Function definision
     
     sub your_func() {
-        my $block1 = Text::PSTemplate::inline_data(0) # foo with newline chara
-        my $block2 = Text::PSTemplate::inline_data(1) # bar with newline chara
-        my $block1 = Text::PSTemplate::inline_data(0, {chop_left => 1}) # foo
-        my $block2 = Text::PSTemplate::inline_data(1, {chop_right => 1}) # bar
+        my $block1 = Text::PSTemplate::get_block(0) # foo with newline chara
+        my $block2 = Text::PSTemplate::get_block(1) # bar with newline chara
+        my $block1 = Text::PSTemplate::get_block(0, {chop_left => 1}) # foo
+        my $block2 = Text::PSTemplate::get_block(1, {chop_right => 1}) # bar
     }
 
 =head2 $instance->set_encoding($encode)

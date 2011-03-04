@@ -17,11 +17,11 @@ use Data::Dumper;
         is($parsed, 'left -./?a=1&b=2 right');
     }
     
-    sub ampersand_in_inline_data : Test {
+    sub ampersand_in_get_block : Test {
         
         my $tpl = Text::PSTemplate->new();
         $tpl->set_var(title => 'TITLE');
-        $tpl->set_func(hoge => sub {return '-'. Text::PSTemplate::inline_data(0)});
+        $tpl->set_func(hoge => sub {return '-'. Text::PSTemplate::get_block(0)});
         my $parsed = $tpl->parse(q!left <% hoge()<<EOF%>./?a=1&b=2<%EOF%> right!);
         is($parsed, 'left -./?a=1&b=2 right');
     }
@@ -34,7 +34,7 @@ use Data::Dumper;
             if ($_[0]) {
                 return '-'. $_[0];
             } else {
-                return '-'. Text::PSTemplate::inline_data(0);
+                return '-'. Text::PSTemplate::get_block(0);
             }
         });
         my $parsed1 = $tpl->parse(q!left <% hoge()<<EOF %>./?a=1&b=2<% EOF %> right!);
@@ -60,7 +60,7 @@ use Data::Dumper;
         is($parsed, q{-error at 'hoge' ""-});
     }
     
-    sub inline_data_include_quote : Test(1) {
+    sub get_block_include_quote : Test(1) {
         
         my $tpl = Text::PSTemplate->new();
         
@@ -69,7 +69,7 @@ use Data::Dumper;
 EOF
         $tpl->set_var(a => 'a');
         $tpl->set_func(hello => sub {
-            my $name = shift || Text::PSTemplate::inline_data(0);
+            my $name = shift || Text::PSTemplate::get_block(0);
             my $tpl = Text::PSTemplate->new();
             return $tpl->parse("hello $name!");
         });

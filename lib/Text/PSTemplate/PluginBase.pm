@@ -165,7 +165,9 @@ use Scalar::Util qw(weaken);
     sub die {
         
         my $at =
-            (Text::PSTemplate::context) ? ' at '. Text::PSTemplate::context : '';
+            (Text::PSTemplate::get_current_filename)
+                ? ' at '. Text::PSTemplate::get_current_filename
+                : '';
         Carp::croak $_[1]. $at;
     }
 

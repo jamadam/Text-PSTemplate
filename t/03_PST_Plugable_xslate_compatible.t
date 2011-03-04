@@ -42,7 +42,7 @@ use utf8;
         });
         $template->set_func(each => sub {
             my ($hash, $as, $tpl) = (@_);
-            $tpl ||= Text::PSTemplate::inline_data(0);
+            $tpl ||= Text::PSTemplate::get_block(0);
             my $template2 = Text::PSTemplate->new;
             my $out = '';
             for my $k (keys %$hash) {

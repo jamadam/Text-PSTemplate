@@ -25,3 +25,11 @@ Revision history for Text-PSTemplate
 0.21 2011/03/03
   - Mother search bypass architecture no longer available. New feature
     get_file_mother added instead.
+
+0.22 2011/03/04
+  - Some API renamed
+    Text::PSTemplate::mother -> Text::PSTemplate::get_current_parser
+    Text::PSTemplate::get_file_mother -> Text::PSTemplate::get_current_file_parser
+    Text::PSTemplate::context -> Text::PSTemplate::get_current_filename
+    Text::PSTemplate::inline_data -> Text::PSTemplate::get_block
+

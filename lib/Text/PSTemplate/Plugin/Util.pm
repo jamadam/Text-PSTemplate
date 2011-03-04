@@ -51,7 +51,7 @@ use Text::PSTemplate;
             print => 1,
             @_);
         
-        my $name = ($Text::PSTemplate::context||''). $args{name};
+        my $name = ($Text::PSTemplate::get_current_filename||''). $args{name};
         
         $_counters->{$name} ||= _make_counter(%args);
         

@@ -15,8 +15,8 @@ use base qw(Text::PSTemplate);
 	sub if {
 		
 		my $cond = shift;
-		my $then = (Text::PSTemplate::inline_data(0) || '');
-		my $else = (Text::PSTemplate::inline_data(1) || '');
+		my $then = (Text::PSTemplate::get_block(0) || '');
+		my $else = (Text::PSTemplate::get_block(1) || '');
 		if ($cond) {
 			return $then;
 		} else {
@@ -27,7 +27,7 @@ use base qw(Text::PSTemplate);
 	sub each {
 		
 		my ($array, $asign) = (@_);
-		my $template = (Text::PSTemplate::inline_data(0) || '');
+		my $template = (Text::PSTemplate::get_block(0) || '');
 		my $sub = __PACKAGE__->new();
 		my $out = '';
 		for my $elem (@$array) {

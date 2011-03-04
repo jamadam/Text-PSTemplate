@@ -14,7 +14,7 @@ use Data::Dumper;
 		my $tpl2 = $tpl->new;
 		is(ref $tpl2, 'Text::PSTemplate');
 		isnt($tpl2, $tpl);
-		is($tpl2->mother, $tpl);
+		is($tpl2->get_current_parser, $tpl);
 	}
 	
 	sub basic2 : Test(3) {
@@ -23,7 +23,7 @@ use Data::Dumper;
 		my $tpl2 = $tpl->new;
 		is(ref $tpl2, 'PST2');
 		isnt($tpl2, $tpl);
-		is($tpl2->mother, $tpl);
+		is($tpl2->get_current_parser, $tpl);
 	}
 	
 	sub basic3 : Test(3) {
@@ -32,7 +32,7 @@ use Data::Dumper;
 		my $tpl2 = PST2->new($tpl);
 		is(ref $tpl2, 'PST2');
 		isnt($tpl2, $tpl);
-		is($tpl2->mother, $tpl);
+		is($tpl2->get_current_parser, $tpl);
 	}
 	
 	sub basic4 : Test(3) {
@@ -41,7 +41,7 @@ use Data::Dumper;
 		my $tpl2 = Text::PSTemplate->new($tpl);
 		is(ref $tpl2, 'Text::PSTemplate');
 		isnt($tpl2, $tpl);
-		is($tpl2->mother, $tpl);
+		is($tpl2->get_current_parser, $tpl);
 	}
 	
 	sub basic5 : Test(4) {
@@ -52,7 +52,7 @@ use Data::Dumper;
 		is(ref $tpl2, 'PST3');
 		isnt($tpl2, $tpl);
 		isnt($tpl2, $tpl3);
-		is($tpl2->mother, $tpl);
+		is($tpl2->get_current_parser, $tpl);
 	}
 
 package PST2;

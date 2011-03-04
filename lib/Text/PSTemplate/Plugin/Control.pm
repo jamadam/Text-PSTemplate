@@ -11,18 +11,18 @@ use Text::PSTemplate;
         
         my ($self, $target, $array_ref, $then, $else) = @_;
         
-        my $tpl = Text::PSTemplate->mother;
+        my $tpl = Text::PSTemplate->get_current_parser;
         
         if (grep {$_ eq $target} @$array_ref) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -36,18 +36,18 @@ use Text::PSTemplate;
         
         my ($self, $condition, $then, $else) = @_;
         
-        my $tpl = Text::PSTemplate->mother;
+        my $tpl = Text::PSTemplate->get_current_parser;
         
         if ($condition) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -66,13 +66,13 @@ use Text::PSTemplate;
         if ($target eq $value) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -86,18 +86,18 @@ use Text::PSTemplate;
         
         my ($self, $target, $pattern, $then, $else) = @_;
         
-        my $tpl = Text::PSTemplate->mother;
+        my $tpl = Text::PSTemplate->get_current_parser;
         
         if ($target =~ /$pattern/) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::inline_data(1, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         }
@@ -111,18 +111,18 @@ use Text::PSTemplate;
         
         my ($self, $target, $case_ref, $default) = @_;
         
-        my $tpl = Text::PSTemplate->mother;
+        my $tpl = Text::PSTemplate->get_current_parser;
         
         if (ref $case_ref eq 'ARRAY') {
             my $i = 0;
             for (; $i < scalar @$case_ref; $i++) {
                 if ($target eq $case_ref->[$i]) {
-                    return $tpl->parse(Text::PSTemplate::inline_data($i, {chop_left => 1, chop_right => 1}));
+                    return $tpl->parse(Text::PSTemplate::get_block($i, {chop_left => 1, chop_right => 1}));
                 }
             }
             if (defined $default) {
                 return $tpl->parse($default);
-            } elsif (my $inline = Text::PSTemplate::inline_data($i, {chop_left => 1, chop_right => 1})) {
+            } elsif (my $inline = Text::PSTemplate::get_block($i, {chop_left => 1, chop_right => 1})) {
                 return $tpl->parse($inline);
             }
         } elsif (ref $case_ref eq 'HASH') {
@@ -141,7 +141,7 @@ use Text::PSTemplate;
         
         my ($self, $target, $case_ref, $default) = @_;
         
-        my $tpl = Text::PSTemplate->mother;
+        my $tpl = Text::PSTemplate->get_current_parser;
         
         if (exists $case_ref->{$target}) {
             return $tpl->parse_file($case_ref->{$target});
@@ -160,7 +160,7 @@ use Text::PSTemplate;
         
         my ($self, $data, $asign1, $asign2) = @_;
         
-        my $tplstr = Text::PSTemplate::inline_data(0, {chop_left => 1, chop_right => 1});
+        my $tplstr = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1});
         my $tpl = Text::PSTemplate->new;
         if (! ref $data) {
             $data = [$data];
@@ -247,7 +247,7 @@ use Text::PSTemplate;
     sub set_var : TplExport(chop => 1) {
         
         my $self = shift;
-        Text::PSTemplate->get_file_mother->set_var(@_);
+        Text::PSTemplate->get_current_file_parser->set_var(@_);
         return;
     }
     
@@ -257,7 +257,7 @@ use Text::PSTemplate;
     sub assign : TplExport(chop => 1) {
         
         my $self = shift;
-        Text::PSTemplate->get_file_mother->set_var(@_);
+        Text::PSTemplate->get_current_file_parser->set_var(@_);
         return;
     }
     
@@ -267,7 +267,7 @@ use Text::PSTemplate;
     sub set_delimiter : TplExport(chop => 1) {
         
         my ($self, $left, $right) = @_;
-        Text::PSTemplate->get_file_mother->set_delimiter($left, $right);
+        Text::PSTemplate->get_current_file_parser->set_delimiter($left, $right);
         return;
     }
 	
@@ -290,7 +290,7 @@ use Text::PSTemplate;
         
         my ($self, $dataset) = @_;
         my $tpl = Text::PSTemplate::Plugable->new;
-        my $tplstr = Text::PSTemplate::inline_data(0);
+        my $tplstr = Text::PSTemplate::get_block(0);
         my $out = '';
         while (my ($key, $value) = CORE::each(%$dataset)) {
             $tpl->set_var($key => $value);
