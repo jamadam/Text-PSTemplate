@@ -1,4 +1,5 @@
 <ol>
-    <% each($books, 'isbn')<<EOF2 %><li><% extract(&extract($hash, $isbn),'name') %> <% extract(&extract($hash, $isbn),'pages') %> pages / ISBN-13 : <% $isbn %></li>
+    <% each($books, 'isbn' => 'attr')<<EOF2 %>
+    <li><% $attr->{name} %> <% $attr->{pages} %> pages / ISBN-13 : <% $isbn %></li>
     <% EOF2 %>
 </ol>

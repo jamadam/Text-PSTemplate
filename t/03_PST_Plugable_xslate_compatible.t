@@ -35,25 +35,6 @@ use utf8;
             title    => "Perl Books",
             books    => $books,
         );
-        $template->set_func(dump => sub {
-            my $a = Dumper(shift);
-            $a =~ s{\$VAR1 = }{}g;
-            return $a;
-        });
-        $template->set_func(each => sub {
-            my ($hash, $as, $tpl) = (@_);
-            $tpl ||= Text::PSTemplate::get_block(0);
-            my $template2 = Text::PSTemplate->new;
-            my $out = '';
-            for my $k (keys %$hash) {
-                $template2->set_var(
-                    'hash'  => $hash,
-                    $as     => $k,
-                );
-                $out .= $template2->parse($tpl);
-            }
-            $out;
-        });
         
         my $parsed = $template->parse_file('t/template/03_PST_Plugable_xslate_compatible.txt');
         my $expected = $template->get_file('t/template/03_PST_Plugable_xslate_compatible_expected.txt');
