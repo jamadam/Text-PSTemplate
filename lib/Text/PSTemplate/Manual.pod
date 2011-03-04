@@ -4,19 +4,20 @@ Text::PSTemplate::Manual - Text::PSTemplate Manual
 
 =head1 DESCRIPTION
 
-This Document is draft!
+This document describes Text::PSTemplate distribution from Template designing
+perspective. 
 
 HTML example
 
-    <% &xml_declaration_if_not_ie6() %>
+    <% xml_declaration_if_not_ie6() %>
     <html>
     <title><% $title %></title>
     <body>
         <div>
-            <% &import('path/to/heder.html', {title => $title}) %>
+            <% import('path/to/header.html', {title => $title}) %>
         </div>
         <div>
-            <% &if_equals($some_var, 'hoge')<<THEN,ELSE %>
+            <% if_equals($some_var, 'hoge')<<THEN,ELSE %>
                 <% $some_var %> is hoge
             <%THEN%>
                 <% $some_var %> is something else
@@ -24,18 +25,18 @@ HTML example
         </div>
         <dl>
             <% &each($hash, 'key' => 'value')<<TPL %>
-                <% &if($value)<<THEN %>
+                <% if($value)<<THEN %>
                     <dt><% $key %></dt>
                     <dd><% $value %></dd>
-                <%THEN%>
-            <%TPL%>
+                <% THEN %>
+            <% TPL %>
         </dl>
         <p>
-            <% &your_func($any, $values, $as, $you, $like)<<EOF1,EOF2 %>
+            <% your_func($any, $values, $as, $you, $like)<<EOF1,EOF2 %>
                 ...
-            <%EOF1%>
+            <% EOF1 %>
                 ...
-            <%EOF2%>
+            <% EOF2 %>
         </p>
     </body>
     </html>
@@ -45,47 +46,39 @@ HTML example
 =head2 put vars and functions
 
 Statements must be delimited by certain delimiters. Variables and functions
-inside the pair of delimiters has same appearance as Perl programs.
+inside the pair of delimiters has similar appearance to Perl programs.
 
-    <!-- $str -->
-    <!-- &some_func('str') -->
-    <!-- &some_func('str') -->
-    <!-- &some_func($str) -->
-
-As a matter of fact, The statements will be evaluated by eval function as
-follows.
-
-    $self->var('str');
-    $self->func('some_func')->('str');
-    $self->func('some_func')->('str');
-    $self->func('some_func')->($self->var('str'));
+    <% $str %>
+    <% some_func('str') %>
+    <% some_func('str') %>
+    <% some_func($str) %>
 
 Statements can include line breaks.
 
-    <!-- 
+    <%
         &str_envif(
             str => 'Internet Explorer is not recommended',
             key => 'USER-AGENT',
             value => 'MSIE',
         )
-    -->
+    %>
 
 =head2 escape
 
-Statement delimiter can be escaped by backslash so that the delimiter
+Statement delimiter can be escaped by backslashes so that the delimiter
 charactors themselves appear to the output. If you want to parse the statement
 after backslash, you can double escape.
 
-    \<!-- html comment -->   ### html comment
-    \\<!-- $var -->          ### A backlash and parsed value
-    \\\<!-- html comment --> ### A backslash and html comment
-    \\\\<!-- $var -->        ### Two backlashes and parsed value
+    \<% this appears literally %>   ### literally
+    \\<% $var %>                    ### A backlash and parsed value
+    \\\<% this appears literally %> ### A backslash and literal
+    \\\\<% $var %>                  ### Two backlashes and parsed value
     ....
 
 Charactor $ and & is interpolated in any part of statements even in single
-quotes. So you must escape them with '\' when it is needed. 
+quotes. So you must escape them with backslashes when it's needed. 
 
-    <!-- &escape(str => '\$10.25') -->
+    <% some_func(price => '\$10.25') %>
 
 =head1 AUTHOR
 

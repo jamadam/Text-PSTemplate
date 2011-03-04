@@ -2,6 +2,7 @@ Changes
 lib/Class/FileCacheable/Lite.pm
 lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Manual.pod
+lib/Text/PSTemplate/ManualJP.pod
 lib/Text/PSTemplate/Plugable.pm
 lib/Text/PSTemplate/Plugin/Control.pm
 lib/Text/PSTemplate/Plugin/Developer.pod
@@ -13,6 +14,7 @@ Makefile.PL
 MANIFEST
 README
 t/00_load.t
+t/01_partial_exception.t
 t/01_PST_basic.t
 t/01_PST_basic2.t
 t/01_PST_basic3.t
@@ -24,6 +26,7 @@ t/01_PST_deep_recursion2.t
 t/01_PST_dereference.t
 t/01_PST_escaping.t
 t/01_PST_escaping2.t
+t/01_PST_eval_scope.t
 t/01_PST_filename_trans.t
 t/01_PST_get_file_context_mother.t
 t/01_PST_new_sub_template.t
@@ -46,6 +49,7 @@ t/03_PST_Plugable_Control5.t
 t/03_PST_Plugable_die_at.t
 t/03_PST_Plugable_Env.t
 t/03_PST_Plugable_Extends.t
+t/03_PST_Plugable_partial_exception.t
 t/03_PST_Plugable_Util.t
 t/03_PST_Plugable_xslate_compatible.t
 t/99_pod.t
@@ -73,5 +77,7 @@ t/template/03_PST_Plugable_Control4_6.txt
 t/template/03_PST_Plugable_Extends1.txt
 t/template/03_PST_Plugable_Extends2.txt
 t/template/03_PST_Plugable_Extends3.txt
+t/template/03_PST_Plugable_partial_exception1.t
+t/template/03_PST_Plugable_partial_exception2.t
 t/template/03_PST_Plugable_xslate_compatible.txt
 t/template/03_PST_Plugable_xslate_compatible_expected.txt

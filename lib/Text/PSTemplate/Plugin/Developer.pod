@@ -81,11 +81,11 @@ Text::PSTemplate::get_block() options.
         my $mother2 = Text::PSTemplate:get_current_file_parser;
     }
 
-With Text::PSTemplate::mother, you can get a template instance witch is the one
-your_func is being parsed by.
+With Text::PSTemplate::get_current_parser, you can get the parser instance witch
+is the one your_func is being parsed by.
 
-With Text::PSTemplate::get_file_mother, you can get the closest template
-instance which is the one current file is being parsed by.
+With Text::PSTemplate::get_current_file_parser, you can get the parser instance
+which is the one current file is being parsed by.
 
 =head3 Getting file name
 
@@ -100,8 +100,8 @@ With Text::PSTemplate::get_current_filename, you can get current file name.
 
     sub your_func : TplExport {
         
-        my $data1 = Text::PSTemplate:inline(0);
-        my $data2 = Text::PSTemplate:inline(1);
+        my $data1 = Text::PSTemplate:get_block(0);
+        my $data2 = Text::PSTemplate:get_block(1);
         # ...
     }
 
