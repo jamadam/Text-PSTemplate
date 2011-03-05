@@ -16,27 +16,12 @@ use Data::Dumper;
         is($parsed1, 'jp');
     }
 	
-	sub cascading_ini : Test(2) {
+	sub array_context : Test(1) {
         
         my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->plug('Test::_Plugin')->set_ini({locale => 'jp'});
-        $tpl->plug('Test::_Plugin::Sub');
-        my $parsed1 = $tpl->parse(q[<% Test::_Plugin::put_locale() %>]);
-        is($parsed1, 'jp');
-        my $parsed3 = $tpl->parse(q[<% Test::_Plugin::Sub::put_locale() %>]);
-        is($parsed3, 'jp');
-	}
-	
-	sub cascading_ini_with_shortcut : Test(2) {
-        
-        my $tpl = Text::PSTemplate::Plugable->new;
-		$tpl->set_default_plugin('Test::_Plugin');
-        $tpl->plug('Test::_Plugin')->set_ini({locale => 'jp'});
-		$tpl->plug('Test::_Plugin::Sub');
-        my $parsed1 = $tpl->parse(q[<% put_locale() %>]);
-        is($parsed1, 'jp');
-        my $parsed3 = $tpl->parse(q[<% ::Sub::put_locale() %>]);
-        is($parsed3, 'jp');
+        my $plug = $tpl->plug('Test::_Plugin')->set_ini({locale => 'jp'});
+		my %a = (locale => $plug->ini('locale'));
+		is($a{locale}, 'jp');
 	}
 
 package Test::_Plugin;

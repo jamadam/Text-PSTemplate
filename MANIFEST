@@ -38,7 +38,6 @@ t/02_PST_Plugable_basic4.t
 t/02_PST_Plugable_basic5.t
 t/02_PST_Plugable_chop.t
 t/02_PST_Plugable_incrementally_added.t
-t/02_PST_Plugable_ini_c3.t
 t/02_PST_Plugable_namespace.t
 t/02_PST_Plugable_respect_false_values.t
 t/02_PST_Plugable_weaken.t

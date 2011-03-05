@@ -13,7 +13,6 @@ my %params = (
     BUILD_REQUIRES => {
         'Test::More'          => '0.47',
         'Test::UseAllModules' => '0.10',
-        'Class::C3' 			=> '0.23',
     },
     META_MERGE => {
         resources => {

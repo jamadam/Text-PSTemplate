@@ -33,3 +33,5 @@ Revision history for Text-PSTemplate
     Text::PSTemplate::context -> Text::PSTemplate::get_current_filename
     Text::PSTemplate::inline_data -> Text::PSTemplate::get_block
 
+0.23 2011/03/05
+  - PluginBase no longer support ini cascading.

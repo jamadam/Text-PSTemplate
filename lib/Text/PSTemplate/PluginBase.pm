@@ -5,7 +5,6 @@ use Text::PSTemplate;
 use Attribute::Handlers;
 use 5.005;
 use Scalar::Util qw{blessed};
-use Class::C3;
 use base qw(Class::FileCacheable::Lite);
 use Carp;
 use Scalar::Util qw(weaken);
@@ -49,32 +48,6 @@ use Scalar::Util qw(weaken);
     }
     
     ### ---
-    ### Get ini
-    ### ---
-    sub ini {
-        
-        my ($self, $name) = (@_);
-        
-        if (exists $self->{$MEM_INI}->{$name}) {
-            return $self->{$MEM_INI}->{$name};
-        } else {
-            no strict 'refs';
-            for my $pkg (Class::C3::calculateMRO(ref $self)) {
-                if ($pkg eq __PACKAGE__) {
-                    return (undef) if wantarray;
-                    return;
-                }
-                my $ret = $self->{$MEM_TPL}->{pluged}->{$pkg}->{$MEM_INI}->{$name};
-                if (defined $ret) {
-                    return $ret;
-                }
-            }
-            return (undef) if wantarray;
-            return;
-        }
-    }
-    
-    ### ---
     ### Get template function entries
     ### ---
     sub _get_tpl_exports {
@@ -101,6 +74,20 @@ use Scalar::Util qw(weaken);
         my ($self, $hash) = (@_);
         $self->{$MEM_INI} = $hash || {};
         return $self;
+    }
+    
+    ### ---
+    ### Get ini
+    ### ---
+    sub ini {
+        
+        my ($self, $name) = (@_);
+        
+        if (exists $self->{$MEM_INI}->{$name}) {
+            return $self->{$MEM_INI}->{$name};
+        }
+        return (undef) if wantarray;
+        return;
     }
     
     ### ---
@@ -253,11 +240,12 @@ ini setter.
 
 =head2 $instance->ini($key)
 
-ini getter. The ini settings inherits the super classes. If your Plugin don't
-have ini setting for given key by itself, this method searches the super class's
-ini with C3 algorithm.
+Returns ini data for given key.
 
     my $value = $myplug->ini($some_key);
+
+Note that in list context, this always returns an array with 1 element.
+If the key doesn't exists, this returns (undef).
 
 =head2 $instance->die($message)
 
