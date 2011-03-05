@@ -13,7 +13,7 @@ use Test::Plugin2;
         
         my $tpl = Text::PSTemplate::Plugable->new;
         is(ref $tpl, 'Text::PSTemplate::Plugable');
-        my $tpl2 = $tpl->new;
+        my $tpl2 = Text::PSTemplate::Plugable->new($tpl);
         is(ref $tpl2, 'Text::PSTemplate::Plugable');
         my $tpl3 = Text::PSTemplate::Plugable->new($tpl);
         is(ref $tpl3, 'Text::PSTemplate::Plugable');

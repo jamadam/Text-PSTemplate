@@ -26,15 +26,8 @@ no warnings 'recursion';
         
         my ($class, $mother) = @_;
         
-        if (ref $class) {
-            $mother ||= $class;
-            $class = ref $class;
-        } elsif (scalar @_ == 1) {
-            $mother = $Text::PSTemplate::self;
-        }
-        
         my $self = bless {
-            $MEM_MOTHER      => $mother, 
+            $MEM_MOTHER      => ($mother || $Text::PSTemplate::self), 
             $MEM_FUNC        => {},
             $MEM_VAR         => {},
         }, $class;
@@ -583,7 +576,7 @@ Text::PSTemplate - Multi purpose template engine
 
     use Text::PSTemplate;
     
-    $template = Text::PSTemplate->new;
+    $template = Text::PSTemplate->new($mother);
     $template->set_encoding($encodiing);
     $template->set_recur_limit($number);
     $template->set_exception($code_ref);
@@ -662,7 +655,7 @@ Text::PSTemplate instance. Most member attributes will be inherited from their
 mother at refering phase. So you don't have to set all settings again and
 again. Just tell a mother to the constractor. If this constractor is
 called from a template function, meaning the instanciation is recursive, this
-constractor auto detects the nearest mother to be set to new instance's mother.
+constractor auto detects the closest mother to be set to new instance's mother.
 
 If you want really new instance, give an undef to constractor explicitly.
 
