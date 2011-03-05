@@ -579,9 +579,7 @@ use Carp;
     our $TAG_ERROR_DIE = sub {
         my ($self, $line, $err) = (@_);
         if($err) {
-            if ($err !~ /\n/) {
-                $err .= " within eval($line)\n";
-            }
+            $err .= " within eval($line)\n";
         } else {
             $err = "Unknown error occured in eval($line)\n";
         }
