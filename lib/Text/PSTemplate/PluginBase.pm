@@ -153,7 +153,7 @@ use Scalar::Util qw(weaken);
         
         my $at =
             (Text::PSTemplate::get_current_filename)
-                ? ' at '. Text::PSTemplate::get_current_filename
+                ? ' at '. Text::PSTemplate::get_current_filename. "\n"
                 : '';
         Carp::croak $_[1]. $at;
     }

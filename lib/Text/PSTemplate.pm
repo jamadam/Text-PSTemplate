@@ -19,6 +19,16 @@ no warnings 'recursion';
     my $MEM_FUNC_NONEXIST           = 10;
     my $MEM_VAR_NONEXIST            = 11;
     
+    sub _croak {
+        
+        my $err = shift;
+        chomp($err);
+        if (my $file = Text::PSTemplate::get_current_filename()) {
+            die "$err at $file";
+        }
+        Carp::croak $err;
+    }
+    
     ### ---
     ### constractor
     ### ---
@@ -46,7 +56,7 @@ no warnings 'recursion';
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
-            croak 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
+            _croak 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
         }
         return $self;
     }
@@ -302,7 +312,7 @@ no warnings 'recursion';
         my ($self, $str) = @_;
         
         if (! defined $str) {
-            croak 'No template string found';
+            _croak 'No template string found';
         }
         my $out = '';
         while ($str) {
@@ -343,25 +353,31 @@ no warnings 'recursion';
                 
                 if ($@) {
                     my $org = $space_l. $prefix. $tag. $space_r;
-                    $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
+                    my $err = $@;
+                    my $ret = eval {
+                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                    };
+                    if ($@) {
+                        _croak $@;
+                    }
+                    $out .= $ret;
                 } else {
-                    
-                    my $result =
-                            Text::PSTemplate::_EvalStage::_do($self, $interp);
+                    my $result = Text::PSTemplate::_EvalStage::_do($self, $interp);
                     
                     if ($Text::PSTemplate::chop) {
                         $right =~ s{^(?:\r\n|\r|\n)}{};
                     }
-                
-                    if ($@) {
+                    
+                    if ($@ || ! defined $result) {
                         my $org = $space_l. $prefix. $tag. $space_r;
-                        $out .=
-                            $self->get_param($MEM_NONEXIST)->($self, $org, $@);
-                    } elsif(! defined $result) {
-                        my $org = $space_l. $prefix. $tag. $space_r;
-                        my $err = "Parse resulted undefined.";
-                        $out .=
-                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                        my $err = $@ || "Parse resulted undefined.";
+                        my $ret = eval {
+                            $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                        };
+                        if ($@) {
+                            _croak $@;
+                        }
+                        $out .= $ret;
                     } else {
                         $out .= $result;
                     }
@@ -418,7 +434,7 @@ no warnings 'recursion';
         
         my ($self, $name, $translate_ref) = (@_);
         if (! $name) {
-            croak 'file name is empty';
+            _croak 'file name is empty';
         }
         if (scalar @_ == 2) {
             $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
@@ -428,7 +444,13 @@ no warnings 'recursion';
         }
         
         my $encode = $self->get_param($MEM_ENCODING);
-        return Text::PSTemplate::File->new($name, $encode);
+        my $file = eval {
+            Text::PSTemplate::File->new($name, $encode);
+        };
+        if ($@) {
+            _croak $@;
+        }
+        return $file;
     }
     
     ### ---
@@ -470,14 +492,13 @@ use Carp;
             if ($self->func($name)) {
                 return $self->func($name)->(@_);
             }
-            croak("Undefined subroutine $name called");
+            die "Undefined subroutine $name called\n";
         }
     }
 
 package Text::PSTemplate::File;
 use strict;
 use warnings;
-use Carp;
 use Fcntl qw(:flock);
 
     my $MEM_FILENAME    = 1;
@@ -489,14 +510,13 @@ use Fcntl qw(:flock);
         my $fh;
         
         if (! $name) {
-            croak 'file name is empty';
+            die "file name is empty\n";
         }
         
         if ($encode) {
-            open($fh, "<:encoding($encode)", $name)
-                                                || croak "$name cannot open";
+            open($fh, "<:encoding($encode)", $name) || die "$name cannot open\n";
         } else {
-            open($fh, "<:utf8", $name) || croak "$name cannot open";
+            open($fh, "<:utf8", $name) || die "$name cannot open\n";
         }
         if ($fh and flock($fh, LOCK_EX)) {
             my $out = do { local $/; <$fh> };
@@ -506,7 +526,7 @@ use Fcntl qw(:flock);
                 $MEM_CONTENT => $out,
             }, $class;
         } else {
-            croak "Template '$name' cannot open";
+            die "Template '$name' cannot open\n";
         }
     }
     
@@ -532,7 +552,8 @@ use Carp;
     
     our $PARTIAL_NONEXIST_DIE = sub {
         my ($self, $var, $type) = (@_);
-        croak "$type $var not defined";
+        my $err = "$type $var not defined";
+        die "$err within eval($var)\n";
     };
     
     ### ---
@@ -557,11 +578,14 @@ use Carp;
     ### ---
     our $TAG_ERROR_DIE = sub {
         my ($self, $line, $err) = (@_);
-        if ($err) {
-            chop($err);
-            croak "$err within eval($line)";
+        if($err) {
+            if ($err !~ /\n/) {
+                $err .= " within eval($line)\n";
+            }
+        } else {
+            $err = "Unknown error occured in eval($line)\n";
         }
-        croak "Error occured in eval($line)";
+        die $err;
     };
 
 1;
@@ -576,7 +600,7 @@ Text::PSTemplate - Multi purpose template engine
 
     use Text::PSTemplate;
     
-    $template = Text::PSTemplate->new($mother);
+    $template = Text::PSTemplate->new;
     $template->set_encoding($encodiing);
     $template->set_recur_limit($number);
     $template->set_exception($code_ref);
@@ -655,7 +679,7 @@ Text::PSTemplate instance. Most member attributes will be inherited from their
 mother at refering phase. So you don't have to set all settings again and
 again. Just tell a mother to the constractor. If this constractor is
 called from a template function, meaning the instanciation is recursive, this
-constractor auto detects the closest mother to be set to new instance's mother.
+constractor auto detects the nearest mother to be set to new instance's mother.
 
 If you want really new instance, give an undef to constractor explicitly.
 
