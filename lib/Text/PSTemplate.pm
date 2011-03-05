@@ -353,11 +353,8 @@ no warnings 'recursion';
                     $out .= $self->get_param($MEM_NONEXIST)->($self, $org, $@);
                 } else {
                     
-                    my $result;
-                    {
-                        package Text::PSTemplate::_Template;
-                        $result = eval $interp; ## no critic
-                    }
+                    my $result =
+                            Text::PSTemplate::_EvalStage::_do($self, $interp);
                     
                     if ($Text::PSTemplate::chop) {
                         $right =~ s{^(?:\r\n|\r|\n)}{};
@@ -461,6 +458,27 @@ no warnings 'recursion';
             return $self->{$MEM_MOTHER}->_count_recursion() + 1;
         }
         return 0;
+    }
+
+package Text::PSTemplate::_EvalStage;
+use strict;
+use warnings;
+use Carp;
+
+    {
+        my $self;
+        sub _do {
+            $self = $_[0];
+            return eval $_[1]; ## no critic
+        }
+        sub AUTOLOAD {
+            our $AUTOLOAD;
+            my $name = ($AUTOLOAD =~ qr/([^:]+)$/)[0];
+            if ($self->func($name)) {
+                return $self->func($name)->(@_);
+            }
+            croak("Undefined subroutine $name called");
+        }
     }
 
 package Text::PSTemplate::File;
@@ -639,12 +657,12 @@ designers only have to learn following rules.
 
 =head2 Text::PSTemplate->new($mother)
 
-Constractor. This method can take a argument $mother which should be a
+Constractor. This method can take an argument $mother which should be a
 Text::PSTemplate instance. Most member attributes will be inherited from their
 mother at refering phase. So you don't have to set all settings again and
 again. Just tell a mother to the constractor. If this constractor is
 called from a template function, meaning the instanciation is recursive, this
-constractor auto detects the nearest mother to be set to new instance's mothor.
+constractor auto detects the nearest mother to be set to new instance's mother.
 
 If you want really new instance, give an undef to constractor explicitly.
 
@@ -672,7 +690,7 @@ breaks. If argument $mode is 1, line breaks will not to be output. 0 is default.
 
 =head2 Text::PSTemplate::get_block($index, $options)
 
-This can be called from template functions. This Returns inline data specified
+This can be called from template functions. This Returns block data specified
 in templates.
     
 In a template
@@ -698,8 +716,8 @@ This setting will be thrown at file open method. Default is 'utf8'.
 
 =head2 $instance->set_exception($code_ref)
 
-This is a callback setter. If a error occurs at parsing phase, the $code_ref
-will be called. Your call back subroutine can get following arguments.
+This is a callback setter. If an error occurs at parsing phase, the $code_ref
+will be called. Your callback subroutine can get following arguments.
 
     my ($self, $line, $err) = (@_);
 
@@ -789,8 +807,9 @@ instance.
 
 =head2 $instance->get_file($name, $trans_ref)
 
-This returns the file content of given name. If $trans_ref is set or $instance
-already has a translation code in its attribute, the file name is translated
+This returns a Text::PSTemplate::File instance of given file name which contains
+file name and file content together. If $trans_ref is set or $instance already
+has a translation code in its attribute, the file name is translated
 with the code. You can set undef for $trans_ref then both options are
 bypassed.
 
@@ -822,22 +841,22 @@ This also let you set a default template in case the template not found.
 
 =head1 TEXT::PSTemplate::File CLASS
 
-This class represents a template file. With this class, you can take file
+This class represents template files. With this class, you can take file
 contents with the original file path. This class instance can be thrown at
 parse_file method and parse_str method. This is useful if you have to iterate
 template parse for same file.
 
 =head2 TEXT::PSTemplate::File->new($filename)
 
-Constractor
+Constractor. The filename must be given in string.
 
 =head2 $instance->name
 
-Returns file name may be with path name
+Returns file name may be with path name.
 
 =head2 $instance->content
 
-Returns file content
+Returns file content.
 
 =head1 TEXT::PSTemplate::Exception CLASS
 

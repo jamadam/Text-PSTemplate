@@ -14,7 +14,7 @@ Makefile.PL
 MANIFEST
 README
 t/00_load.t
-t/01_partial_exception.t
+t/01_PST_autoload.t
 t/01_PST_basic.t
 t/01_PST_basic2.t
 t/01_PST_basic3.t
@@ -30,6 +30,7 @@ t/01_PST_eval_scope.t
 t/01_PST_filename_trans.t
 t/01_PST_get_file_context_mother.t
 t/01_PST_new_sub_template.t
+t/01_PST_partial_exception.t
 t/02_PST_Plugable_basic.t
 t/02_PST_Plugable_basic2.t
 t/02_PST_Plugable_basic3.t
