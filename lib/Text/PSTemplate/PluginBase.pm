@@ -133,7 +133,7 @@ use Scalar::Util qw(weaken);
         foreach my $func (@$_tpl_exports) {
             my $ref = \&{$func->[0]};
             my $rapper = sub {
-                Text::PSTemplate->set_chop($func->[1]->{chop});
+                Text::PSTemplate::set_chop($func->[1]->{chop});
                 my $ret = $self->$ref(@_);
                 return (defined $ret ? $ret : '');
             };
@@ -164,7 +164,7 @@ __END__
 
 =head1 NAME
 
-Text::PSTemplate::PlugBase - Plugin Abstract Class
+Text::PSTemplate::PluginBase - Plugin Abstract Class
 
 =head1 SYNOPSIS
 

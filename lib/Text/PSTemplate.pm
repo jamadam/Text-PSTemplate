@@ -180,7 +180,8 @@ no warnings 'recursion';
     ### ---
     sub set_chop {
         
-        my ($class, $mode) = @_;
+        #my ($class, $mode) = @_;
+        my ($mode) = @_;
         $Text::PSTemplate::chop = $mode;
     }
     
