@@ -5,7 +5,6 @@ use Test::More;
 use lib 't/lib';
 use Text::PSTemplate::Plugable;
 use Data::Dumper;
-use Test::Plugin1;
 
     __PACKAGE__->runtests;
     

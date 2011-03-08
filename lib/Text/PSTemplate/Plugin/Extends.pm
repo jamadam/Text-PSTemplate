@@ -2,7 +2,6 @@ package Text::PSTemplate::Plugin::Extends;
 use strict;
 use warnings;
 use base qw(Text::PSTemplate::PluginBase);
-use Text::PSTemplate::Plugable;
     
     ### ---
     ### Extend
@@ -20,7 +19,6 @@ package Text::PSTemplate::Plugin::Extends::_Sub;
 use strict;
 use warnings;
 use base qw(Text::PSTemplate::PluginBase);
-use Text::PSTemplate;
     
     ### ---
     ### block specification

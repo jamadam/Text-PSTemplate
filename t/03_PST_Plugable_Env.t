@@ -3,7 +3,6 @@ use warnings;
 use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate::Plugable;
-use Text::PSTemplate::Plugin::Env;
     
     __PACKAGE__->runtests;
     

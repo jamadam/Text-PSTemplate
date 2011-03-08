@@ -388,7 +388,7 @@ Since this has promoted to core plugin, you don't have to explicitly load it.
 =head1 TEMPLATE FUNCTIONS
 
 Note that this document contains many keywords for specifing block endings such
-as THEN or ELSE etc. These keywords are just a example. As the matter of
+as THEN or ELSE etc. These keywords are just examples. As the matter of
 fact, you can say 'EOF' for all of them. The template engine only matters
 the order of BLOCKs. So do not memorize any of them. 
 

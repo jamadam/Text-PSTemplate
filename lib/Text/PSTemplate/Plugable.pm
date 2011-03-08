@@ -1,13 +1,11 @@
 package Text::PSTemplate::Plugable;
 use strict;
 use warnings;
+use Scalar::Util qw{blessed};
 use Carp;
 use base qw(Text::PSTemplate);
 use Text::PSTemplate::PluginBase;
-use Text::PSTemplate::Plugin::Control;
-use Text::PSTemplate::Plugin::Env;
-use Text::PSTemplate::Plugin::Extends;
-use Text::PSTemplate::Plugin::Util;
+use Scalar::Util qw(weaken);
 
     my @CORE_LIST = qw(Control Env Extends Util);
 
@@ -28,9 +26,23 @@ use Text::PSTemplate::Plugin::Util;
     sub plug {
         
         my ($self, $plugin, $as) = (@_);
-        
         $self->{pluged} ||= {};
-        return $plugin->new($self, $as);
+        my $p_instance = $self->{pluged}->{$plugin};
+        if (! blessed($p_instance)) {
+            no strict 'refs';
+            if (! %{"$plugin\::"}) {
+                my $file = $plugin;
+                $file =~ s{::}{/}g;
+                eval {require "$file.pm"}; ## no critic
+                if ($@) {
+                    croak $@;
+                }
+            }
+            $p_instance = $plugin->new($self, $as);
+            $self->{pluged}->{$plugin} = $p_instance;
+            weaken $self->{pluged}->{$plugin};
+        }
+        return $self->{pluged}->{$plugin};
     }
     
     sub get_plugin {

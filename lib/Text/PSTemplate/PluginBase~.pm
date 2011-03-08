@@ -5,17 +5,11 @@ use Text::PSTemplate;
 use Attribute::Handlers;
 use 5.005;
 use Scalar::Util qw{blessed};
+use base qw(Class::FileCacheable::Lite);
 use Carp;
 use Scalar::Util qw(weaken);
-use Digest::MD5 qw(md5_hex);
-use File::Spec;
-use File::Path;
-use Fcntl qw(:flock);
 
-    my %_tpl_exports;
-    my %_cacheable_funcs;
-    my %_cacheable_fnames;
-    my %_cacheable_redefined;
+    my %_tpl_exports = ();
     
     my $MEM_INI = 1;
     my $MEM_AS  = 2;
@@ -27,25 +21,30 @@ use Fcntl qw(:flock);
     sub new {
         
         my ($class, $tpl, $as) = (@_);
+        
         if (! $tpl || ! $tpl->isa('Text::PSTemplate::Plugable')) {
             croak 'template is not given';
         }
         
         no strict 'refs';
-        foreach my $pkg (@{$class. '::ISA'}) {
-            if ($pkg ne __PACKAGE__) {
-                $tpl->plug($pkg);
+        my $instance = $tpl->{pluged}->{$class};
+        if (! blessed($instance)) {
+            foreach my $pkg (@{$class. '::ISA'}) {
+                if ($pkg ne __PACKAGE__) {
+                    $pkg->new($tpl);
+                }
             }
+            $instance = bless {
+                $MEM_INI    => {},
+                $MEM_TPL    => $tpl,
+                $MEM_AS     => $as,
+            }, $class;
+            $instance->_set_tpl_funcs($tpl);
+            $tpl->{pluged}->{$class} = $instance;
+            weaken $instance->{$MEM_TPL};
+            weaken $tpl->{pluged}->{$class};
         }
-        my $self = bless {
-            $MEM_INI    => {},
-            $MEM_TPL    => $tpl,
-            $MEM_AS     => $as,
-        }, $class;
-        $self->_set_tpl_funcs($tpl);
-        $class->_make_class_cacheable($tpl);
-        weaken $self->{$MEM_TPL};
-        return $self;
+        return $instance;
     }
     
     ### ---
@@ -62,33 +61,9 @@ use Fcntl qw(:flock);
             }
         }
         if (my $a = $_tpl_exports{$pkg}) {
-            @$a = map {_set_sym_by_ref($pkg, $_)} @$a;
             push(@out, @$a);
         }
         return \@out;
-    }
-    
-    sub _set_sym_by_ref {
-        
-        my ($pkg, $entry) = @_;
-        my $ref = $entry->[0];
-        no strict 'refs';
-        my $sym_tbl = \%{"$pkg\::"};
-        for my $key (keys %$sym_tbl) {
-            if ($key =~ /:$/ || $sym_tbl->{$key} !~ /^\*/) {
-                next;
-            }
-            my $exists = exists &{$sym_tbl->{$key}};
-            if ($ref eq \&{$sym_tbl->{$key}}) {
-                $entry->[2] = $key;
-                return $entry;
-            }
-            if (! $exists) {
-                #undef &{$sym_tbl->{$key}};
-                delete $$sym_tbl{$key};
-            }
-        }
-        return;
     }
     
     ### ---
@@ -118,19 +93,10 @@ use Fcntl qw(:flock);
     ### ---
     ### Template function Attribute
     ### ---
-    sub TplExport : ATTR(BEGIN) {
+    sub TplExport : ATTR(CHECK) {
         
-        my($pkg, undef, $ref, undef, $data, undef) = @_;
-        push(@{$_tpl_exports{$pkg}}, [$ref, $data ? {@$data} : {}]);
-    }
-    
-    ### ---
-    ### Define FileCacheable attribute
-    ### ---
-    sub FileCacheable : ATTR(BEGIN) {
-        
-        my($pkg, undef, $ref, undef, $data, undef) = @_;
-        push(@{$_cacheable_funcs{$pkg}}, [$ref, $data ? {@$data} : {}]);
+        my($pkg, $sym, undef, undef, $data, undef) = @_;
+        push(@{$_tpl_exports{$pkg}}, [$sym, $data ? {@$data} : {}]);
     }
     
     ### ---
@@ -139,6 +105,7 @@ use Fcntl qw(:flock);
     sub _set_tpl_funcs {
         
         my ($self, $tpl) = (@_);
+        
         my @namespaces = ();
         
         my $org = ref $self;
@@ -164,14 +131,15 @@ use Fcntl qw(:flock);
         my $_tpl_exports = _get_tpl_exports($org);
         
         foreach my $func (@$_tpl_exports) {
-            my $ref = $func->[0];
+            my $ref = \&{$func->[0]};
             my $rapper = sub {
                 Text::PSTemplate::set_chop($func->[1]->{chop});
                 my $ret = $self->$ref(@_);
                 return (defined $ret ? $ret : '');
             };
+            my $subname = ((scalar *{$func->[0]}) =~ m{([^:]+$)})[0];
             for my $namespace (@namespaces) {
-                $tpl->set_func($namespace. $func->[2] => $rapper);
+                $tpl->set_func($namespace. $subname => $rapper);
             }
         }
         
@@ -188,122 +156,6 @@ use Fcntl qw(:flock);
                 ? ' at '. Text::PSTemplate::get_current_filename. "\n"
                 : '';
         Carp::croak $_[1]. $at;
-    }
-    
-    sub _make_class_cacheable {
-        
-        my ($class) = @_;
-        
-        if ($_cacheable_redefined{$class}) {
-            return;
-        } else {
-            $_cacheable_redefined{$class} = 1;
-        }
-        my $funcs = $_cacheable_funcs{$class};
-        for my $func (@$funcs) {
-            no warnings 'redefine';
-            no strict 'refs';
-            my $ref = $func->[0];
-            my $func = _set_sym_by_ref($class, $func);
-            my $sym = $func->[2];
-            *{"$class\::$sym"} = sub {
-                my $self = shift;
-                my %opt = (
-                    %{__PACKAGE__->file_cache_options},
-                    %{$self->file_cache_options}
-                );
-                my $args = $func->[1];
-                my $cache_id_seed = $args->{key} || $opt{default_key};
-                my $cache_id = *{$sym}. "\t". ($cache_id_seed || '');
-                if ($opt{number_cache_id}) {
-                    $cache_id .= "\t" . ($_cacheable_fnames{*{$sym}}++);
-                }
-                
-                my $output;
-                
-                my @idarray = split(//, md5_hex($cache_id), $opt{cache_depth} + 1);
-                
-                ### check if cache has expired
-                my $fpath = File::Spec->catfile(
-                    $opt{cache_root},
-                    $opt{namespace},
-                    @idarray,
-                );
-                
-                if (-f $fpath) {
-                    if (my $cache_tp = (stat $fpath)[9]) {
-                        if ($args->{expire}) {
-                            if (! $args->{expire}->($self, $cache_tp)) {
-                                $output = _get_cache($fpath);
-                            }
-                        } elsif (! $self->file_cache_expire($cache_tp)) {
-                            $output = _get_cache($fpath);
-                        }
-                    }
-                }
-                
-                ### generate cache
-                if (! defined($output)) {
-                    no strict 'refs';
-                    $output = $self->$ref(@_);
-                    
-                    if (! defined $output) {
-                        return;
-                    }
-                    
-                    umask $opt{directory_umask};
-                    
-                    pop(@idarray);
-                    mkpath(File::Spec->catfile($opt{cache_root}, $opt{namespace}, @idarray));
-                    
-                    if (open(my $OUT, '>:utf8', $fpath)) {
-                        binmode($OUT, "utf8");
-                        print $OUT $output;
-                        close($OUT);
-                    } else {
-                        print STDERR "Cache \"$fpath\" write failed";
-                    }
-                }
-                
-                return $output;
-            }
-        }
-    }
-    
-    ### ---
-    ### Get Cache
-    ### ---
-    sub _get_cache {
-        
-        my ($fpath) = @_;
-        
-        my $FH;
-        if (open($FH, "<:utf8", $fpath) and flock($FH, LOCK_EX)) {
-            my $a = do { local $/; <$FH> };
-            close($FH);
-            return $a;
-        }
-        CORE::die "Cache open failed";
-    }
-    
-    ### ---
-    ### return true if cache *EXPIRED*
-    ### ---
-    sub file_cache_expire {
-        return 0;
-    }
-    
-    ### ---
-    ### return options
-    ### ---
-    sub file_cache_options {
-        return {
-            cache_root => File::Spec->catdir(File::Spec->tmpdir(), 'FileCache'),
-            cache_depth     => 3,
-            directory_umask => '000',
-            number_cache_id => 0,
-            namespace       => 'Default',
-        };
     }
 
 1;

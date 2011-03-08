@@ -3,7 +3,6 @@ use warnings;
 use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate::Plugable;
-use Text::PSTemplate::Plugin::Extends;
 use Data::Dumper;
 use utf8;
 

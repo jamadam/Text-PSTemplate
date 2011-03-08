@@ -2,7 +2,7 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 use 5.005;
 use Carp;
 no warnings 'recursion';
