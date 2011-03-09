@@ -117,7 +117,6 @@ your template engine.
 To activate this plugin, your template have to load it as follows
 
     use Text::PSTemplate::Plugable;
-    use Text::PSTemplate::Plugin::Util;
     
     my $tpl = Text::PSTemplate::Plugable->new;
     $tpl->plug('Text::PSTemplate::Plugin::Util', '');

@@ -378,7 +378,6 @@ your template engine.
 To activate this plugin, your template have to load it as follows
 
     use Text::PSTemplate::Plugable;
-    use Text::PSTemplate::Plugin::Control;
     
     my $tpl = Text::PSTemplate::Plugable->new;
     $tpl->plug('Text::PSTemplate::Plugin::Control', '');
