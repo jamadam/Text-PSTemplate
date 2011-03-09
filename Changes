@@ -36,5 +36,5 @@ Revision history for Text-PSTemplate
 0.23 2011/03/05
   - PluginBase no longer support ini cascading.
 
-0.24 2011/03/08
-  - Now plugable class and plugins can required instead of use.
+0.24 2011/03/09
+  - Now plugable class and plugins can be loaded with require instead of use.

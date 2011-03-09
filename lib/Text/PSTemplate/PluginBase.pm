@@ -16,6 +16,7 @@ use Fcntl qw(:flock);
     my %_cacheable_funcs;
     my %_cacheable_fnames;
     my %_cacheable_redefined;
+    my %_instanciated;
     
     my $MEM_INI = 1;
     my $MEM_AS  = 2;
@@ -42,10 +43,53 @@ use Fcntl qw(:flock);
             $MEM_TPL    => $tpl,
             $MEM_AS     => $as,
         }, $class;
-        $self->_set_tpl_funcs($tpl);
+        
+        if (! $_instanciated{$class}) {
+            $class->_init_tpl_exports;
+            $class->_init_cacheable_funcs;
+            $_instanciated{$class} = 1;
+        }
         $class->_make_class_cacheable($tpl);
+        $self->_set_tpl_funcs($tpl);
+        
         weaken $self->{$MEM_TPL};
         return $self;
+    }
+    
+    sub _init_tpl_exports {
+        
+        my $class = shift;
+        if (my $a = $_tpl_exports{$class}) {
+            my $tbl = _get_sub_syms($class);
+            for my $entry (@$a) {
+                $entry->[2] = $tbl->{$entry->[0]};
+            }
+        }
+    }
+    
+    sub _init_cacheable_funcs {
+        
+        my $class = shift;
+        if (my $a = $_cacheable_funcs{$class}) {
+            my $tbl = _get_sub_syms($class);
+            for my $entry (@$a) {
+                $entry->[2] = $tbl->{$entry->[0]};
+            }
+        }
+    }
+    
+    sub _get_sub_syms {
+        
+        my ($pkg, $ref) = @_;
+        no strict 'refs';
+        my $out = {};
+        my $sym_tbl = \%{"$pkg\::"};
+        for my $key (keys %$sym_tbl) {
+            if (exists &{$sym_tbl->{$key}}) {
+                $out->{\&{$sym_tbl->{$key}}} = $key;
+            }
+        }
+        return $out;
     }
     
     ### ---
@@ -62,33 +106,9 @@ use Fcntl qw(:flock);
             }
         }
         if (my $a = $_tpl_exports{$pkg}) {
-            @$a = map {_set_sym_by_ref($pkg, $_)} @$a;
             push(@out, @$a);
         }
         return \@out;
-    }
-    
-    sub _set_sym_by_ref {
-        
-        my ($pkg, $entry) = @_;
-        my $ref = $entry->[0];
-        no strict 'refs';
-        my $sym_tbl = \%{"$pkg\::"};
-        for my $key (keys %$sym_tbl) {
-            if ($key =~ /:$/ || $sym_tbl->{$key} !~ /^\*/) {
-                next;
-            }
-            my $exists = exists &{$sym_tbl->{$key}};
-            if ($ref eq \&{$sym_tbl->{$key}}) {
-                $entry->[2] = $key;
-                return $entry;
-            }
-            if (! $exists) {
-                #undef &{$sym_tbl->{$key}};
-                delete $$sym_tbl{$key};
-            }
-        }
-        return;
     }
     
     ### ---
@@ -162,7 +182,6 @@ use Fcntl qw(:flock);
         @namespaces = map {$_ ? $_.'::' : $_} grep {defined $_} @namespaces;
         
         my $_tpl_exports = _get_tpl_exports($org);
-        
         foreach my $func (@$_tpl_exports) {
             my $ref = $func->[0];
             my $rapper = sub {
@@ -203,9 +222,8 @@ use Fcntl qw(:flock);
         for my $func (@$funcs) {
             no warnings 'redefine';
             no strict 'refs';
-            my $ref = $func->[0];
-            my $func = _set_sym_by_ref($class, $func);
             my $sym = $func->[2];
+            my $ref = \&{$class. '::'. $sym};
             *{"$class\::$sym"} = sub {
                 my $self = shift;
                 my %opt = (
@@ -397,6 +415,70 @@ Note that in list context, this always returns an array with 1 element.
 If the key doesn't exists, this returns (undef).
 
 =head2 $instance->die($message)
+
+=head2 file_cache_expire
+
+This is a callback method for specifying the condition for cache expiretion.
+Your module can override the method if necessary.
+
+file_cache_exipre will be called as instance method when the target method
+called. This method takes timestamp of the cache as argument.
+
+    sub file_cache_expire {
+        my ($self, $timestamp) = @_;
+        if (some_condifion) {
+            return 1;
+        }
+    }
+
+=head2 file_cache_options
+
+This is a callback method for specifying options. Your module can override
+the method if necessary.
+
+    sub file_cache_options {
+        return {
+            'namespace' => 'Test',
+            'cache_root' => 't/cache',
+        };
+    }
+
+you can set options bellow
+
+=over
+
+=item cache_root
+
+The location in the filesystem that will hold the root of the cache. Defaults
+to the 'FileCache' under the OS default temp directory ( often '/tmp' on
+UNIXes ) unless explicitly set.
+
+=item cache_depth
+
+The number of subdirectories deep to cache object item. This should be large
+enough that no cache directory has more than a few hundred objects. Defaults
+to 3 unless explicitly set.
+
+=item directory_umask
+
+The directories in the cache on the filesystem should be globally writable to
+allow for multiple users. While this is a potential security concern, the
+actual cache entries are written with the user's umask, thus reducing the risk
+of cache poisoning. If you desire it to only be user writable, set
+the 'directory_umask' option to '077' or similar. Defaults to '000' unless
+explicitly set.
+
+=item namespace
+
+The namespace associated with this cache. Defaults to "Default" if not explicitly set.
+
+=item number_cache_id
+
+This takes 1 or 0 for value. '1' causes the cache ids automatically numbered so
+the caches doesn't affect in single process. This is useful if you want to
+cache the function calls as a sequence.
+
+=back
 
 =head1 ATTRIBUTE
 

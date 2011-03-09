@@ -9,7 +9,6 @@ lib/Text/PSTemplate/Plugin/Env.pm
 lib/Text/PSTemplate/Plugin/Extends.pm
 lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
-lib/Text/PSTemplate/PluginBase~.pm
 Makefile.PL
 MANIFEST
 README
@@ -60,7 +59,6 @@ t/03_PST_Plugable_xslate_compatible.t
 t/05_FileCacheable_basic.t
 t/05_FileCacheable_basic2.t
 t/05_FileCacheable_expire.t
-t/05_FileCacheable_expire2.t
 t/99_pod.t
 t/99_podcoverage.t
 t/lib/PST_common_control.pm
