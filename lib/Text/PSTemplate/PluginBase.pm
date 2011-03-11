@@ -83,9 +83,10 @@ use Fcntl qw(:flock);
         my ($pkg, $ref) = @_;
         no strict 'refs';
         my $out = {};
-        my $sym_tbl = \%{"$pkg\::"};
+        my $sym_tbl = \%{$pkg."::"};
         for my $key (keys %$sym_tbl) {
-            if (exists &{$sym_tbl->{$key}}) {
+            #if (exists &{$sym_tbl->{$key}}) {
+            if (ref \$sym_tbl->{$key} eq 'GLOB' && *{$sym_tbl->{$key}}{'CODE'}) {
                 $out->{\&{$sym_tbl->{$key}}} = $key;
             }
         }

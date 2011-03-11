@@ -38,3 +38,6 @@ Revision history for Text-PSTemplate
 
 0.24 2011/03/09
   - Now plugable class and plugins can be loaded with require instead of use.
+
+0.25 2011/03/11
+  - Fix: PlugBase has been conflicted with Fcntl LOCK_EX
