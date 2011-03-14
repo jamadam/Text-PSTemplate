@@ -17,6 +17,7 @@ use Fcntl qw(:flock);
     my %_cacheable_fnames;
     my %_cacheable_redefined;
     my %_instanciated;
+    my %_findsym2_tbl;
     
     my $MEM_INI = 1;
     my $MEM_AS  = 2;
@@ -60,7 +61,7 @@ use Fcntl qw(:flock);
         
         my $class = shift;
         if (my $a = $_tpl_exports{$class}) {
-            my $tbl = _get_sub_syms($class);
+            my $tbl = _findsym2($class);
             for my $entry (@$a) {
                 $entry->[2] = $tbl->{$entry->[0]};
             }
@@ -71,26 +72,29 @@ use Fcntl qw(:flock);
         
         my $class = shift;
         if (my $a = $_cacheable_funcs{$class}) {
-            my $tbl = _get_sub_syms($class);
+            my $tbl = _findsym2($class);
             for my $entry (@$a) {
                 $entry->[2] = $tbl->{$entry->[0]};
             }
         }
     }
     
-    sub _get_sub_syms {
+    sub _findsym2 {
         
         my ($pkg, $ref) = @_;
-        no strict 'refs';
-        my $out = {};
-        my $sym_tbl = \%{$pkg."::"};
-        for my $key (keys %$sym_tbl) {
-            #if (exists &{$sym_tbl->{$key}}) {
-            if (ref \$sym_tbl->{$key} eq 'GLOB' && *{$sym_tbl->{$key}}{'CODE'}) {
-                $out->{\&{$sym_tbl->{$key}}} = $key;
+        if (! exists $_findsym2_tbl{$pkg}) {
+            no strict 'refs';
+            my $out = {};
+            my $sym_tbl = \%{$pkg."::"};
+            for my $key (keys %$sym_tbl) {
+                my $val = $sym_tbl->{$key};
+                if (ref \$val eq 'GLOB' && *{$val}{'CODE'}) {
+                    $out->{\&{$val}} = $key;
+                }
             }
+            $_findsym2_tbl{$pkg} = $out;
         }
-        return $out;
+        return $_findsym2_tbl{$pkg};
     }
     
     ### ---
