@@ -12,11 +12,9 @@ use File::Spec;
 use File::Path;
 use Fcntl qw(:flock);
 
-    my %_tpl_exports;
-    my %_cacheable_funcs;
+    my %_attr_tpl_export_cache;
+    my %_attr_file_cacheable_cache;
     my %_cacheable_fnames;
-    my %_cacheable_redefined;
-    my %_instanciated;
     my %_findsym2_tbl;
     
     my $MEM_INI = 1;
@@ -45,12 +43,12 @@ use Fcntl qw(:flock);
             $MEM_AS     => $as,
         }, $class;
         
-        if (! $_instanciated{$class}) {
-            $class->_init_tpl_exports;
-            $class->_init_cacheable_funcs;
-            $_instanciated{$class} = 1;
+        if (! $_findsym2_tbl{$class}) {
+            _findsym2($class);
+            _init_tpl_exports($class);
+            _init_file_cacheable($class);
+            _make_class_cacheable($class, $tpl);
         }
-        $class->_make_class_cacheable($tpl);
         $self->_set_tpl_funcs($tpl);
         
         weaken $self->{$MEM_TPL};
@@ -60,22 +58,16 @@ use Fcntl qw(:flock);
     sub _init_tpl_exports {
         
         my $class = shift;
-        if (my $a = $_tpl_exports{$class}) {
-            my $tbl = _findsym2($class);
-            for my $entry (@$a) {
-                $entry->[2] = $tbl->{$entry->[0]};
-            }
+        for my $entry (@{$_attr_tpl_export_cache{$class}}) {
+            $entry->[2] = $_findsym2_tbl{$class}->{$entry->[0]};
         }
     }
     
-    sub _init_cacheable_funcs {
+    sub _init_file_cacheable {
         
         my $class = shift;
-        if (my $a = $_cacheable_funcs{$class}) {
-            my $tbl = _findsym2($class);
-            for my $entry (@$a) {
-                $entry->[2] = $tbl->{$entry->[0]};
-            }
+        for my $entry (@{$_attr_file_cacheable_cache{$class}}) {
+            $entry->[2] = $_findsym2_tbl{$class}->{$entry->[0]};
         }
     }
     
@@ -110,7 +102,7 @@ use Fcntl qw(:flock);
                 push(@out, @{_get_tpl_exports($super)});
             }
         }
-        if (my $a = $_tpl_exports{$pkg}) {
+        if (my $a = $_attr_tpl_export_cache{$pkg}) {
             push(@out, @$a);
         }
         return \@out;
@@ -146,7 +138,7 @@ use Fcntl qw(:flock);
     sub TplExport : ATTR(BEGIN) {
         
         my($pkg, undef, $ref, undef, $data, undef) = @_;
-        push(@{$_tpl_exports{$pkg}}, [$ref, $data ? {@$data} : {}]);
+        push(@{$_attr_tpl_export_cache{$pkg}}, [$ref, $data ? {@$data} : {}]);
     }
     
     ### ---
@@ -155,7 +147,7 @@ use Fcntl qw(:flock);
     sub FileCacheable : ATTR(BEGIN) {
         
         my($pkg, undef, $ref, undef, $data, undef) = @_;
-        push(@{$_cacheable_funcs{$pkg}}, [$ref, $data ? {@$data} : {}]);
+        push(@{$_attr_file_cacheable_cache{$pkg}}, [$ref, $data ? {@$data} : {}]);
     }
     
     ### ---
@@ -217,13 +209,7 @@ use Fcntl qw(:flock);
     sub _make_class_cacheable {
         
         my ($class) = @_;
-        
-        if ($_cacheable_redefined{$class}) {
-            return;
-        } else {
-            $_cacheable_redefined{$class} = 1;
-        }
-        my $funcs = $_cacheable_funcs{$class};
+        my $funcs = $_attr_file_cacheable_cache{$class};
         for my $func (@$funcs) {
             no warnings 'redefine';
             no strict 'refs';
