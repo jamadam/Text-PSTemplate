@@ -7,7 +7,14 @@ use base qw(Text::PSTemplate);
 use Text::PSTemplate::PluginBase;
 use Scalar::Util qw(weaken);
 
-    my @CORE_LIST = qw(Control Env Extends Util);
+    #my @CORE_LIST = qw(Control Env Extends Util);
+    my %CORE_LIST = (
+        Control => '',
+        Env     => '',
+        Extends => '',
+        Util    => '',
+        FS      => 'FS',
+    );
 
     sub new {
         
@@ -15,8 +22,8 @@ use Scalar::Util qw(weaken);
         my $self = $class->SUPER::new(@_);
         
         if (! scalar @_) {
-            for my $name (@CORE_LIST) {
-                $self->plug('Text::PSTemplate::Plugin::'. $name, '');
+            for my $key (keys %CORE_LIST) {
+                $self->plug('Text::PSTemplate::Plugin::'. $key, $CORE_LIST{$key});
             }
         }
         
