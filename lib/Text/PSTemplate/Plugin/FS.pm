@@ -64,7 +64,7 @@ To activate this plugin, your template have to load it as follows
     use Text::PSTemplate::Plugable;
     
     my $tpl = Text::PSTemplate::Plugable->new;
-    $tpl->plug('Text::PSTemplate::Plugin::Env', '');
+    $tpl->plug('Text::PSTemplate::Plugin::FS', '');
 
 Since this has promoted to core plugin, you don't have to explicitly load it.
 

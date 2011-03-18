@@ -87,6 +87,58 @@ use Text::PSTemplate;
             },
         };
     }
+    
+    ### ---
+    ### split multi line into array
+    ### ---
+	sub split_line : TplExport {
+		
+		my ($self, $str) = @_;
+		my @ret = split(/\r\n|\r|\n/, $str);
+		return \@ret;
+	}
+	
+    ### ---
+    ### line count
+    ### ---
+    sub line_count : TplExport {
+        
+        my $self = shift;
+        my @array = split(/\r\n|\r|\n/, shift);
+        return scalar @array;
+    }
+    
+    ### ---
+    ### replace spaces to line break
+    ### ---
+    sub space2linebreak : TplExport {
+        
+        my ($self, $str) = @_;
+        $str =~ s{\s|@}{\n}g;
+        return $str;
+    }
+    
+    ### ---
+    ### delete_space
+    ### ---
+    sub delete_space : TplExport {
+        
+        my $self = shift;
+        my $str = shift;
+        $str =~ s{\s|@}{}g;
+        
+        return $str;
+    }
+    
+    ### ---
+    ### split and extract
+    ### ---
+    sub split : TplExport {
+        
+        my ($self, $regex, $str, $limit) = @_;
+        my @array = CORE::split($regex, $str, $limit);
+        return \@array;
+    }
 
 1;
 
@@ -150,6 +202,18 @@ Output
     20
     10
     5
+
+=head2 delete_space
+
+=head2 line_count
+
+=head2 space2linebreak
+
+=head2 split
+
+=head2 split_line
+
+=head2 substr
 
 =head1 AUTHOR
 
