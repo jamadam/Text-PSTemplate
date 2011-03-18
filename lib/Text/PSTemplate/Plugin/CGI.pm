@@ -42,8 +42,13 @@ To activate this plugin, your template have to load it as follows
 
 =head1 AUTHOR
 
-jamadam <sugama@jamadam.com>
+Sugama Keita, E<lt>sugama@jamadam.comE<gt>
 
-=head1 SEE ALSO
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Sugama Keita.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut
