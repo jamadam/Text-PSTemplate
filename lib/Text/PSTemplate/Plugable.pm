@@ -55,7 +55,15 @@ use Scalar::Util qw(weaken);
     sub get_plugin {
         
         my ($self, $name) = @_;
-        return $self->{pluged}->{$name};
+        if ($name =~ qr{^::}) {
+            $name = $self->{default_plugin}. $name;
+        }
+        if (exists $self->{pluged}->{$name}) {
+            return $self->{pluged}->{$name};
+        } elsif(exists $self->{pluged}->{$self->{namespace_base}. '::'. $name}) {
+            return $self->{pluged}->{$self->{namespace_base}. '::'. $name};
+        }
+        croak "Plugin not $name loaded";
     }
     
     sub get_base {
