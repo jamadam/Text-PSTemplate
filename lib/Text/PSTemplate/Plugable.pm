@@ -63,7 +63,7 @@ use Scalar::Util qw(weaken);
         } elsif(exists $self->{pluged}->{$self->{namespace_base}. '::'. $name}) {
             return $self->{pluged}->{$self->{namespace_base}. '::'. $name};
         }
-        croak "Plugin not $name loaded";
+        croak "Plugin $name not loaded";
     }
     
     sub get_base {
