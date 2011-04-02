@@ -2,7 +2,7 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 use 5.005;
 use Carp;
 no warnings 'recursion';
@@ -36,13 +36,19 @@ no warnings 'recursion';
         
         my ($class, $mother) = @_;
         
+        if (scalar @_ == 2 && ! defined $mother) {
+            $mother = undef;
+        } else {
+            $mother ||= $Text::PSTemplate::self;
+        }
+        
         my $self = bless {
-            $MEM_MOTHER      => ($mother || $Text::PSTemplate::self), 
+            $MEM_MOTHER      => $mother, 
             $MEM_FUNC        => {},
             $MEM_VAR         => {},
         }, $class;
         
-        if (! defined $mother) {
+        if (! defined $self->{$MEM_MOTHER}) {
             $self->{$MEM_ENCODING}          = 'utf8';
             $self->{$MEM_RECUR_LIMIT}       = 10;
             $self->{$MEM_DELIMITER_LEFT}    = '<%';

@@ -3,10 +3,14 @@ lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Manual.pod
 lib/Text/PSTemplate/ManualJP.pod
 lib/Text/PSTemplate/Plugable.pm
+lib/Text/PSTemplate/Plugin/CGI.pm
 lib/Text/PSTemplate/Plugin/Control.pm
 lib/Text/PSTemplate/Plugin/Developer.pod
 lib/Text/PSTemplate/Plugin/Env.pm
 lib/Text/PSTemplate/Plugin/Extends.pm
+lib/Text/PSTemplate/Plugin/FS.pm
+lib/Text/PSTemplate/Plugin/HTML.pm
+lib/Text/PSTemplate/Plugin/TSV.pm
 lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
 Makefile.PL
@@ -37,6 +41,7 @@ t/02_PST_Plugable_basic3.t
 t/02_PST_Plugable_basic4.t
 t/02_PST_Plugable_basic5.t
 t/02_PST_Plugable_chop.t
+t/02_PST_Plugable_get_syms.t
 t/02_PST_Plugable_incrementally_added.t
 t/02_PST_Plugable_namespace.t
 t/02_PST_Plugable_no_tplexport.t
@@ -50,6 +55,7 @@ t/03_PST_Plugable_Control5.t
 t/03_PST_Plugable_die_at.t
 t/03_PST_Plugable_Env.t
 t/03_PST_Plugable_Extends.t
+t/03_PST_Plugable_FS.t
 t/03_PST_Plugable_partial_exception.t
 t/03_PST_Plugable_require_ok.t
 t/03_PST_Plugable_require_ok2.t
@@ -61,6 +67,7 @@ t/05_FileCacheable_basic2.t
 t/05_FileCacheable_expire.t
 t/99_pod.t
 t/99_podcoverage.t
+t/file/03_PST_Plugable_FS
 t/lib/PST_common_control.pm
 t/lib/PST_Plugable_require_ok.pm
 t/lib/PST_Plugable_require_ok3.pm
