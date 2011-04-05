@@ -8,13 +8,14 @@ use Carp;
 
     sub load_record : TplExport {
         
-        my ($self, $file, $column, $value) = @_;
+        my ($self, $file, $column, $value ,$namespace) = @_;
         my $data = &seek_tsv(file => $file, cond => {$column => $value}, limit => 1);
         my $template = Text::PSTemplate->get_current_parser;
         
         if (scalar @$data) {
             for (my $idx = 0; $idx < scalar @{$data->[0]}; $idx++) {
-                $template->set_var($idx => $data->[0]->[$idx] || '');
+                my $key = ($namespace) ? "$namespace\::$idx" : $idx;
+                $template->set_var($key => $data->[0]->[$idx] || '');
             }
         }
     }
