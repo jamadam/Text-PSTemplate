@@ -2,7 +2,7 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 use 5.005;
 use Carp;
 no warnings 'recursion';
@@ -24,7 +24,11 @@ no warnings 'recursion';
         my $err = shift;
         chomp($err);
         if (my $file = Text::PSTemplate::get_current_filename()) {
-            die "$err at $file";
+            my $err = "$err at $file";
+            if ($Text::PSTemplate::Error_at) {
+                $err .= ' line '. $Text::PSTemplate::Error_at;
+            }
+            die $err. "\n";
         }
         Carp::croak $err;
     }
@@ -317,11 +321,12 @@ no warnings 'recursion';
     sub parse {
         
         my ($self, $str) = @_;
-        
+        my $str_org = $str;
         if (! defined $str) {
             _croak 'No template string found';
         }
         my $out = '';
+        my $line_number = 0;
         while ($str) {
             my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
             my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
@@ -365,6 +370,7 @@ no warnings 'recursion';
                         $self->get_param($MEM_NONEXIST)->($self, $org, $err);
                     };
                     if ($@) {
+                        local $Text::PSTemplate::Error_at = _line_number($str_org, $right);
                         _croak $@;
                     }
                     $out .= $ret;
@@ -382,6 +388,7 @@ no warnings 'recursion';
                             $self->get_param($MEM_NONEXIST)->($self, $org, $err);
                         };
                         if ($@) {
+                            local $Text::PSTemplate::Error_at = _line_number($str_org, $right);
                             _croak $@;
                         }
                         $out .= $ret;
@@ -393,6 +400,18 @@ no warnings 'recursion';
             $str = $right;
         }
         return $out;
+    }
+    
+    sub _line_number {
+        
+        my ($all, $remain) = @_;
+        my $pos = length($all) - length($remain);
+        for my $b (@{$Text::PSTemplate::block}) {
+            $pos -= length($b);
+        }
+        my $errstr = substr($all, 0, $pos);
+        my $line_num = (() = $errstr =~ /\r\n|\r|\n/g);
+        return $line_num + 1;
     }
     
     sub _interpolate_partial {

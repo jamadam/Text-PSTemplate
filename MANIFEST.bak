@@ -21,6 +21,7 @@ t/01_PST_autoload.t
 t/01_PST_basic.t
 t/01_PST_basic2.t
 t/01_PST_basic3.t
+t/01_PST_basic4.t
 t/01_PST_chop_inline_data.t
 t/01_PST_common_control.t
 t/01_PST_crop.t

@@ -135,9 +135,33 @@ use Text::PSTemplate;
     ### ---
     sub split : TplExport {
         
-        my ($self, $regex, $str, $limit) = @_;
-        my @array = CORE::split($regex, $str, $limit);
+        my $self = shift;
+        my @array = CORE::split(@_);
         return \@array;
+    }
+	
+    ### ---
+    ### int
+    ### ---
+	sub int : TplExport {
+		
+		my $self = shift;
+		return CORE::int(@_);
+	}
+    
+    ### ---
+    ### randomize array order
+    ### ---
+    sub randomize {
+        
+        my ($self, $array) = @_;
+        my @new = ();
+        foreach (0..(scalar @$array - 1)) {
+            my $rand = CORE::int(rand(@new + 1));
+            push(@new, $new[$rand]);
+            $new[$rand] = $array->[$_];
+        }
+        return @new;
     }
 
 1;
@@ -203,17 +227,21 @@ Output
     10
     5
 
-=head2 delete_space
-
-=head2 line_count
-
-=head2 space2linebreak
+=head2 split_line
 
 =head2 split
 
-=head2 split_line
-
 =head2 substr
+
+=head2 space2linebreak
+
+=head2 randomize
+
+=head2 line_count
+
+=head2 delete_space
+
+=head2 int
 
 =head1 AUTHOR
 
