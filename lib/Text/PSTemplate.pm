@@ -367,7 +367,7 @@ no warnings 'recursion';
         
         my ($index, $args) = @_;
         if (ref $Text::PSTemplate::block && defined $index) {
-            return $Text::PSTemplate::block->get_block($index, $args);
+            return $Text::PSTemplate::block->content($index, $args);
         } else {
             return $Text::PSTemplate::block;
         }
@@ -437,10 +437,7 @@ no warnings 'recursion';
             if (! defined $tag) {
                 return $out. $str;
             }
-            $eval_pos += length($left);
-            #warn $eval_pos;
-            $eval_pos += length($all);
-            #warn $eval_pos;
+            $eval_pos += length($left) + length($all);
             $out .= $left;
             
             my $len = length($escape);
@@ -492,7 +489,6 @@ no warnings 'recursion';
                     $eval_pos += $Text::PSTemplate::block->get_followers_offset;
                 }
             }
-            #$eval_pos += length($all);
             $str = $right;
         }
         return $out;
@@ -617,7 +613,7 @@ use Carp qw(shortmess);
                 }
                 my $position;
                 if (my $line_number = ($@ =~ qr{line (\d+)})[0]) {
-                    $position = line_number_to_pos($str, $line_number);
+                    $position = line_number_to_pos($str, $line_number); ### suspect!!!
                 } else {
                     $position = ($@ =~ qr{position (\d+)})[0];
                 }

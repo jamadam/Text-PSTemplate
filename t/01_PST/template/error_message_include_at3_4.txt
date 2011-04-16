@@ -1,0 +1,3 @@
+<% if(1)<<THEN %>
+    <% echo(hoge('a')) %>
+<% THEN %>

@@ -5,7 +5,7 @@ use Carp;
 
     sub new {
         my ($class, $names, $right, $delim_l, $delim_r) = @_;
-        my $length = length($names);
+        my $length;
         my @out = ();
         for my $a (split(',', $names)) {
             if ($$right =~ s{(.*?)($delim_l\s*$a\s*$delim_r)}{}s) {
@@ -27,11 +27,11 @@ use Carp;
     ### ---
     ### Get inline data
     ### ---
-    sub get_block {
+    sub content {
         
         my ($self, $index, $args) = @_;
         if (defined $index) {
-            my $data = $self->content($index);
+	        my $data = $self->{blocks}->[$index]->[0];
             if ($data && $args) {
                 if ($args->{chop_left}) {
                     $data =~ s{^(?:\r\n|\r|\n)}{};
@@ -45,17 +45,12 @@ use Carp;
             return $self;
         }
     }
-    
-    sub content {
-        my ($self, $index) = @_;
-        return $self->{blocks}->[$index]->[0];
-    }
-    
+
     sub delimiter {
         my ($self, $index) = @_;
         return $self->{blocks}->[$index]->[1];
     }
-    
+
     sub get_followers_offset {
         my ($self) = @_;
         return $self->{length};
@@ -85,8 +80,6 @@ Text::PSTemplate::Block - A Class represents template blocks
 =head2 $instance->content
 
 =head2 $instance->delimiter
-
-=head2 $instance->get_block
 
 =head2 $instance->get_followers_offset
 

@@ -1,0 +1,3 @@
+<% if(1)<<THEN %>
+    <% make_no_sence %>
+<% THEN %>
