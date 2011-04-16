@@ -16,14 +16,14 @@ use Text::PSTemplate;
         if (grep {$_ eq $target} @$array_ref) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(1, {chop_left => 1, chop_right => 1});
             }
         }
         return;
@@ -41,14 +41,14 @@ use Text::PSTemplate;
         if ($condition) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(1, {chop_left => 1, chop_right => 1});
             }
         }
         return;
@@ -66,14 +66,14 @@ use Text::PSTemplate;
         if ($target eq $value) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(1, {chop_left => 1, chop_right => 1});
             }
         }
         return;
@@ -91,14 +91,14 @@ use Text::PSTemplate;
         if ($target =~ /$pattern/) {
             if ($then) {
                 return $then;
-            } elsif (my $inline = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
             }
         } else {
             if ($else) {
                 return $else;
-            } elsif (my $inline = Text::PSTemplate::get_block(1, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block(1, {chop_left => 1, chop_right => 1});
             }
         }
         return;
@@ -117,13 +117,13 @@ use Text::PSTemplate;
             my $i = 0;
             for (; $i < scalar @$case_ref; $i++) {
                 if ($target eq $case_ref->[$i]) {
-                    return $tpl->parse(Text::PSTemplate::get_block($i, {chop_left => 1, chop_right => 1}));
+                    return $tpl->parse_block($i, {chop_left => 1, chop_right => 1});
                 }
             }
             if (defined $default) {
                 return $tpl->parse($default);
-            } elsif (my $inline = Text::PSTemplate::get_block($i, {chop_left => 1, chop_right => 1})) {
-                return $tpl->parse($inline);
+            } else {
+                return $tpl->parse_block($i, {chop_left => 1, chop_right => 1});
             }
         } elsif (ref $case_ref eq 'HASH') {
             if (exists $case_ref->{$target}) {
@@ -160,7 +160,6 @@ use Text::PSTemplate;
         
         my ($self, $data, $asign1, $asign2) = @_;
         
-        my $tplstr = Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1});
         my $tpl = Text::PSTemplate->new;
         if (! ref $data) {
             $data = [$data];
@@ -171,27 +170,27 @@ use Text::PSTemplate;
             if (scalar @_ == 3) {
                 for my $val (@$data) {
                     $tpl->set_var($asign1 => $val);
-                    $out .= $tpl->parse($tplstr);
+                    $out .= $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
                 }
             } elsif (scalar @_ == 4) {
                 my $idx = 0;
                 for my $val (@$data) {
                     $tpl->set_var($asign1 => $idx++);
                     $tpl->set_var($asign2 => $val);
-                    $out .= $tpl->parse($tplstr);
+                    $out .= $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
                 }
             }
         } elsif (ref $data eq 'HASH') {
             if (scalar @_ == 3) {
                 while (my ($key, $value) = each(%$data)) {
                     $tpl->set_var($asign1 => $value);
-                    $out .= $tpl->parse($tplstr);
+                    $out .= $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
                 }
             } elsif (scalar @_ == 4) {
                 while (my ($key, $value) = each(%$data)) {
                     $tpl->set_var($asign1 => $key);
                     $tpl->set_var($asign2 => $value);
-                    $out .= $tpl->parse($tplstr);
+                    $out .= $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
                 }
             }
         }
@@ -290,13 +289,21 @@ use Text::PSTemplate;
         
         my ($self, $dataset) = @_;
         my $tpl = Text::PSTemplate::Plugable->new;
-        my $tplstr = Text::PSTemplate::get_block(0);
         my $out = '';
         while (my ($key, $value) = CORE::each(%$dataset)) {
             $tpl->set_var($key => $value);
-            $out .= $tpl->parse($tplstr);
+            $out .= $tpl->parse_block(0);
         }
         return $out;
+    }
+    
+    ### ---
+	### echo
+    ### ---
+    sub echo : TplExport {
+        
+        my ($self, $data) = @_;
+        return $data;
     }
 
 1;
@@ -515,6 +522,8 @@ assign does not affect mother templates but sub templates.
 =head2 default($var, $default)
 
 =head2 with($dataset)
+
+=head2 echo($data)
 
 =head1 AUTHOR
 

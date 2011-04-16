@@ -15,7 +15,7 @@ use Data::Dumper;
 			$tpl->parse('<% undefined_func() %>');
 		};
 		like($@, qr/function/i);
-		like($@, qr/not defined/i);
+		like($@, qr/undefined/i);
 		like($@, qr{01_PST_error_message.t});
 	}
     
@@ -38,7 +38,7 @@ use Data::Dumper;
 			$tpl->parse_file('t/template/01_PST_error_message.txt');
 		};
 		like($@, qr/function/i);
-		like($@, qr/not defined/i);
+		like($@, qr/undefined/i);
         like($@, qr/template\/01_PST_error_message\.txt/);
 	}
     
@@ -50,7 +50,7 @@ use Data::Dumper;
 			$tpl->parse_file('t/template/01_PST_error_message2.txt');
 		};
 		like($@, qr/variable/i);
-		like($@, qr/not defined/i);
+		like($@, qr/undefined/i);
         like($@, qr/template\/01_PST_error_message2\.txt/);
 	}
     

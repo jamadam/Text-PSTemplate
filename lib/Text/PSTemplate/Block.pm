@@ -1,0 +1,108 @@
+package Text::PSTemplate::Block;
+use strict;
+use warnings;
+use Carp;
+
+    sub new {
+        my ($class, $names, $right, $delim_l, $delim_r) = @_;
+        my $length = length($names);
+        my @out = ();
+        for my $a (split(',', $names)) {
+            if ($$right =~ s{(.*?)($delim_l\s*$a\s*$delim_r)}{}s) {
+                push(@out, [$1, $2]);
+                $length += length($1) + length($2);
+            }
+        }
+        return bless {blocks => \@out, length => $length}, $class;
+    }
+    
+	sub get_left_chomp {
+		
+        my ($self, $index) = @_;
+		my $data = $self->content($index);
+		$data =~ m{^(\r\n|\r|\n)};
+		return $1;
+	}
+	
+    ### ---
+    ### Get inline data
+    ### ---
+    sub get_block {
+        
+        my ($self, $index, $args) = @_;
+        if (defined $index) {
+            my $data = $self->content($index);
+            if ($data && $args) {
+                if ($args->{chop_left}) {
+                    $data =~ s{^(?:\r\n|\r|\n)}{};
+                }
+                if ($args->{chop_right}) {
+                    $data =~ s{(?:\r\n|\r|\n)$}{};
+                }
+            }
+            return $data;
+        } else {
+            return $self;
+        }
+    }
+    
+    sub content {
+        my ($self, $index) = @_;
+        return $self->{blocks}->[$index]->[0];
+    }
+    
+    sub delimiter {
+        my ($self, $index) = @_;
+        return $self->{blocks}->[$index]->[1];
+    }
+    
+    sub get_followers_offset {
+        my ($self) = @_;
+        return $self->{length};
+    }
+    
+    sub length {
+        my ($self) = @_;
+        return scalar @$self;
+    }
+
+1;
+
+__END__
+
+=head1 NAME
+
+Text::PSTemplate::Block - A Class represents template blocks
+
+=head1 SYNOPSIS
+    
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head2 Text::PSTemplate::Block->new();
+
+=head2 $instance->content
+
+=head2 $instance->delimiter
+
+=head2 $instance->get_block
+
+=head2 $instance->get_followers_offset
+
+=head2 $instance->get_left_chomp
+
+=head2 $instance->length
+
+=head1 AUTHOR
+
+Sugama Keita, E<lt>sugama@jamadam.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Sugama Keita.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

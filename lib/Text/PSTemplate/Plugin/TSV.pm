@@ -6,10 +6,25 @@ use Fcntl qw(:flock);
 use base qw(Text::PSTemplate::PluginBase);
 use Carp;
 
+    sub load_all_hashref : TplExport {
+        
+        my ($self, $file, $key, $namespace, $args) = @_;
+        $args ||= ();
+        my $data = &seek_tsv(file => $file, %$args);
+        my $out = {};
+        for my $e (@$data) {
+            $out->{$e->[$key]} = $e;
+        }
+        my $template = Text::PSTemplate->get_current_parser;
+        $template->set_var($namespace => $out);
+        return;
+    }
+    
     sub load_record : TplExport {
         
-        my ($self, $file, $column, $value ,$namespace) = @_;
-        my $data = &seek_tsv(file => $file, cond => {$column => $value}, limit => 1);
+        my ($self, $file, $column, $value , $namespace, $args) = @_;
+        my %seek_args = $args ? (%$args) : ();
+        my $data = &seek_tsv(file => $file, cond => {$column => $value}, limit => 1, %seek_args);
         my $template = Text::PSTemplate->get_current_parser;
         
         if (scalar @$data) {
@@ -24,14 +39,9 @@ use Carp;
         
         my $self = shift;
         my $file = shift;
-        my %args = (
-            file => $file,
-            tpl => '',
-            default => undef,
-            params  => {},
-            @_);
+        my %args = (@_);
         
-        my $data = &seek_tsv(file => $file, %{$args{params}});
+        my $data = &seek_tsv(file => $file, %args);
         
         my $template = Text::PSTemplate->new();
         
@@ -42,7 +52,6 @@ use Carp;
                 return $template->parse(Text::PSTemplate::get_block(1));
             }
         }
-        
         my $out = '';
         
         my $tplstr;
@@ -88,15 +97,17 @@ use Carp;
             not_null_fields => [],
             header_exist    => 0,
             encoding        => 'utf8',
+            row_size        => 0,
             @_);
         
         my @rows = ();
-        my $tsv = Text::PSTemplate::Plugin::_TSV->new;
+        my $tsv = Text::PSTemplate::Plugin::_TSV->new({row_size => $args{row_size}});
         open(my $fh, "<:". $args{encoding}, $args{file}) or croak "open $args{file} failed";
         flock($fh, LOCK_EX) or croak 'flock failed';
         
         if ($args{header_exist}) {
-            $tsv->getline($fh);
+            my $rubbish = $tsv->getline($fh);
+            warn Text::PSTemplate::dump($rubbish);
         }
         my $limit_count = 0;
         FI: while (my $row = $tsv->getline($fh)) {
@@ -187,7 +198,6 @@ use Carp;
                 }
             }
         }
-        
         return \@rows;
     }
 
@@ -199,7 +209,7 @@ package Text::PSTemplate::Plugin::_TSV;
     sub new {
         
         my ($class, $params) = @_;
-        return bless {}, $class;
+        return bless {row_size => $params->{row_size}}, $class;
     }
     
     sub getline {
@@ -209,10 +219,11 @@ package Text::PSTemplate::Plugin::_TSV;
         if (defined $line) {
             $line =~ s/\r\n|\r|\n$//g;
             my @cells = split(/\t/, $line);
-            for (my $i = 0; $i < scalar @cells; $i++) {
-                $cells[$i] =~ s{<br />}{\n}g;
+            if ($self->{row_size}) {
+                return [@cells[0..$self->{row_size}]];
+            } else {
+                return \@cells;
             }
-            return \@cells;
         }
     }
 
@@ -247,6 +258,8 @@ To activate this plugin, your template have to load it as follows
 =head2 new
 
 =head2 seek_tsv
+
+=head2 load_all_hashref
 
 =head1 AUTHOR
 

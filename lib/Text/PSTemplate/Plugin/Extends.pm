@@ -11,7 +11,7 @@ use base qw(Text::PSTemplate::PluginBase);
         my ($self, $file) = @_;
         my $tpl = Text::PSTemplate::Plugable->new;
         $tpl->plug('Text::PSTemplate::Plugin::Extends::_Sub', '');
-        $tpl->parse(Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1}));
+        $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
         return $tpl->parse_file($file);
     }
 
@@ -27,7 +27,7 @@ use base qw(Text::PSTemplate::PluginBase);
         
         my ($self, $name) = @_;
         my $tpl = Text::PSTemplate->get_current_parser;
-        $tpl->set_var($name => $tpl->parse(Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1})));
+        $tpl->set_var($name => $tpl->parse_block(0, {chop_left => 1, chop_right => 1}));
         return;
     }
     
@@ -38,10 +38,11 @@ use base qw(Text::PSTemplate::PluginBase);
         
         my ($self, $name) = @_;
         my $tpl = Text::PSTemplate::get_current_parser;
-        if (my $val = $tpl->var($name)) {
+        my $val = eval {$tpl->var($name)};
+        if ($val) {
             return $val;
         } else {
-            return $tpl->parse(Text::PSTemplate::get_block(0, {chop_left => 1, chop_right => 1}));
+            return $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
         }
     }
 

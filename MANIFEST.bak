@@ -29,6 +29,7 @@ t/01_PST_deep_recursion.t
 t/01_PST_deep_recursion2.t
 t/01_PST_dereference.t
 t/01_PST_error_message.t
+t/01_PST_error_message_include_at.t
 t/01_PST_escaping.t
 t/01_PST_escaping2.t
 t/01_PST_eval_scope.t
@@ -87,6 +88,9 @@ t/template/01_PST_basic_2.txt
 t/template/01_PST_die_at.txt
 t/template/01_PST_error_message.txt
 t/template/01_PST_error_message2.txt
+t/template/01_PST_error_message_include_at.txt
+t/template/01_PST_error_message_include_at2.txt
+t/template/01_PST_error_message_include_at3.txt
 t/template/01_PST_filename_trans.txt
 t/template/01_PST_get_file_context_mother.txt
 t/template/01_PST_get_file_context_mother2.txt

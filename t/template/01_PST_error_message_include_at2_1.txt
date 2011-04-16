@@ -1,0 +1,6 @@
+    <% if(0)<<THEN,ELSE %>
+        aaa
+    <% THEN %>
+        <% undef()%>
+    <% ELSE %>
+    

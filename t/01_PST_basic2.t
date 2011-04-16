@@ -43,7 +43,7 @@ use Data::Dumper;
 		eval {
 			$tpl->parse(q[<% hoge() %>])
 		};
-		like($@, qr/not defined/);
+		like($@, qr/undefined/);
     }
     
     sub no_exception : Test(1) {

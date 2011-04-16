@@ -2,9 +2,13 @@ package Text::PSTemplate;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
+use Text::PSTemplate::Exception;
+use Text::PSTemplate::Block;
+use Text::PSTemplate::File;
 our $VERSION = '0.27';
 use 5.005;
 use Carp;
+use Try::Tiny;
 no warnings 'recursion';
 
     my $MEM_MOTHER                  = 1;
@@ -18,19 +22,57 @@ no warnings 'recursion';
     my $MEM_NONEXIST                = 9;
     my $MEM_FUNC_NONEXIST           = 10;
     my $MEM_VAR_NONEXIST            = 11;
+	
+	### ---
+	### debug
+	### ---
+	sub dump {
+        use Data::Dumper;
+		my $dump = Dumper($_[0]); $dump =~ s/\\x{([0-9a-z]+)}/chr(hex($1))/ge;
+		return $dump;
+	}
     
+	### ---
+	### wrapper for die
+	### ---
     sub _croak {
         
-        my $err = shift;
-        chomp($err);
-        if (my $file = Text::PSTemplate::get_current_filename()) {
-            my $err = "$err at $file";
-            if ($Text::PSTemplate::Error_at) {
-                $err .= ' line '. $Text::PSTemplate::Error_at;
-            }
-            die $err. "\n";
+        my ($err) = @_;
+        my $out;
+        my $position;
+        if (ref $err eq 'Text::PSTemplate::Exception') {
+            $out = $err->message;
+            $position = $err->position;
+        } else {
+            $out = $err;
         }
-        Carp::croak $err;
+        $out ||= 'Unknown Error';
+        $out =~ s{(\s)+}{ }g;
+        if (my $file = $Text::PSTemplate::current_file) {
+            if ((caller(4))[3] !~ /Text::PSTemplate/) {
+                if ($position) {
+                    my $file_name = $file->name;
+                    my $file_content = $file->content;
+                    my $line_number = _line_number($file_content, $position);
+                    $out = (split(/ at /, $out))[0];
+                    $out .= " at $file_name line $line_number";
+                }
+                die "$out\n";
+            }
+            if ($position) {
+                $out = (split(/ at /, $out))[0];
+                $out .= " at $file position $position";
+            }
+            die "$out\n";
+        }
+        my $i = 1;
+        while (my @a = caller($i++)) {
+            if ($a[0] =~ __PACKAGE__ || $a[0] =~ /Try::Tiny/) {
+                next;
+            }
+            die "$out at $a[1] line $a[2]\n";
+        }
+        die "$out\n";
     }
     
     ### ---
@@ -76,8 +118,9 @@ no warnings 'recursion';
     ### ---
     sub get_current_parser {
         
-        if (ref $_[0]) {
-            return $_[0]->{$MEM_MOTHER};
+        my $self_or_class = shift;
+        if (ref $self_or_class) {
+            return $self_or_class->{$MEM_MOTHER};
         } else {
             return $Text::PSTemplate::self;
         }
@@ -99,28 +142,8 @@ no warnings 'recursion';
     ### ---
     sub get_current_filename {
         
-        return $Text::PSTemplate::current_filename;
-    }
-    
-    ### ---
-    ### Get inline data
-    ### ---
-    sub get_block {
-        
-        my ($index, $args) = @_;
-        if (defined $index) {
-            my $data = $Text::PSTemplate::block->[$index];
-            if ($data && $_[1]) {
-                if ($_[1]->{chop_left}) {
-                    $data =~ s{^(?:\r\n|\r|\n)}{};
-                }
-                if ($_[1]->{chop_right}) {
-                    $data =~ s{(?:\r\n|\r|\n)$}{};
-                }
-            }
-            return $data;
-        } else {
-            return $Text::PSTemplate::block;
+        if ($Text::PSTemplate::current_file) {
+            return $Text::PSTemplate::current_file->name;
         }
     }
     
@@ -190,7 +213,6 @@ no warnings 'recursion';
     ### ---
     sub set_chop {
         
-        #my ($class, $mode) = @_;
         my ($mode) = @_;
         $Text::PSTemplate::chop = $mode;
     }
@@ -200,9 +222,10 @@ no warnings 'recursion';
     ### ---
     sub set_delimiter {
         
-        $_[0]->{$MEM_DELIMITER_LEFT} = $_[1];
-        $_[0]->{$MEM_DELIMITER_RIGHT} = $_[2];
-        return $_[0];
+        my ($self, $left, $right) = @_;
+        $self->{$MEM_DELIMITER_LEFT} = $left;
+        $self->{$MEM_DELIMITER_RIGHT} = $right;
+        return $self;
     }
     
     ### ---
@@ -210,12 +233,13 @@ no warnings 'recursion';
     ### ---
     sub get_delimiter {
         
-        my $name = ($MEM_DELIMITER_LEFT, $MEM_DELIMITER_RIGHT)[$_[1]];
-        if (defined $_[0]->{$name}) {
-            return $_[0]->{$name};
+        my ($self, $index) = @_;
+        my $name = ($MEM_DELIMITER_LEFT, $MEM_DELIMITER_RIGHT)[$index];
+        if (defined $self->{$name}) {
+            return $self->{$name};
         }
-        if (defined $_[0]->{$MEM_MOTHER}) {
-            return $_[0]->{$MEM_MOTHER}->get_delimiter($_[1]);
+        if (defined $self->{$MEM_MOTHER}) {
+            return $self->{$MEM_MOTHER}->get_delimiter($index);
         }
         return;
     }
@@ -237,16 +261,20 @@ no warnings 'recursion';
     ### ---
     sub var {
         
-        if (defined $_[1]) {
-            if (defined $_[0]->{$MEM_VAR}->{$_[1]}) {
-                return $_[0]->{$MEM_VAR}->{$_[1]};
+        my ($self, $name) = @_;
+        if (defined $name) {
+            if (defined $self->{$MEM_VAR}->{$name}) {
+                return $self->{$MEM_VAR}->{$name};
             }
-            if (defined $_[0]->{$MEM_MOTHER}) {
-                return $_[0]->{$MEM_MOTHER}->var($_[1]);
+            if (defined $self->{$MEM_MOTHER}) {
+                return $self->{$MEM_MOTHER}->var($name);
+            }
+            if (! exists $self->{$MEM_VAR}->{$name}) {
+                return $self->get_param($MEM_VAR_NONEXIST)->($self, '$'. $name, 'variable');
             }
             return;
         }
-        return $_[0]->{$MEM_VAR};
+        return $self->{$MEM_VAR};
     }
     
     ### ---
@@ -266,13 +294,18 @@ no warnings 'recursion';
     ### ---
     sub func {
         
-        if (defined $_[1]) {
-            if (defined $_[0]->{$MEM_FUNC}->{$_[1]}) {
-                return $_[0]->{$MEM_FUNC}->{$_[1]};
+        my ($self, $name) = @_;
+        if (defined $name) {
+            if (defined $self->{$MEM_FUNC}->{$name}) {
+                return $self->{$MEM_FUNC}->{$name};
             }
-            if (defined $_[0]->{$MEM_MOTHER}) {
-                return $_[0]->{$MEM_MOTHER}->func($_[1]);
+            if (defined $self->{$MEM_MOTHER}) {
+                return $self->{$MEM_MOTHER}->func($name);
             }
+            if (! exists $self->{$MEM_FUNC}->{$name}) {
+                return $self->get_param($MEM_FUNC_NONEXIST)->($self, '&'. $name, 'function');
+            }
+            return;
         }
         return;
     }
@@ -283,24 +316,30 @@ no warnings 'recursion';
     sub parse_file {
         
         my ($self, $file) = @_;
-        local $Text::PSTemplate::current_filename =
-                                            $Text::PSTemplate::current_filename;
+        local $Text::PSTemplate::current_file = $Text::PSTemplate::current_file;
         my $str;
         if (ref $_[1] eq 'Text::PSTemplate::File') {
-            $Text::PSTemplate::current_filename = $_[1]->name;
+            $Text::PSTemplate::current_file = $_[1];
             $str = $_[1]->content;
         } else {
             my $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
             if (ref $translate_ref eq 'CODE') {
                 $file = $translate_ref->($file);
             }
-            my $file = $self->get_file($file, 1, undef);
-            $Text::PSTemplate::current_filename = $file->name;
+            my $file = $self->get_file($file, undef);
+            $Text::PSTemplate::current_file = $file;
             $str = $file->content;
         }
         local $Text::PSTemplate::current_file_parser =
                                         $Text::PSTemplate::get_current_parser;
-        return $self->parse($str);
+
+        my $res = try {
+            $self->_parse_backend($str);
+        } catch {
+            my $exception = $_;
+            _croak $exception;
+        };
+        return $res;
     }
     
     ### ---
@@ -312,31 +351,96 @@ no warnings 'recursion';
         if (ref $_[1] eq 'Text::PSTemplate::File') {
             local $Text::PSTemplate::current_file_parser =
                                         $Text::PSTemplate::get_current_parser;
-            $Text::PSTemplate::current_filename = $_[1]->name;
+            $Text::PSTemplate::current_file = $_[1];
             $str = $_[1]->content;
         }
-        return $self->parse($str);
+        my $res = try {
+            $self->_parse_backend($str);
+        } catch {
+            my $exception = $_;
+            _croak $exception;
+        };
+        return $res;
     }
     
+    sub get_block {
+        
+        my ($index, $args) = @_;
+        if (ref $Text::PSTemplate::block && defined $index) {
+            return $Text::PSTemplate::block->get_block($index, $args);
+        } else {
+            return $Text::PSTemplate::block;
+        }
+    }
+
+    ### ---
+    ### Get block and parse
+    ### ---
+    sub parse_block {
+        
+        my ($self, $index, $option) = @_;
+        my $str = Text::PSTemplate::get_block($index, $option);
+        if ($str) {
+            my $res = try {
+                $self->_parse_backend($str);
+            } catch {
+                my $exception = $_;
+                my $pos = $exception->position - 1;
+                my $chomp = $Text::PSTemplate::block->get_left_chomp($index);
+                $pos += ($option->{chop_left}) ? length($chomp) : 0;
+                for (my $i = 0; $i < $index; $i++) {
+                    my $block = Text::PSTemplate::get_block($i);
+                    $pos += length($block);
+                }
+                die Text::PSTemplate::Exception->new($exception->message, $pos);
+                _croak(Text::PSTemplate::Exception->new($exception->message, $pos));
+            };
+            return $res;
+        }
+        return '';
+    }
+    
+    ### ---
+    ### Parse str
+    ### ---
     sub parse {
+        
+        my ($self, @args) = @_;
+        my $res = try {
+            $self->_parse_backend(@args);
+        } catch {
+            my $exception = $_;
+            _croak $exception;
+        };
+        return $res;
+    }
+    
+    ### ---
+    ### Parse str
+    ### ---
+    sub _parse_backend {
         
         my ($self, $str) = @_;
         my $str_org = $str;
+        
         if (! defined $str) {
-            _croak 'No template string found';
+            die 'No template string found';
         }
         my $out = '';
-        my $line_number = 0;
+        my $eval_pos = 0;
         while ($str) {
             my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
             my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
-            my ($left, $escape, $space_l, $prefix, $tag, $space_r, $right) =
-            split(m{(\\*)$delim_l(\s*)([\&\$]*)(.+?)(\s*)$delim_r}s, $str, 2);
+            my ($left, $all, $escape, $space_l, $prefix, $tag, $space_r, $right) =
+            split(m{((\\*)$delim_l(\s*)([\&\$]*)(.+?)(\s*)$delim_r)}s, $str, 2);
             
             if (! defined $tag) {
                 return $out. $str;
             }
-            
+            $eval_pos += length($left);
+            warn $eval_pos;
+            $eval_pos += length($all);
+            warn $eval_pos;
             $out .= $left;
             
             my $len = length($escape);
@@ -349,54 +453,46 @@ no warnings 'recursion';
                 local $Text::PSTemplate::chop;
                 
                 if ($tag =~ s{<<([a-zA-Z0-9_,]+)}{}) {
-                    for my $a (split(',', $1)) {
-                        if ($right =~ s{(.*?)$delim_l\s*$a\s*$delim_r}{}s) {
-                            push(@{$Text::PSTemplate::block}, $1);
-                        }
-                    }
+                    $Text::PSTemplate::block = 
+                    Text::PSTemplate::Block->new($1, \$right, $delim_l, $delim_r);
                 }
                 
                 my $interp = ($prefix || '&'). $tag;
-                eval {
-                    $interp =~ s{(\\*)([\$\&])([\w:]+)}{
-                        $self->_interpolate_partial($1, $2, $3)
-                    }ge;
+                $interp =~ s{(\\*)([\$\&])([\w:]+)}{
+                    $self->_interpolate_partial($1, $2, $3)
+                }ge;
+                
+                my $result = try {
+                    Text::PSTemplate::_EvalStage::_do($self, $interp);
+                } catch {
+                    my $exception = $_;
+                    my $org = $space_l. $prefix. $tag. $space_r;
+                    my $err = $exception->message;
+                    my $position = $exception->position || 0;
+                    my $ret = try {
+                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                    } catch {
+                        my $exception = $_;
+                        $position += $eval_pos;
+                        if (ref $exception eq 'Text::PSTemplate::Exception') {
+                            die Text::PSTemplate::Exception->new($exception->message, $position);
+                        }
+                        die Text::PSTemplate::Exception->new($exception, $position);
+                    };
+                    return $ret;
                 };
                 
-                if ($@) {
-                    my $org = $space_l. $prefix. $tag. $space_r;
-                    my $err = $@;
-                    my $ret = eval {
-                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
-                    };
-                    if ($@) {
-                        local $Text::PSTemplate::Error_at = _line_number($str_org, $right);
-                        _croak $@;
-                    }
-                    $out .= $ret;
-                } else {
-                    my $result = Text::PSTemplate::_EvalStage::_do($self, $interp);
-                    
-                    if ($Text::PSTemplate::chop) {
-                        $right =~ s{^(?:\r\n|\r|\n)}{};
-                    }
-                    
-                    if ($@ || ! defined $result) {
-                        my $org = $space_l. $prefix. $tag. $space_r;
-                        my $err = $@ || "Parse resulted undefined.";
-                        my $ret = eval {
-                            $self->get_param($MEM_NONEXIST)->($self, $org, $err);
-                        };
-                        if ($@) {
-                            local $Text::PSTemplate::Error_at = _line_number($str_org, $right);
-                            _croak $@;
-                        }
-                        $out .= $ret;
-                    } else {
-                        $out .= $result;
-                    }
+                if ($Text::PSTemplate::chop) {
+                    $right =~ s{^(\r\n|\r|\n)}{};
+                    $eval_pos += length($1);
+                }
+                
+                $out .= $result;
+                if ($Text::PSTemplate::block) {
+                    $eval_pos += $Text::PSTemplate::block->get_followers_offset;
                 }
             }
+            #$eval_pos += length($all);
             $str = $right;
         }
         return $out;
@@ -404,10 +500,9 @@ no warnings 'recursion';
     
     sub _line_number {
         
-        my ($all, $remain) = @_;
-        my $pos = length($all) - length($remain);
-        for my $b (@{$Text::PSTemplate::block}) {
-            $pos -= length($b);
+        my ($all, $pos) = @_;
+        if (! defined $pos) {
+            $pos = length($all);
         }
         my $errstr = substr($all, 0, $pos);
         my $line_num = (() = $errstr =~ /\r\n|\r|\n/g);
@@ -429,23 +524,9 @@ no warnings 'recursion';
         }
         if (! $escaped) {
             if ($prefix eq '$') {
-                if (defined $self->var($ident)) {
-                    $out .= qq{\$self->var('$ident')};
-                } else {
-                    $out .= "'\Q".
-                    $self->get_param(
-                            $MEM_VAR_NONEXIST)->($self, '$'.$ident, 'variable').
-                    "\E'";
-                }
+                $out .= qq{\$self->var('$ident')};
             } elsif ($prefix eq '&') {
-                if ($self->func($ident)) {
-                    $out .= qq!\$self->func('$ident')->!;
-                } else {
-                    $out .= "'\Q".
-                    $self->get_param(
-                        $MEM_FUNC_NONEXIST)->($self, '&'.$ident, 'function').
-                    "\E'";
-                }
+                $out .= qq!\$self->func('$ident')->!;
             } else {
                 $out .= $prefix . $ident;
             }
@@ -468,14 +549,13 @@ no warnings 'recursion';
         if (ref $translate_ref eq 'CODE') {
             $name = $translate_ref->($name);
         }
-        
         my $encode = $self->get_param($MEM_ENCODING);
-        my $file = eval {
+        my $file = try {
             Text::PSTemplate::File->new($name, $encode);
+        } catch {
+            my $exception = $_;
+            _croak $exception;
         };
-        if ($@) {
-            _croak $@;
-        }
         return $file;
     }
     
@@ -500,17 +580,54 @@ no warnings 'recursion';
         }
         return 0;
     }
-
+    
 package Text::PSTemplate::_EvalStage;
 use strict;
 use warnings;
-use Carp;
-
+use Carp qw(shortmess);
+    
+    sub line_number_to_pos {
+        
+        my ($str, $num) = @_;
+        my $found = 0;
+        my $pos;
+        for ($pos = 0; $found < $num - 1 && $pos < length($str); $pos++) {
+            if (substr($str, $pos, 2) =~ /\r\n/) {
+                $found++;
+                $pos++;
+                next;
+            }
+            if (substr($str, $pos, 1) =~ /\r|\n/) {
+                $found++;
+                next;
+            }
+        }
+        return $pos;
+    }
+    
     {
         my $self;
         sub _do {
             $self = $_[0];
-            return eval $_[1]; ## no critic
+            my $str = $_[1];
+            my $res = eval $str; ## no critic
+            if ($@) {
+                if (ref $@ eq 'Text::PSTemplate::Exception') {
+                    die $@;
+                }
+                my $position;
+                if (my $line_number = ($@ =~ qr{line (\d+)})[0]) {
+                    $position = line_number_to_pos($str, $line_number);
+                } else {
+                    $position = ($@ =~ qr{position (\d+)})[0];
+                }
+                my $err_split = (split(/ at /, $@))[0];
+                die Text::PSTemplate::Exception->new($err_split, $position);
+            }
+            if (! defined $res) {
+                die Text::PSTemplate::Exception->new('Tag resulted undefined', 0);
+            }
+            return $res;
         }
         sub AUTOLOAD {
             our $AUTOLOAD;
@@ -521,96 +638,6 @@ use Carp;
             die "Undefined subroutine $name called\n";
         }
     }
-
-package Text::PSTemplate::File;
-use strict;
-use warnings;
-use Fcntl qw(:flock);
-
-    my $MEM_FILENAME    = 1;
-    my $MEM_CONTENT     = 2;
-    
-    sub new {
-        
-        my ($class, $name, $encode) = @_;
-        my $fh;
-        
-        if (! $name) {
-            die "file name is empty\n";
-        }
-        
-        if ($encode) {
-            open($fh, "<:encoding($encode)", $name) || die "$name cannot open\n";
-        } else {
-            open($fh, "<:utf8", $name) || die "$name cannot open\n";
-        }
-        if ($fh and flock($fh, LOCK_EX)) {
-            my $out = do { local $/; <$fh> };
-            close($fh);
-            return bless {
-                $MEM_FILENAME => $name,
-                $MEM_CONTENT => $out,
-            }, $class;
-        } else {
-            die "Template '$name' cannot open\n";
-        }
-    }
-    
-    sub name {
-        return $_[0]->{$MEM_FILENAME};
-    }
-    
-    sub content {
-        return $_[0]->{$MEM_CONTENT};
-    }
-
-package Text::PSTemplate::Exception;
-use strict;
-use warnings;
-use Carp;
-    
-    ### ---
-    ### return null string
-    ### ---
-    our $PARTIAL_NONEXIST_NULL = sub {
-        return '';
-    };
-    
-    our $PARTIAL_NONEXIST_DIE = sub {
-        my ($self, $var, $type) = (@_);
-        my $err = "$type $var not defined";
-        die "$err within eval($var)\n";
-    };
-    
-    ### ---
-    ### return null string
-    ### ---
-    our $TAG_ERROR_NULL = sub {
-        return '';
-    };
-    
-    ### ---
-    ### returns template tag itself
-    ### ---
-    our $TAG_ERROR_NO_ACTION = sub {
-        my ($self, $line, $err) = (@_);
-        my $delim_l = Text::PSTemplate::get_current_parser->get_delimiter(0);
-        my $delim_r = Text::PSTemplate::get_current_parser->get_delimiter(1);
-        return $delim_l. $line. $delim_r;
-    };
-    
-    ### ---
-    ### returns nothing and just die;
-    ### ---
-    our $TAG_ERROR_DIE = sub {
-        my ($self, $line, $err) = (@_);
-        if($err) {
-            $err .= " within eval($line)\n";
-        } else {
-            $err = "Unknown error occured in eval($line)\n";
-        }
-        die $err;
-    };
 
 1;
 
@@ -639,6 +666,7 @@ Text::PSTemplate - Multi purpose template engine
     $str = $template->parse_str($file_obj);
     $str = $template->parse_file($filename);
     $str = $template->parse_file($file_obj);
+    $str = $template->parse_block($index);
     
     $filename       = Text::PSTemplate::get_current_filename();
     $mother_obj     = Text::PSTemplate::get_current_parser();
@@ -846,6 +874,10 @@ instance.
     $tpl->parse_file($file_path)
     $tpl->parse_file($obj)
 
+=head2 $instance->parse_block($index, $args)
+
+    $tpl->parse_block(0, {chop_left => 1})
+
 =head2 $instance->get_file($name, $trans_ref)
 
 This returns a Text::PSTemplate::File instance of given file name which contains
@@ -880,56 +912,9 @@ This example allows common extension to be ommited.
 
 This also let you set a default template in case the template not found.
 
-=head1 TEXT::PSTemplate::File CLASS
+=head2 Text::PSTemplate::dump($object)
 
-This class represents template files. With this class, you can take file
-contents with the original file path. This class instance can be thrown at
-parse_file method and parse_str method. This is useful if you have to iterate
-template parse for same file.
-
-=head2 TEXT::PSTemplate::File->new($filename)
-
-Constractor. The filename must be given in string.
-
-=head2 $instance->name
-
-Returns file name may be with path name.
-
-=head2 $instance->content
-
-Returns file content.
-
-=head1 TEXT::PSTemplate::Exception CLASS
-
-This class provides some common error callback subroutines. They can be thrown
-at exception setters.
-
-    Text::PSTemplate::set_exception($code_ref)
-    Text::PSTemplate::set_var_exception($code_ref)
-    Text::PSTemplate::set_func_exception($code_ref)
-
-=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_NULL;
-
-This callback returns null string.
-
-=head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
-
-This callback dies with message. This is the default option for both function
-parse errors and variable parse errors.
-
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_DIE;
-
-This callback dies with message. This is the default option for tag parse.
-
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NULL;
-
-This callback returns null string. The template will be parsed as if the tag wasn't
-there. This is good if you don't want wrong tags visible to public.
-
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NO_ACTION;
-
-This callback returns tag description itself. The template will be parsed as if
-the tag was escaped.
+Debug
 
 =head1 AUTHOR
 

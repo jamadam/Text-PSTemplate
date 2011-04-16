@@ -1,0 +1,9 @@
+    <% if(0)<<THEN,ELSE %>
+    <% THEN %>
+        <% if(0)<<THEN1,ELSE1 %>
+            aaa
+        <% THEN1 %>
+        
+            <% undef()%>
+        <% ELSE1 %>
+    <% ELSE %>

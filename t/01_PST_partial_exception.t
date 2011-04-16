@@ -14,7 +14,7 @@ use Data::Dumper;
 		eval {
 			$tpl->parse('<% a() %>');
 		};
-		like($@, qr/not defined/);
+		like($@, qr/undefined/);
 		
 		$tpl->set_func(a => sub {
 			my $tpl2 = Text::PSTemplate->new;
@@ -23,7 +23,7 @@ use Data::Dumper;
 		eval {
 			$tpl->parse('<% a() %>');
 		};
-		like($@, qr/not defined/);
+		like($@, qr/undefined/);
 	}
 
 package PST2;

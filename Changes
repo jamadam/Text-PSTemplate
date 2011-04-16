@@ -44,3 +44,6 @@ Revision history for Text-PSTemplate
 
 0.26 2011/03/11
   - Fix: Sometimes child parse hasn't inherit mother
+
+0.27 2011/03/11
+  - ADDED: Now template parser dies with template file names and line numbers.

@@ -1,0 +1,13 @@
+    <% if(1)<<THEN2 %>
+    <% THEN2 %>
+    <% if(1)<<THEN2 %>
+    <% THEN2 %>
+    <% if(1)<<THEN2 %>
+    <% THEN2 %>
+    <% if(1)<<THEN2 %>
+    <% THEN2 %>
+    <% if(1)<<THEN2 %>
+    <% THEN2 %>
+    <% if(1)<<THEN2 %>
+    <% undef()%>
+    <% THEN2 %>

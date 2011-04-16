@@ -12,5 +12,5 @@ use Text::PSTemplate::Plugable;
 		eval {
 			$tpl->parse_file('t/template/03_PST_Plugable_partial_exception1.t');
 		};
-		like($@, qr/not defined/);
+		like($@, qr/undefined/);
     }

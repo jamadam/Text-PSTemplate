@@ -60,7 +60,7 @@ use Data::Dumper;
         my $parsed = eval {
             $tpl->parse(q!<% $title %>!)
         };
-        like($@, qr/variable \$title not defined/);
+        like($@, qr/variable \$title undefined/);
     }
     
     sub var_not_found2 : Test {

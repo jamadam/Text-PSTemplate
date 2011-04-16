@@ -21,6 +21,14 @@ use Text::PSTemplate;
         return;
     }
     
+	sub length : TplExport {
+		
+        my ($self, $obj) = @_;
+		if (ref $obj eq 'ARRAY') {
+			return scalar @$obj;
+		}
+	}
+    
     ### ---
     ### Substr
     ### ---
@@ -32,7 +40,7 @@ use Text::PSTemplate;
         
         my $output = substr($target, $start, $length);
         
-        if ($alter && length($target) != length($output)) {
+        if ($alter && CORE::length($target) != CORE::length($output)) {
             $output .= $alter;
         }
         return $output;
@@ -49,16 +57,20 @@ use Text::PSTemplate;
         my %args = (
             name => 'default',
             print => 1,
+			assign => undef,
             @_);
         
         my $name = ($Text::PSTemplate::get_current_filename||''). $args{name};
         
         $_counters->{$name} ||= _make_counter(%args);
         
-        if ($args{start}||$args{skip}||$args{direction}) {
+        if (exists $args{start}||$args{skip}||$args{direction}) {
             $_counters->{$name}->{init}->(%args);
         } else {
             $_counters->{$name}->{count}->();
+        }
+        if ($args{assign}) {
+	        Text::PSTemplate->get_current_file_parser->set_var($args{assign} => $_counters->{$name}->{show}->());
         }
         if ($args{print}) {
             return $_counters->{$name}->{show}->();
@@ -136,7 +148,12 @@ use Text::PSTemplate;
     sub split : TplExport {
         
         my $self = shift;
-        my @array = CORE::split(@_);
+		my @array;
+		if ($_[2]) {
+			@array = CORE::split($_[0],$_[1],$_[2]);
+		} else {
+			@array = CORE::split($_[0],$_[1]);
+		}
         return \@array;
     }
 	
@@ -145,8 +162,8 @@ use Text::PSTemplate;
     ### ---
 	sub int : TplExport {
 		
-		my $self = shift;
-		return CORE::int(@_);
+		my ($self, $num) = @_;
+		return CORE::int($num);
 	}
     
     ### ---
@@ -240,6 +257,8 @@ Output
 =head2 line_count
 
 =head2 delete_space
+
+=head2 length
 
 =head2 int
 
