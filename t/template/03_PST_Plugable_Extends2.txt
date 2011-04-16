@@ -1,9 +1,0 @@
-<% extends('t/template/03_PST_Plugable_Extends1.txt')<<EXTENDS %>
-    <% block('title')<<BLOCK %>My amazing blog<% BLOCK %>
-    <% block('content')<<BLOCK %>
-        <% each($blog_entries, 'entry')<<ENTRIES %>
-            <h2><% $entry->{title} %></h2>
-            <p><% extract($entry,'body') %></p>
-        <% ENTRIES %>
-    <% BLOCK %>
-<% EXTENDS %>
