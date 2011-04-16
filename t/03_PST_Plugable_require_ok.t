@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use base 'Test::Class';
 use Test::More;
+use lib 't/lib';
 eval {
 	require 'lib/Text/PSTemplate/Plugable.pm';
 };
