@@ -35,6 +35,7 @@ t/01_PST/error_message.t
 t/01_PST/error_message_include_at.t
 t/01_PST/error_message_include_at2.t
 t/01_PST/error_message_include_at3.t
+t/01_PST/error_message_include_at4.t
 t/01_PST/escaping.t
 t/01_PST/escaping2.t
 t/01_PST/eval_scope.t
@@ -56,9 +57,13 @@ t/01_PST/template/error_message_include_at2_2.txt
 t/01_PST/template/error_message_include_at2_3.txt
 t/01_PST/template/error_message_include_at2_4.txt
 t/01_PST/template/error_message_include_at3_1.txt
+t/01_PST/template/error_message_include_at3_3.txt
+t/01_PST/template/error_message_include_at3_4.txt
+t/01_PST/template/error_message_include_at4_1.txt
 t/01_PST/template/filename_trans.txt
 t/01_PST/template/get_file_context_mother.txt
 t/01_PST/template/get_file_context_mother2.txt
+t/01_PST_Block/basic.t
 t/02_PST_Plugable/basic.t
 t/02_PST_Plugable/basic2.t
 t/02_PST_Plugable/basic3.t

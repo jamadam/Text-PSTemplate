@@ -60,8 +60,9 @@ no warnings 'recursion';
                 die "$out\n";
             }
             if ($position) {
+                my $file_name = $file->name;
                 $out = (split(/ at /, $out))[0];
-                $out .= " at $file position $position";
+                $out .= " at $file_name position $position";
             }
             die "$out\n";
         }
@@ -613,7 +614,8 @@ use Carp qw(shortmess);
                 }
                 my $position;
                 if (my $line_number = ($@ =~ qr{line (\d+)})[0]) {
-                    $position = line_number_to_pos($str, $line_number); ### suspect!!!
+                    $position = 0;
+                    #$position = line_number_to_pos($str, $line_number); ### suspect!!!
                 } else {
                     $position = ($@ =~ qr{position (\d+)})[0];
                 }
