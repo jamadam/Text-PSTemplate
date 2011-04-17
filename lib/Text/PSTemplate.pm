@@ -32,50 +32,6 @@ no warnings 'recursion';
 		return $dump;
 	}
     
-	### ---
-	### wrapper for die
-	### ---
-    sub _croak {
-        
-        my ($err) = @_;
-        my $out;
-        my $position;
-        if (ref $err eq 'Text::PSTemplate::Exception') {
-            $out = $err->message;
-            $position = $err->position;
-        } else {
-            $out = $err;
-        }
-        $out ||= 'Unknown Error';
-        $out =~ s{(\s)+}{ }g;
-        if (my $file = $Text::PSTemplate::current_file) {
-            if ((caller(4))[3] !~ /Text::PSTemplate/) {
-                if ($position) {
-                    my $file_name = $file->name;
-                    my $file_content = $file->content;
-                    my $line_number = _line_number($file_content, $position);
-                    $out = (split(/ at /, $out))[0];
-                    $out .= " at $file_name line $line_number";
-                }
-                die "$out\n";
-            }
-            if ($position) {
-                my $file_name = $file->name;
-                $out = (split(/ at /, $out))[0];
-                $out .= " at $file_name position $position";
-            }
-            die "$out\n";
-        }
-        my $i = 1;
-        while (my @a = caller($i++)) {
-            if ($a[0] =~ __PACKAGE__ || $a[0] =~ /Try::Tiny/) {
-                next;
-            }
-            die "$out at $a[1] line $a[2]\n";
-        }
-        die "$out\n";
-    }
-    
     ### ---
     ### constractor
     ### ---
@@ -109,7 +65,7 @@ no warnings 'recursion';
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
-            _croak 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
+            die 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
         }
         return $self;
     }
@@ -338,7 +294,8 @@ no warnings 'recursion';
             $self->_parse_backend($str);
         } catch {
             my $exception = $_;
-            _croak $exception;
+            $exception->{file} = $Text::PSTemplate::current_file;
+            $exception->die;
         };
         return $res;
     }
@@ -359,7 +316,7 @@ no warnings 'recursion';
             $self->_parse_backend($str);
         } catch {
             my $exception = $_;
-            _croak $exception;
+            $exception->die;
         };
         return $res;
     }
@@ -394,7 +351,6 @@ no warnings 'recursion';
                     $pos += length($block);
                 }
                 die Text::PSTemplate::Exception->new($exception->message, $pos);
-                _croak(Text::PSTemplate::Exception->new($exception->message, $pos));
             };
             return $res;
         }
@@ -411,7 +367,7 @@ no warnings 'recursion';
             $self->_parse_backend(@args);
         } catch {
             my $exception = $_;
-            _croak $exception;
+            $exception->die;
         };
         return $res;
     }
@@ -495,17 +451,6 @@ no warnings 'recursion';
         return $out;
     }
     
-    sub _line_number {
-        
-        my ($all, $pos) = @_;
-        if (! defined $pos) {
-            $pos = length($all);
-        }
-        my $errstr = substr($all, 0, $pos);
-        my $line_num = (() = $errstr =~ /\r\n|\r|\n/g);
-        return $line_num + 1;
-    }
-    
     sub _interpolate_partial {
         
         my ($self, $escape, $prefix, $ident)= @_;
@@ -538,7 +483,7 @@ no warnings 'recursion';
         
         my ($self, $name, $translate_ref) = (@_);
         if (! $name) {
-            _croak 'file name is empty';
+            die 'file name is empty';
         }
         if (scalar @_ == 2) {
             $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
@@ -551,7 +496,7 @@ no warnings 'recursion';
             Text::PSTemplate::File->new($name, $encode);
         } catch {
             my $exception = $_;
-            _croak $exception;
+            die $exception;
         };
         return $file;
     }
@@ -612,15 +557,8 @@ use Carp qw(shortmess);
                 if (ref $@ eq 'Text::PSTemplate::Exception') {
                     die $@;
                 }
-                my $position;
-                if (my $line_number = ($@ =~ qr{line (\d+)})[0]) {
-                    $position = 0;
-                    #$position = line_number_to_pos($str, $line_number); ### suspect!!!
-                } else {
-                    $position = ($@ =~ qr{position (\d+)})[0];
-                }
-                my $err_split = (split(/ at /, $@))[0];
-                die Text::PSTemplate::Exception->new($err_split, $position);
+                my $position = ($@ =~ qr{position (\d+)})[0] || 0;
+                die Text::PSTemplate::Exception->new($@, $position);
             }
             if (! defined $res) {
                 die Text::PSTemplate::Exception->new('Tag resulted undefined', 0);

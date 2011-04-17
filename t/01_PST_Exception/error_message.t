@@ -35,7 +35,7 @@ use Data::Dumper;
 		my $tpl = Text::PSTemplate->new;
         $tpl->set_func(a => sub{''});
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message.txt');
 		};
 		like($@, qr/function/i);
 		like($@, qr/undefined/i);
@@ -47,7 +47,7 @@ use Data::Dumper;
 		my $tpl = Text::PSTemplate->new;
         $tpl->set_func(a => sub{''});
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message2.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message2.txt');
 		};
 		like($@, qr/variable/i);
 		like($@, qr/undefined/i);

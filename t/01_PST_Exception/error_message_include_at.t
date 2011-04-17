@@ -12,18 +12,18 @@ use Data::Dumper;
 		
 		my $tpl = Text::PSTemplate->new;
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message_include_at1_1.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at1_1.txt');
 		};
-		like($@, qr{t/01_PST/template/error_message_include_at1_1.txt line 5});
+		like($@, qr{t/01_PST_Exception/template/error_message_include_at1_1.txt line 5});
 	}
     
 	sub error_include_line_number2: Test(1) {
 		
 		my $tpl = Text::PSTemplate->new;
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message_include_at1_2.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at1_2.txt');
 		};
-		like($@, qr{t/01_PST/template/error_message_include_at1_2.txt line 5});
+		like($@, qr{t/01_PST_Exception/template/error_message_include_at1_2.txt line 5});
 	}
     
 	sub error_include_line_number3: Test(1) {
@@ -33,9 +33,9 @@ use Data::Dumper;
 			$tpl->parse_block(0);
 		});
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message_include_at1_3.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at1_3.txt');
 		};
-		like($@, qr{t/01_PST/template/error_message_include_at1_3.txt line 7});
+		like($@, qr{t/01_PST_Exception/template/error_message_include_at1_3.txt line 7});
 	}
 
 __END__

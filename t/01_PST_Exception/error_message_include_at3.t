@@ -21,25 +21,25 @@ use Data::Dumper;
 		
 		my $tpl = Text::PSTemplate::Plugable->new;
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message_include_at3_1.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_1.txt');
 		};
-		like($@, qr{t/01_PST/template/error_message_include_at3_1.txt line 6});
+		like($@, qr{t/01_PST_Exception/template/error_message_include_at3_1.txt line 6});
 	}
 
 	sub tag_syntax_error_in_block : Test(1) {
 		
 		my $tpl = Text::PSTemplate::Plugable->new;
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message_include_at3_3.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_3.txt');
 		};
-		like($@, qr{t/01_PST/template/error_message_include_at3_3.txt line 2});
+		like($@, qr{t/01_PST_Exception/template/error_message_include_at3_3.txt line 2});
 	}
 
 	sub amp_ommited : Test(1) {
 		
 		my $tpl = Text::PSTemplate::Plugable->new;
 		eval {
-			$tpl->parse_file('t/01_PST/template/error_message_include_at3_4.txt');
+			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_4.txt');
 		};
-		like($@, qr{t/01_PST/template/error_message_include_at3_4.txt line 2});
+		like($@, qr{t/01_PST_Exception/template/error_message_include_at3_4.txt line 2});
 	}
