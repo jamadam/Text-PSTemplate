@@ -294,7 +294,7 @@ no warnings 'recursion';
             $self->_parse_backend($str);
         } catch {
             my $exception = $_;
-            $exception->{file} = $Text::PSTemplate::current_file;
+            $exception->file($Text::PSTemplate::current_file);
             $exception->die;
         };
         return $res;
@@ -312,13 +312,14 @@ no warnings 'recursion';
             $Text::PSTemplate::current_file = $_[1];
             $str = $_[1]->content;
         }
-        my $res = try {
-            $self->_parse_backend($str);
-        } catch {
-            my $exception = $_;
-            $exception->die;
-        };
-        return $res;
+        return $self->_parse_backend($str);
+        #my $res = try {
+        #    $self->_parse_backend($str);
+        #} catch {
+        #    my $exception = $_;
+        #    $exception->die;
+        #};
+        #return $res;
     }
     
     sub get_block {
@@ -363,13 +364,14 @@ no warnings 'recursion';
     sub parse {
         
         my ($self, @args) = @_;
-        my $res = try {
-            $self->_parse_backend(@args);
-        } catch {
-            my $exception = $_;
-            $exception->die;
-        };
-        return $res;
+        return $self->_parse_backend(@args);
+        #my $res = try {
+        #    $self->_parse_backend(@args);
+        #} catch {
+        #    my $exception = $_;
+        #    $exception->die;
+        #};
+        #return $res;
     }
     
     ### ---
@@ -429,9 +431,9 @@ no warnings 'recursion';
                         my $exception = $_;
                         $position += $eval_pos;
                         if (ref $exception eq 'Text::PSTemplate::Exception') {
-                            die Text::PSTemplate::Exception->new($exception->message, $position);
+                            Text::PSTemplate::Exception->new($exception->message, $position)->die;
                         }
-                        die Text::PSTemplate::Exception->new($exception, $position);
+                        Text::PSTemplate::Exception->new($exception, $position)->die;
                     };
                     return $ret;
                 };
