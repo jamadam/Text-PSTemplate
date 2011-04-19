@@ -121,6 +121,16 @@ use Text::PSTemplate;
     }
     
     ### ---
+    ### string replace
+    ### ---
+	sub replace : TplExport {
+		
+		my ($self, $str, $org, $rep) = @_;
+		$str =~ s{$org}{$rep}g;
+		return $str;
+	}
+    
+    ### ---
     ### replace spaces to line break
     ### ---
     sub space2linebreak : TplExport {
@@ -249,6 +259,8 @@ Output
 =head2 split
 
 =head2 substr
+
+=head2 replace
 
 =head2 space2linebreak
 
