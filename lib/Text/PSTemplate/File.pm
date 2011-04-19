@@ -2,6 +2,7 @@ package Text::PSTemplate::File;
 use strict;
 use warnings;
 use Fcntl qw(:flock);
+use Carp;
 
     my $MEM_FILENAME    = 1;
     my $MEM_CONTENT     = 2;
@@ -16,9 +17,9 @@ use Fcntl qw(:flock);
         }
         
         if ($encode) {
-            open($fh, "<:encoding($encode)", $name) || die "$name cannot open\n";
+            open($fh, "<:encoding($encode)", $name) || die "File '$name' cannot be opened\n";
         } else {
-            open($fh, "<:utf8", $name) || die "$name cannot open\n";
+            open($fh, "<:utf8", $name) || die "File '$name' cannot be opened\n";
         }
         if ($fh and flock($fh, LOCK_EX)) {
             my $out = do { local $/; <$fh> };
@@ -28,7 +29,7 @@ use Fcntl qw(:flock);
                 $MEM_CONTENT => $out,
             }, $class;
         } else {
-            die "Template '$name' cannot open\n";
+            die "File '$name' cannot be opened\n";
         }
     }
     

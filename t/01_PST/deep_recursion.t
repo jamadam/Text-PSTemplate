@@ -6,10 +6,11 @@ use Test::More;
 use Text::PSTemplate;
 use Scalar::Util qw(blessed);
 use Data::Dumper;
+use File::Basename;
     
     __PACKAGE__->runtests;
     
-    sub default_recuresion_limit : Test(2) {
+    sub default_recuresion_limit : Test(3) {
         
         my $tpl01 = Text::PSTemplate->new();
         my $tpl02 = eval {Text::PSTemplate->new($tpl01)};
@@ -25,9 +26,11 @@ use Data::Dumper;
         is($@, '');
         my $tpl12 = eval {Text::PSTemplate->new($tpl11)};
         like($@, qr/Deep Recursion/);
+        my $file = basename(__FILE__);
+        like($@, qr/$file line 27/);
     }
     
-    sub recuresion_limit_custom : Test(2) {
+    sub recuresion_limit_custom : Test(3) {
         
         my $tpl01 = Text::PSTemplate->new;
         $tpl01->set_recur_limit(2);
@@ -36,6 +39,8 @@ use Data::Dumper;
         is($@, '');
         my $tpl04 = eval {Text::PSTemplate->new($tpl03)};
         like($@, qr/Deep Recursion/);
+        my $file = basename(__FILE__);
+        like($@, qr/$file line 40/);
     }
 
 __END__

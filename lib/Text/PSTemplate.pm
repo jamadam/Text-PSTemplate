@@ -65,7 +65,8 @@ no warnings 'recursion';
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
-            die 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
+			my $err = 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
+			Text::PSTemplate::Exception->new($err)->die;
         }
         return $self;
     }
@@ -383,7 +384,7 @@ no warnings 'recursion';
         my $str_org = $str;
         
         if (! defined $str) {
-            die 'No template string found';
+			Text::PSTemplate::Exception->new('No template string found')->die;
         }
         my $out = '';
         my $eval_pos = 0;
@@ -484,9 +485,7 @@ no warnings 'recursion';
     sub get_file {
         
         my ($self, $name, $translate_ref) = (@_);
-        if (! $name) {
-            die 'file name is empty';
-        }
+		
         if (scalar @_ == 2) {
             $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
         }
@@ -497,8 +496,7 @@ no warnings 'recursion';
         my $file = try {
             Text::PSTemplate::File->new($name, $encode);
         } catch {
-            my $exception = $_;
-            die $exception;
+			Text::PSTemplate::Exception->new($_)->die;
         };
         return $file;
     }
