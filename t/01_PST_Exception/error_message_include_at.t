@@ -7,7 +7,8 @@ use Text::PSTemplate;
 use Data::Dumper;
     
     __PACKAGE__->runtests;
-    
+
+=test    
 	sub error_include_line_number: Test(1) {
 		
 		my $tpl = Text::PSTemplate->new;
@@ -25,7 +26,8 @@ use Data::Dumper;
 		};
 		like($@, qr{t/01_PST_Exception/template/error_message_include_at1_2.txt line 5});
 	}
-    
+=cut
+
 	sub error_include_line_number3: Test(1) {
 		
 		my $tpl = Text::PSTemplate->new;

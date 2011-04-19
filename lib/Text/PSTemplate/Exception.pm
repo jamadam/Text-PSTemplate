@@ -60,9 +60,10 @@ use Text::PSTemplate::File;
     sub die {
         
 		my ($self) = @_;
-		my $out = $self->message;
-		my $position = $self->position;
-		my $fileobj = $self->file;
+		warn join(',', caller(5));
+		my $out 		= $self->message;
+		my $position 	= $self->position;
+		my $fileobj 	= $self->file;
         $out ||= 'Unknown Error';
         $out =~ s{(\s)+}{ }g;
         if ($fileobj) {
@@ -88,15 +89,16 @@ use Text::PSTemplate::File;
                 $out .= " at $file_name position $position";
             }
             CORE::die "$out\n";
-        }
-        my $i = 1;
-        while (my @a = caller($i++)) {
-            if ($a[0] =~ /Text::PSTemplate/ || $a[0] =~ /Try::Tiny/) {
-                next;
-            }
-            CORE::die "$out at $a[1] line $a[2]\n";
-        }
-        CORE::die "$out\n";
+        } else {
+			my $i = 1;
+			while (my @a = caller($i++)) {
+				if ($a[0] =~ /Text::PSTemplate/ || $a[0] =~ /Try::Tiny/) {
+					next;
+				}
+				CORE::die "$out at $a[1] line $a[2]\n";
+			}
+			CORE::die "$out\n";
+		}
     }
     
     ### ---
