@@ -20,27 +20,33 @@ use Text::PSTemplate::File;
     }
 	
     sub set_message {
-        shift->{message} = shift;
+		my ($self, $value) = @_;
+        $self->{message} = $value;
     }
 	
     sub set_position {
-        shift->{position} = shift;
+		my ($self, $value) = @_;
+        $self->{position} = $value;
     }
 	
     sub set_file {
-        shift->{file} = shift;
+		my ($self, $value) = @_;
+        $self->{file} = $value;
     }
 	
     sub message {
-        return shift->{message};
+		my ($self) = @_;
+        return $self->{message};
     }
 	
     sub position {
-        return shift->{position};
+		my ($self) = @_;
+        return $self->{position};
     }
 	
     sub file {
-        return shift->{file};
+		my ($self) = @_;
+        return $self->{file};
     }
     
     sub _line_number {
@@ -60,35 +66,22 @@ use Text::PSTemplate::File;
     sub die {
         
 		my ($self) = @_;
-		warn join(',', caller(5));
-		my $out 		= $self->message;
-		my $position 	= $self->position;
-		my $fileobj 	= $self->file;
-        $out ||= 'Unknown Error';
+		my $out 		= $self->message || 'Unknown Error';
         $out =~ s{(\s)+}{ }g;
-        if ($fileobj) {
-            my $file_content = $fileobj->content;
-            my $filename = $fileobj->name;
-            my $line_number = _line_number($file_content, $position);
-            CORE::die "$out at $filename line $line_number\n";
-        }
-        if (my $file = $Text::PSTemplate::current_file) {
+		my $position 	= $self->position;
+		my $file = ($self->file || $Text::PSTemplate::current_file);
+        if ($file) {
+			my $file_name 		= $file->name;
+			my $file_content 	= $file->content;
             if ((caller(4))[3] !~ /Text::PSTemplate/) {
                 if ($position) {
-                    my $file_name = $file->name;
-                    my $file_content = $file->content;
                     my $line_number = _line_number($file_content, $position);
                     $out = (split(/ at /, $out))[0];
                     $out .= " at $file_name line $line_number";
                 }
                 CORE::die "$out\n";
             }
-            if ($position) {
-                my $file_name = $file->name;
-                $out = (split(/ at /, $out))[0];
-                $out .= " at $file_name position $position";
-            }
-            CORE::die "$out\n";
+			CORE::die $self;
         } else {
 			my $i = 1;
 			while (my @a = caller($i++)) {

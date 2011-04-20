@@ -294,9 +294,8 @@ no warnings 'recursion';
         my $res = try {
             $self->_parse_backend($str);
         } catch {
-            my $exception = $_;
-            $exception->file($Text::PSTemplate::current_file);
-            $exception->die;
+            $_->set_file($Text::PSTemplate::current_file);
+            $_->die;
         };
         return $res;
     }
@@ -313,14 +312,12 @@ no warnings 'recursion';
             $Text::PSTemplate::current_file = $_[1];
             $str = $_[1]->content;
         }
-        return $self->_parse_backend($str);
-        #my $res = try {
-        #    $self->_parse_backend($str);
-        #} catch {
-        #    my $exception = $_;
-        #    $exception->die;
-        #};
-        #return $res;
+        my $res = try {
+            $self->_parse_backend($str);
+        } catch {
+            $_->die;
+        };
+        return $res;
     }
     
     sub get_block {
@@ -349,8 +346,7 @@ no warnings 'recursion';
                 my $chomp = $Text::PSTemplate::block->get_left_chomp($index);
                 $pos += ($option->{chop_left}) ? length($chomp) : 0;
                 for (my $i = 0; $i < $index; $i++) {
-                    my $block = Text::PSTemplate::get_block($i);
-                    $pos += length($block);
+                    $pos += length(Text::PSTemplate::get_block($i));
                 }
                 die Text::PSTemplate::Exception->new($exception->message, $pos);
             };
@@ -365,14 +361,12 @@ no warnings 'recursion';
     sub parse {
         
         my ($self, @args) = @_;
-        return $self->_parse_backend(@args);
-        #my $res = try {
-        #    $self->_parse_backend(@args);
-        #} catch {
-        #    my $exception = $_;
-        #    $exception->die;
-        #};
-        #return $res;
+        my $res = try {
+            $self->_parse_backend(@args);
+        } catch {
+            $_->die;
+        };
+        return $res;
     }
     
     ### ---
@@ -384,7 +378,7 @@ no warnings 'recursion';
         my $str_org = $str;
         
         if (! defined $str) {
-			Text::PSTemplate::Exception->new('No template string found')->die;
+			die Text::PSTemplate::Exception->new('No template string found');
         }
         my $out = '';
         my $eval_pos = 0;
@@ -432,9 +426,9 @@ no warnings 'recursion';
                         my $exception = $_;
                         $position += $eval_pos;
                         if (ref $exception eq 'Text::PSTemplate::Exception') {
-                            Text::PSTemplate::Exception->new($exception->message, $position)->die;
+                            die Text::PSTemplate::Exception->new($exception->message, $position);
                         }
-                        Text::PSTemplate::Exception->new($exception, $position)->die;
+                        die Text::PSTemplate::Exception->new($exception, $position);
                     };
                     return $ret;
                 };

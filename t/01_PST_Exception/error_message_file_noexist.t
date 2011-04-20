@@ -8,7 +8,7 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
     
-	sub parse_file : Test(4) {
+	sub parse_file : Test(5) {
 		
 		my $tpl = Text::PSTemplate->new;
 		eval {
@@ -18,9 +18,10 @@ use Data::Dumper;
 		like($@, qr/open/i);
 		like($@, qr{does_not_exist});
 		like($@, qr{line 15});
+		is((() = $@ =~ / at /g), 1);
 	}
     
-	sub get_file : Test(4) {
+	sub get_file : Test(5) {
 		
 		my $tpl = Text::PSTemplate->new;
 		eval {
@@ -29,7 +30,8 @@ use Data::Dumper;
 		like($@, qr/file/i);
 		like($@, qr/open/i);
 		like($@, qr{does_not_exist});
-		like($@, qr{line 27});
+		like($@, qr{line 28});
+		is((() = $@ =~ / at /g), 1);
 	}
 
 __END__

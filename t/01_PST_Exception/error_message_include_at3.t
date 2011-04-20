@@ -17,29 +17,32 @@ use Data::Dumper;
 		is($pos3, 7);
 	}
 
-	sub error_include_line_number: Test(1) {
+	sub error_include_line_number: Test(2) {
 		
 		my $tpl = Text::PSTemplate::Plugable->new;
 		eval {
 			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_1.txt');
 		};
 		like($@, qr{t/01_PST_Exception/template/error_message_include_at3_1.txt line 6});
+		is((() = $@ =~ / at /g), 1);
 	}
 
-	sub tag_syntax_error_in_block : Test(1) {
+	sub tag_syntax_error_in_block : Test(2) {
 		
 		my $tpl = Text::PSTemplate::Plugable->new;
 		eval {
 			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_3.txt');
 		};
 		like($@, qr{t/01_PST_Exception/template/error_message_include_at3_3.txt line 2});
+		is((() = $@ =~ / at /g), 1);
 	}
 
-	sub amp_ommited : Test(1) {
+	sub amp_ommited : Test(2) {
 		
 		my $tpl = Text::PSTemplate::Plugable->new;
 		eval {
 			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_4.txt');
 		};
 		like($@, qr{t/01_PST_Exception/template/error_message_include_at3_4.txt line 2});
+		is((() = $@ =~ / at /g), 1);
 	}
