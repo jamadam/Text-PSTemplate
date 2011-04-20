@@ -73,6 +73,9 @@ use Text::PSTemplate::File;
         if ($file) {
 			my $file_name 		= $file->name;
 			my $file_content 	= $file->content;
+			warn '===1.5';
+			warn $file->name;
+			warn ((caller(4))[3]);
             if ((caller(4))[3] !~ /Text::PSTemplate/) {
                 if ($position) {
                     my $line_number = _line_number($file_content, $position);
@@ -83,6 +86,7 @@ use Text::PSTemplate::File;
             }
 			CORE::die $self;
         } else {
+			warn '===========================5';
 			my $i = 1;
 			while (my @a = caller($i++)) {
 				if ($a[0] =~ /Text::PSTemplate/ || $a[0] =~ /Try::Tiny/) {
@@ -128,6 +132,8 @@ use Text::PSTemplate::File;
     ### ---
     our $TAG_ERROR_DIE = sub {
         my ($self, $line, $err) = (@_);
+		warn '===1';
+		$self->die;
         $err ||= "Unknown error occured in eval($line)";
         $err =~ s{\r\n|\r|\n}{};
         CORE::die $err. "\n";

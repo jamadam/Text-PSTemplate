@@ -129,7 +129,7 @@ use Text::PSTemplate;
 		$str =~ s{$org}{$rep}g;
 		return $str;
 	}
-    
+	
     ### ---
     ### replace spaces to line break
     ### ---
@@ -179,7 +179,7 @@ use Text::PSTemplate;
     ### ---
     ### randomize array order
     ### ---
-    sub randomize {
+    sub randomize : TplExport {
         
         my ($self, $array) = @_;
         my @new = ();
@@ -190,6 +190,23 @@ use Text::PSTemplate;
         }
         return @new;
     }
+	
+    ### ---
+    ### random string of given length
+    ### ---
+	sub random_string : TplExport {
+		
+        my ($self, $length, $candidates) = @_;
+		$candidates ||= 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+		my @c = split(//, $candidates);
+		my $c_len = scalar @c;
+		my $out = '';
+		for (my $i = 0; $i < $length; $i++) {
+			my $j = CORE::int(CORE::rand($c_len));
+			$out .= @c[$j];
+		}
+		return $out;
+	}
 
 1;
 
@@ -273,6 +290,8 @@ Output
 =head2 length
 
 =head2 int
+
+=head2 random_string
 
 =head1 AUTHOR
 

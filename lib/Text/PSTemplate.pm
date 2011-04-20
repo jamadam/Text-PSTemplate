@@ -421,9 +421,12 @@ no warnings 'recursion';
                     my $err = $exception->message;
                     my $position = $exception->position || 0;
                     my $ret = try {
-                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                        $self->get_param($MEM_NONEXIST)->($exception, $org, $err);
+                        #$self->get_param($MEM_NONEXIST)->($self, $org, $err);
                     } catch {
                         my $exception = $_;
+						warn '===2';
+						warn Text::PSTemplate::dump($_);
                         $position += $eval_pos;
                         if (ref $exception eq 'Text::PSTemplate::Exception') {
                             die Text::PSTemplate::Exception->new($exception->message, $position);
