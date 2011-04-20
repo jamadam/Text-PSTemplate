@@ -203,7 +203,7 @@ use Text::PSTemplate;
 		my $out = '';
 		for (my $i = 0; $i < $length; $i++) {
 			my $j = CORE::int(CORE::rand($c_len));
-			$out .= @c[$j];
+			$out .= $c[$j];
 		}
 		return $out;
 	}
