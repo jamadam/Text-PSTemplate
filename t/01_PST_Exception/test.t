@@ -6,41 +6,18 @@ use Test::More;
 use Text::PSTemplate::Plugable;
 use Data::Dumper;
 
-my $a = MyScalar->new;
+my $a = MyException->new;
 print $a;
-#my $b = tied($a);
-#print $b;
-#print $scalar->hoge;
-print "\n";
+print $a->{hoge};
 
-package MyScalar;
+package MyException;
+use overload (
+	q{""} => sub {
+		my ($self) = @_;
+		return 'hoge at $self';
+	}
+);
 
 	sub new {
-		my $class = @_;
-		tie my $self, '_MyScalar';
-		$self = {a => 1, b => 2};
-		return bless {tied => $self}, $class;
-	}
-
-package _MyScalar;
-use strict;
-use warnings;
-
-	sub TIESCALAR {
-		my $pkg = shift;
-		return bless {}, $pkg;
-	}
-	sub FETCH($) {
-		my $this = shift;
-		return $this->{a}. $this->{b};
-	}
-	sub STORE($$) {
-		my ( $this, $value ) = @_;
-		%$this = %$value;
-	}
-	sub DESTROY {
-		my $this = shift;
-	}
-	sub hoge {
-		'hoge';
+		return bless {'hoge' => 'val'}, shift;
 	}

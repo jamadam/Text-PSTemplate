@@ -274,6 +274,10 @@ no warnings 'recursion';
     sub parse_file {
         
         my ($self, $file) = @_;
+        my $first_file_parse = 1;
+        if ($Text::PSTemplate::current_file) {
+            $first_file_parse = 0;
+        }
         local $Text::PSTemplate::current_file = $Text::PSTemplate::current_file;
         my $str;
         if (ref $_[1] eq 'Text::PSTemplate::File') {
@@ -295,7 +299,7 @@ no warnings 'recursion';
             $self->_parse_backend($str);
         } catch {
             $_->set_file($Text::PSTemplate::current_file);
-            $_->die;
+            die $_;
         };
         return $res;
     }
@@ -312,12 +316,7 @@ no warnings 'recursion';
             $Text::PSTemplate::current_file = $_[1];
             $str = $_[1]->content;
         }
-        my $res = try {
-            $self->_parse_backend($str);
-        } catch {
-            $_->die;
-        };
-        return $res;
+        return $self->_parse_backend($str);
     }
     
     sub get_block {
@@ -361,12 +360,7 @@ no warnings 'recursion';
     sub parse {
         
         my ($self, @args) = @_;
-        my $res = try {
-            $self->_parse_backend(@args);
-        } catch {
-            $_->die;
-        };
-        return $res;
+        return $self->_parse_backend(@args);
     }
     
     ### ---
@@ -425,8 +419,6 @@ no warnings 'recursion';
                         #$self->get_param($MEM_NONEXIST)->($self, $org, $err);
                     } catch {
                         my $exception = $_;
-						warn '===2';
-						warn Text::PSTemplate::dump($_);
                         $position += $eval_pos;
                         if (ref $exception eq 'Text::PSTemplate::Exception') {
                             die Text::PSTemplate::Exception->new($exception->message, $position);

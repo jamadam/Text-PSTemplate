@@ -1,7 +1,62 @@
 package Text::PSTemplate::Exception;
 use strict;
 use warnings;
+use Carp;
 use Text::PSTemplate::File;
+use overload (q{""} => \&stringify);
+
+	sub stringify {
+		
+		my ($self) = @_;
+		my $out = $self->message || 'Unknown Error';
+        $out =~ s{(\s)+}{ }g;
+		my $position = $self->position;
+		my $file = ($self->file || $Text::PSTemplate::current_file);
+		if ($file) {
+			my $file_name 		= $file->name;
+			my $file_content 	= $file->content;
+			if ($position) {
+				my $line_number = _line_number($file_content, $position);
+				$out = (split(/ at /, $out))[0];
+				$out .= " at $file_name line $line_number";
+			}
+		}
+		return $self->message;
+	}
+    
+	### ---
+	### wrapper for die
+	### ---
+    sub die {
+        
+		my ($self) = @_;
+		my $out 		= $self->message || 'Unknown Error';
+        $out =~ s{(\s)+}{ }g;
+		my $position 	= $self->position;
+		my $file = ($self->file || $Text::PSTemplate::current_file);
+        if ($file) {
+			my $file_name 		= $file->name;
+			my $file_content 	= $file->content;
+            if ((caller(4))[3] !~ /Text::PSTemplate/) {
+                if ($position) {
+                    my $line_number = _line_number($file_content, $position);
+                    $out = (split(/ at /, $out))[0];
+                    $out .= " at $file_name line $line_number";
+                }
+                CORE::die "$out\n";
+            }
+			CORE::die $self;
+        } else {
+			my $i = 1;
+			while (my @a = caller($i++)) {
+				if ($a[0] =~ /Text::PSTemplate/ || $a[0] =~ /Try::Tiny/) {
+					next;
+				}
+				CORE::die "$out at $a[1] line $a[2]\n";
+			}
+			CORE::die "$out\n";
+		}
+    }
 
     sub new {
 		
@@ -60,44 +115,6 @@ use Text::PSTemplate::File;
         return $line_num + 1;
     }
     
-	### ---
-	### wrapper for die
-	### ---
-    sub die {
-        
-		my ($self) = @_;
-		my $out 		= $self->message || 'Unknown Error';
-        $out =~ s{(\s)+}{ }g;
-		my $position 	= $self->position;
-		my $file = ($self->file || $Text::PSTemplate::current_file);
-        if ($file) {
-			my $file_name 		= $file->name;
-			my $file_content 	= $file->content;
-			warn '===1.5';
-			warn $file->name;
-			warn ((caller(4))[3]);
-            if ((caller(4))[3] !~ /Text::PSTemplate/) {
-                if ($position) {
-                    my $line_number = _line_number($file_content, $position);
-                    $out = (split(/ at /, $out))[0];
-                    $out .= " at $file_name line $line_number";
-                }
-                CORE::die "$out\n";
-            }
-			CORE::die $self;
-        } else {
-			warn '===========================5';
-			my $i = 1;
-			while (my @a = caller($i++)) {
-				if ($a[0] =~ /Text::PSTemplate/ || $a[0] =~ /Try::Tiny/) {
-					next;
-				}
-				CORE::die "$out at $a[1] line $a[2]\n";
-			}
-			CORE::die "$out\n";
-		}
-    }
-    
     ### ---
     ### return null string
     ### ---
@@ -132,7 +149,6 @@ use Text::PSTemplate::File;
     ### ---
     our $TAG_ERROR_DIE = sub {
         my ($self, $line, $err) = (@_);
-		warn '===1';
 		$self->die;
         $err ||= "Unknown error occured in eval($line)";
         $err =~ s{\r\n|\r|\n}{};
