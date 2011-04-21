@@ -14,7 +14,7 @@ use overload (
 		my $out = $self->message || 'Unknown Error';
         $out =~ s{(\s)+}{ }g;
 		my $position = $self->position;
-		my $line     = $self->{line};
+		my $line     = $self->{line_number};
 		if (my $file = $self->file) {
 			my $file_name;
 			my $file_content;
@@ -35,44 +35,14 @@ use overload (
 		}
 		return $out;
 	}
-    
-	### ---
-	### wrapper for die
-	### ---
-    sub die {
-        
-		my ($self) = @_;
-		my $out 		= $self->message || 'Unknown Error';
-        $out =~ s{(\s)+}{ }g;
-		my $position 	= $self->position;
-		my $file = ($self->file || $Text::PSTemplate::current_file);
-        if ($file) {
-			my $file_name 		= $file->name;
-			my $file_content 	= $file->content;
-            if ((caller(4))[3] !~ /Text::PSTemplate/) {
-                if ($position) {
-                    my $line_number = _line_number($file_content, $position);
-                    $out = (split(/ at /, $out))[0];
-                    $out .= " at $file_name line $line_number";
-                }
-                CORE::die "$out\n";
-            }
-			CORE::die $self;
-        } else {
-			my $i = 1;
-			while (my @a = caller($i++)) {
-				if ($a[0] =~ /Text::PSTemplate/ || $a[0] =~ /Try::Tiny/) {
-					next;
-				}
-				CORE::die "$out at $a[1] line $a[2]\n";
-			}
-			CORE::die "$out\n";
-		}
-    }
 
     sub new {
 		
         my ($class, $message, $position, $file) = @_;
+		
+		if (ref $_[1] eq __PACKAGE__) {
+			return $_[1];
+		}
 		
 		my $self = bless {
 			message     => $message,
@@ -83,16 +53,13 @@ use overload (
 		if (scalar @_ >= 3) {
 			$self->{message} = (split(/ at /, $self->{message}))[0];
 		}
-		#if (! $file && ! $Text::PSTemplate::current_file) {
-		#	my $i = 1;
-		#	while (my @a = caller($i++)) {
-		#		if ($a[0] !~ /Text::PSTemplate/ && $a[0] !~ /Try::Tiny/) {
-		#			$self->{filename} = $a[1];
-		#			$self->{line} = $a[2];
-		#			last;
-		#		}
-		#	}
-		#}
+		if (! $file && ! $Text::PSTemplate::current_file) {
+			my $at = Carp::shortmess_heavy();
+			if ($at =~ qr{at (.+?) line (\d+)}) {
+				$self->{filename} = $1;
+				$self->{line_number} = $2;
+			}
+		}
 		return $self;
     }
 	
@@ -145,7 +112,7 @@ use overload (
     };
     
     our $PARTIAL_NONEXIST_DIE = sub {
-        my ($self, $var, $type) = (@_);
+        my ($parser, $var, $type) = (@_);
         CORE::die "$type $var undefined\n";
     };
     
@@ -160,7 +127,7 @@ use overload (
     ### returns template tag itself
     ### ---
     our $TAG_ERROR_NO_ACTION = sub {
-        my ($self, $line, $err) = (@_);
+        my ($parser, $line, $err) = (@_);
         my $delim_l = Text::PSTemplate::get_current_parser()->get_delimiter(0);
         my $delim_r = Text::PSTemplate::get_current_parser()->get_delimiter(1);
         return $delim_l. $line. $delim_r;
@@ -170,8 +137,7 @@ use overload (
     ### returns nothing and just die;
     ### ---
     our $TAG_ERROR_DIE = sub {
-        my ($self, $line, $err) = (@_);
-		$self->die;
+        my ($parser, $line, $err) = (@_);
         $err ||= "Unknown error occured in eval($line)";
         $err =~ s{\r\n|\r|\n}{};
         CORE::die $err. "\n";

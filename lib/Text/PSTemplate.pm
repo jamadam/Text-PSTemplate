@@ -67,7 +67,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
 			my $err = 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
-			Text::PSTemplate::Exception->new($err)->die;
+			die Text::PSTemplate::Exception->new($err);
         }
         return $self;
     }
@@ -297,7 +297,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
                                         $Text::PSTemplate::get_current_parser;
 
         my $res = try {
-            $self->_parse_backend($str);
+            $self->parse($str);
         } catch {
             $_->set_file($Text::PSTemplate::current_file);
             die $_;
@@ -317,7 +317,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             $Text::PSTemplate::current_file = $_[1];
             $str = $_[1]->content;
         }
-        return $self->_parse_backend($str);
+        return $self->parse($str);
     }
     
     sub get_block {
@@ -339,16 +339,17 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my $str = Text::PSTemplate::get_block($index, $option);
         if ($str) {
             my $res = try {
-                $self->_parse_backend($str);
+                $self->parse($str);
             } catch {
-                my $exception = $_;
+                my $exception = Text::PSTemplate::Exception->new($_);
                 my $pos = $exception->position - 1;
                 my $chomp = $Text::PSTemplate::block->get_left_chomp($index);
                 $pos += ($option->{chop_left}) ? length($chomp) : 0;
                 for (my $i = 0; $i < $index; $i++) {
                     $pos += length(Text::PSTemplate::get_block($i));
                 }
-                die Text::PSTemplate::Exception->new($exception->message, $pos);
+                $exception->set_position($pos);
+                die $exception;
             };
             return $res;
         }
@@ -359,15 +360,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### Parse str
     ### ---
     sub parse {
-        
-        my ($self, @args) = @_;
-        return $self->_parse_backend(@args);
-    }
-    
-    ### ---
-    ### Parse str
-    ### ---
-    sub _parse_backend {
         
         my ($self, $str) = @_;
         my $str_org = $str;
@@ -416,15 +408,11 @@ $Carp::Internal{ (__PACKAGE__) }++;
                     my $err = $exception->message;
                     my $position = $exception->position || 0;
                     my $ret = try {
-                        $self->get_param($MEM_NONEXIST)->($exception, $org, $err);
-                        #$self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
                     } catch {
-                        my $exception = $_;
-                        $position += $eval_pos;
-                        if (ref $exception eq 'Text::PSTemplate::Exception') {
-                            die Text::PSTemplate::Exception->new($exception->message, $position);
-                        }
-                        die Text::PSTemplate::Exception->new($exception, $position);
+                        my $exception = Text::PSTemplate::Exception->new($_);
+                        $exception->set_position($position + $eval_pos);
+                        die $exception;
                     };
                     return $ret;
                 };
@@ -486,7 +474,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my $file = try {
             Text::PSTemplate::File->new($name, $encode);
         } catch {
-			croak $_;
 			die Text::PSTemplate::Exception->new($_);
         };
         return $file;
@@ -545,15 +532,7 @@ use Carp qw(shortmess);
             my $str = $_[1];
             my $res = eval $str; ## no critic
             if ($@) {
-                if (ref $@ eq 'Text::PSTemplate::Exception') {
-                    die $@;
-                }
-				if (! $Text::PSTemplate::current_file) {
-					my $at = Carp::shortmess_heavy;
-					#warn $at;
-				}
-                my $position = ($@ =~ qr{position (\d+)})[0] || 0;
-                die Text::PSTemplate::Exception->new($@, $position);
+                die Text::PSTemplate::Exception->new($@);
             }
             if (! defined $res) {
                 die Text::PSTemplate::Exception->new('Tag resulted undefined', 0);

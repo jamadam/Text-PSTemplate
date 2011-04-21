@@ -8,7 +8,7 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
 
-	sub overload_ok : Test(5) {
+	sub overload_ok : Test(6) {
 		
 		my $a = Text::PSTemplate::Exception->new('hoge');
 		my $res1 = eval {$a eq 'a'};
@@ -17,7 +17,8 @@ use Data::Dumper;
 		my $res2 = eval {$a ne 'a'};
 		is($@, '');
 		is($res2, 1);
-		is($a, 'hoge');
+		like($a, qr/hoge/);
+		like($a, qr/basic.t/);
 	}
 
 	sub overload_ok2 : Test(1) {

@@ -44,8 +44,11 @@ t/01_PST/template/basic_2.txt
 t/01_PST/template/filename_trans.txt
 t/01_PST/template/get_file_context_mother.txt
 t/01_PST/template/get_file_context_mother2.txt
+t/01_PST/test.t
 t/01_PST_Block/basic.t
+t/01_PST_Exception/basic.t
 t/01_PST_Exception/error_message.t
+t/01_PST_Exception/error_message_file_noexist.t
 t/01_PST_Exception/error_message_include_at.t
 t/01_PST_Exception/error_message_include_at2.t
 t/01_PST_Exception/error_message_include_at3.t
