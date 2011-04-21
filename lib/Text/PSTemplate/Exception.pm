@@ -3,7 +3,10 @@ use strict;
 use warnings;
 use Carp;
 use Text::PSTemplate::File;
-use overload (q{""} => \&stringify);
+use overload (
+	q{""} => \&stringify,
+	fallback => 1,
+);
 
 	sub stringify {
 		

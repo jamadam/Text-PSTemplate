@@ -548,6 +548,10 @@ use Carp qw(shortmess);
                 if (ref $@ eq 'Text::PSTemplate::Exception') {
                     die $@;
                 }
+				if (! $Text::PSTemplate::current_file) {
+					my $at = Carp::shortmess_heavy;
+					#warn $at;
+				}
                 my $position = ($@ =~ qr{position (\d+)})[0] || 0;
                 die Text::PSTemplate::Exception->new($@, $position);
             }

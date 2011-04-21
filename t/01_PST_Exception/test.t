@@ -3,21 +3,19 @@ use strict;
 use warnings;
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
-
-my $a = MyException->new;
-print $a;
-print $a->{hoge};
-
-package MyException;
-use overload (
-	q{""} => sub {
-		my ($self) = @_;
-		return 'hoge at $self';
+    
+    __PACKAGE__->runtests;
+    
+	sub runtime_error : Test(2) {
+		
+		my $tpl = Text::PSTemplate->new;
+        $tpl->set_func(a => sub{''});
+		eval {
+			$tpl->parse('<% a(1/0) %>');
+		};
+		like($@, qr/Illegal/i);
+		like($@, qr{error_message\.t});
 	}
-);
-
-	sub new {
-		return bless {'hoge' => 'val'}, shift;
-	}
+1;
