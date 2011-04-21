@@ -10,6 +10,7 @@ use 5.005;
 use Carp;
 use Try::Tiny;
 no warnings 'recursion';
+$Carp::Internal{ (__PACKAGE__) }++;
 
     my $MEM_MOTHER                  = 1;
     my $MEM_DELIMITER_LEFT          = 2;
@@ -485,7 +486,8 @@ no warnings 'recursion';
         my $file = try {
             Text::PSTemplate::File->new($name, $encode);
         } catch {
-			Text::PSTemplate::Exception->new($_)->die;
+			croak $_;
+			die Text::PSTemplate::Exception->new($_);
         };
         return $file;
     }

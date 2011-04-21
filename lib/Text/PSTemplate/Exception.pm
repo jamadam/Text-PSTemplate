@@ -11,17 +11,26 @@ use overload (q{""} => \&stringify);
 		my $out = $self->message || 'Unknown Error';
         $out =~ s{(\s)+}{ }g;
 		my $position = $self->position;
-		my $file = ($self->file || $Text::PSTemplate::current_file);
-		if ($file) {
-			my $file_name 		= $file->name;
-			my $file_content 	= $file->content;
-			if ($position) {
-				my $line_number = _line_number($file_content, $position);
-				$out = (split(/ at /, $out))[0];
-				$out .= " at $file_name line $line_number";
+		my $line     = $self->{line};
+		if (my $file = $self->file) {
+			my $file_name;
+			my $file_content;
+			if (ref $file eq 'Text::PSTemplate::File') {
+				my $file_name 		= $file->name;
+				my $file_content 	= $file->content;
+				if ($position) {
+					my $line_number = _line_number($file_content, $position);
+					$out = (split(/ at /, $out))[0];
+					$out .= " at $file_name line $line_number";
+				}
+			}
+		} elsif ($self->{filename}) {
+			$out .= " at ". $self->{filename};
+			if ($line) {
+				$out .= " line $line";
 			}
 		}
-		return $self->message;
+		return $out;
 	}
     
 	### ---
@@ -64,13 +73,23 @@ use overload (q{""} => \&stringify);
 		
 		my $self = bless {
 			message     => $message,
+			line_number	=> undef,
 			position	=> $position,
 			file		=> $file,
 		}, $class;
-		
 		if (scalar @_ >= 3) {
 			$self->{message} = (split(/ at /, $self->{message}))[0];
 		}
+		#if (! $file && ! $Text::PSTemplate::current_file) {
+		#	my $i = 1;
+		#	while (my @a = caller($i++)) {
+		#		if ($a[0] !~ /Text::PSTemplate/ && $a[0] !~ /Try::Tiny/) {
+		#			$self->{filename} = $a[1];
+		#			$self->{line} = $a[2];
+		#			last;
+		#		}
+		#	}
+		#}
 		return $self;
     }
 	
