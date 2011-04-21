@@ -20,7 +20,7 @@ use Data::Dumper;
 		eval {
 			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at6_1.txt');
 		};
-		like($@, qr{t/01_PST_Exception/template/error_message_include_at5_1_2.txt line 4});
+		like($@, qr{t/01_PST_Exception/template/error_message_include_at6_1.txt line 4});
 		is((() = $@ =~ / at /g), 1);
 	}
 
