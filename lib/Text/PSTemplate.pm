@@ -299,7 +299,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my $res = try {
             $self->parse($str);
         } catch {
-            $_->set_file($Text::PSTemplate::current_file);
+            if (! $_->file) {
+                $_->set_file($Text::PSTemplate::current_file);
+            }
             die $_;
         };
         return $res;
@@ -405,10 +407,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 } catch {
                     my $exception = $_;
                     my $org = $space_l. $prefix. $tag. $space_r;
-                    my $err = $exception->message;
                     my $position = $exception->position || 0;
                     my $ret = try {
-                        $self->get_param($MEM_NONEXIST)->($self, $org, $err);
+                        $self->get_param($MEM_NONEXIST)->($self, $org, $exception);
                     } catch {
                         my $exception = Text::PSTemplate::Exception->new($_);
                         $exception->set_position($position + $eval_pos);
@@ -505,25 +506,7 @@ package Text::PSTemplate::_EvalStage;
 use strict;
 use warnings;
 use Carp qw(shortmess);
-    
-    sub line_number_to_pos {
-        
-        my ($str, $num) = @_;
-        my $found = 0;
-        my $pos;
-        for ($pos = 0; $found < $num - 1 && $pos < length($str); $pos++) {
-            if (substr($str, $pos, 2) =~ /\r\n/) {
-                $found++;
-                $pos++;
-                next;
-            }
-            if (substr($str, $pos, 1) =~ /\r|\n/) {
-                $found++;
-                next;
-            }
-        }
-        return $pos;
-    }
+$Carp::Internal{ (__PACKAGE__) }++;
     
     {
         my $self;

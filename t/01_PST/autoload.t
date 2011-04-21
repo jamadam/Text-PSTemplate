@@ -8,7 +8,7 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
     
-	sub eval_scope : Test(1) {
+	sub basic : Test(1) {
 		
 		my $tpl = Text::PSTemplate->new;
 		$tpl->set_func(somefunc => sub {$_[0]});

@@ -4,11 +4,11 @@ use warnings;
 use Carp;
 use Text::PSTemplate::File;
 use overload (
-	q{""} => \&stringify,
+	q{""} => \&_stringify,
 	fallback => 1,
 );
 
-	sub stringify {
+	sub _stringify {
 		
 		my ($self) = @_;
 		my $out = $self->message || 'Unknown Error';
@@ -104,6 +104,25 @@ use overload (
         return $line_num + 1;
     }
     
+    sub line_number_to_pos {
+        
+        my ($str, $num) = @_;
+        my $found = 0;
+        my $pos;
+        for ($pos = 0; $found < $num - 1 && $pos < length($str); $pos++) {
+            if (substr($str, $pos, 2) =~ /\r\n/) {
+                $found++;
+                $pos++;
+                next;
+            }
+            if (substr($str, $pos, 1) =~ /\r|\n/) {
+                $found++;
+                next;
+            }
+        }
+        return $pos;
+    }
+    
     ### ---
     ### return null string
     ### ---
@@ -127,7 +146,7 @@ use overload (
     ### returns template tag itself
     ### ---
     our $TAG_ERROR_NO_ACTION = sub {
-        my ($parser, $line, $err) = (@_);
+        my ($parser, $line, $self) = (@_);
         my $delim_l = Text::PSTemplate::get_current_parser()->get_delimiter(0);
         my $delim_r = Text::PSTemplate::get_current_parser()->get_delimiter(1);
         return $delim_l. $line. $delim_r;
@@ -137,10 +156,8 @@ use overload (
     ### returns nothing and just die;
     ### ---
     our $TAG_ERROR_DIE = sub {
-        my ($parser, $line, $err) = (@_);
-        $err ||= "Unknown error occured in eval($line)";
-        $err =~ s{\r\n|\r|\n}{};
-        CORE::die $err. "\n";
+        my ($parser, $line, $self) = (@_);
+        CORE::die $self;
     };
 
 1;
@@ -163,7 +180,7 @@ subroutines. They can be thrown at exception setters.
 
 =head1 METHODS
 
-=head2 $TEXT::PSTemplate::Exception->new($message, $line_number)
+=head2 TEXT::PSTemplate::Exception->new($message, $line_number)
 
 =head2 $instance->set_message
 
@@ -177,7 +194,7 @@ subroutines. They can be thrown at exception setters.
 
 =head2 $instance->file
 
-=head2 $instance->die
+=head2 TEXT::PSTemplate::Exception->line_number_to_pos;
 
 =head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_NULL;
 
