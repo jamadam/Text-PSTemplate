@@ -54,6 +54,7 @@ t/01_PST_Exception/error_message_include_at2.t
 t/01_PST_Exception/error_message_include_at3.t
 t/01_PST_Exception/error_message_include_at4.t
 t/01_PST_Exception/error_message_include_at5.t
+t/01_PST_Exception/error_message_include_at6.t
 t/01_PST_Exception/line_number.t
 t/01_PST_Exception/template/error_message.txt
 t/01_PST_Exception/template/error_message2.txt
@@ -70,6 +71,11 @@ t/01_PST_Exception/template/error_message_include_at3_4.txt
 t/01_PST_Exception/template/error_message_include_at4_1.txt
 t/01_PST_Exception/template/error_message_include_at5_1_1.txt
 t/01_PST_Exception/template/error_message_include_at5_1_2.txt
+t/01_PST_Exception/template/error_message_include_at5_2_1.txt
+t/01_PST_Exception/template/error_message_include_at5_2_2.txt
+t/01_PST_Exception/template/error_message_include_at5_3_1.txt
+t/01_PST_Exception/template/error_message_include_at5_3_2.txt
+t/01_PST_Exception/template/error_message_include_at6_1.txt
 t/02_PST_Plugable/basic.t
 t/02_PST_Plugable/basic2.t
 t/02_PST_Plugable/basic3.t

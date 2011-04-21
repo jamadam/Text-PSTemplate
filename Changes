@@ -47,3 +47,6 @@ Revision history for Text-PSTemplate
 
 0.27 2011/03/11
   - ADDED: Now template parser dies with template file names and line numbers.
+
+0.28 2011/04/22
+  - ADDED: Error reporting improved.
