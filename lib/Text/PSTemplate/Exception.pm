@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Carp;
 use Text::PSTemplate::File;
+use Scalar::Util qw( blessed );
 use overload (
     q{""} => \&_stringify,
     fallback => 1,
@@ -15,18 +16,11 @@ use overload (
         $out =~ s{(\s)+}{ }g;
         my $position = $self->position;
         my $line     = $self->{line_number};
-        if (my $file = $self->file) {
-            my $file_name;
-            my $file_content;
-            if (ref $file eq 'Text::PSTemplate::File') {
-                my $file_name       = $file->name;
-                my $file_content    = $file->content;
-                if ($position) {
-                    my $line_number = _line_number($file_content, $position);
-                    $out = (split(/ at /, $out))[0];
-                    $out .= " at $file_name line $line_number";
-                }
-            }
+		my $file 	 = $self->file;
+		if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
+			my $line_number = _line_number($file->content, $position);
+			$out = (split(/ at /, $out))[0];
+			$out .= sprintf(" at %s line %s", $file->name, $line_number);
         } elsif ($self->{filename}) {
             $out .= " at ". $self->{filename};
             if ($line) {
@@ -43,17 +37,14 @@ use overload (
         if (ref $_[1] eq __PACKAGE__) {
             return $_[1];
         }
-        
         my $self = bless {
             message     => $message,
-            line_number => undef,
             position    => $position,
             file        => $file,
+            line_number => undef,
         }, $class;
-        if (scalar @_ >= 3) {
-            $self->{message} = (split(/ at /, $self->{message}))[0];
-        }
-        if (! $file && ! $Text::PSTemplate::current_file) {
+		
+        if (! $Text::PSTemplate::current_file) {
             my $at = Carp::shortmess_heavy();
             if ($at =~ qr{at (.+?) line (\d+)}) {
                 $self->{filename} = $1;
