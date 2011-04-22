@@ -412,6 +412,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
                         $self->get_param($MEM_NONEXIST)->($self, $org, $exception);
                     } catch {
                         my $exception = Text::PSTemplate::Exception->new($_);
+						if ($exception->file) {
+							die $exception;
+						}
                         $exception->set_position($position + $eval_pos);
                         die $exception;
                     };
