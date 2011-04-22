@@ -269,21 +269,21 @@ use Text::PSTemplate;
         Text::PSTemplate->get_current_file_parser->set_delimiter($left, $right);
         return;
     }
-	
+    
     ### ---
-	### output default instead of false value
+    ### output default instead of false value
     ### ---
     sub default : TplExport {
         
-		my ($self, $value, $default) = @_;
-		if ($value) {
-			return $value;
-		}
-		return $default;
+        my ($self, $value, $default) = @_;
+        if ($value) {
+            return $value;
+        }
+        return $default;
     }
     
     ### ---
-	### Counter 
+    ### Counter 
     ### ---
     sub with : TplExport {
         
@@ -298,7 +298,7 @@ use Text::PSTemplate;
     }
     
     ### ---
-	### echo
+    ### echo
     ### ---
     sub echo : TplExport {
         

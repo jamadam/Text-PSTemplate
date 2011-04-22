@@ -5,12 +5,12 @@ use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
     
     ### ---
-	### Conver to comma separated number
+    ### Conver to comma separated number
     ### ---
     sub commify : TplExport {
         
         my ($self, $num) = @_;
-		
+        
         if ($num) {
             while($num =~ s/(.*\d)(\d\d\d)/$1,$2/){};
             return $num;
@@ -21,13 +21,13 @@ use Text::PSTemplate;
         return;
     }
     
-	sub length : TplExport {
-		
+    sub length : TplExport {
+        
         my ($self, $obj) = @_;
-		if (ref $obj eq 'ARRAY') {
-			return scalar @$obj;
-		}
-	}
+        if (ref $obj eq 'ARRAY') {
+            return scalar @$obj;
+        }
+    }
     
     ### ---
     ### Substr
@@ -57,7 +57,7 @@ use Text::PSTemplate;
         my %args = (
             name => 'default',
             print => 1,
-			assign => undef,
+            assign => undef,
             @_);
         
         my $name = ($Text::PSTemplate::get_current_filename||''). $args{name};
@@ -70,7 +70,7 @@ use Text::PSTemplate;
             $_counters->{$name}->{count}->();
         }
         if ($args{assign}) {
-	        Text::PSTemplate->get_current_file_parser->set_var($args{assign} => $_counters->{$name}->{show}->());
+            Text::PSTemplate->get_current_file_parser->set_var($args{assign} => $_counters->{$name}->{show}->());
         }
         if ($args{print}) {
             return $_counters->{$name}->{show}->();
@@ -103,13 +103,13 @@ use Text::PSTemplate;
     ### ---
     ### split multi line into array
     ### ---
-	sub split_line : TplExport {
-		
-		my ($self, $str) = @_;
-		my @ret = split(/\r\n|\r|\n/, $str);
-		return \@ret;
-	}
-	
+    sub split_line : TplExport {
+        
+        my ($self, $str) = @_;
+        my @ret = split(/\r\n|\r|\n/, $str);
+        return \@ret;
+    }
+    
     ### ---
     ### line count
     ### ---
@@ -123,13 +123,13 @@ use Text::PSTemplate;
     ### ---
     ### string replace
     ### ---
-	sub replace : TplExport {
-		
-		my ($self, $str, $org, $rep) = @_;
-		$str =~ s{$org}{$rep}g;
-		return $str;
-	}
-	
+    sub replace : TplExport {
+        
+        my ($self, $str, $org, $rep) = @_;
+        $str =~ s{$org}{$rep}g;
+        return $str;
+    }
+    
     ### ---
     ### replace spaces to line break
     ### ---
@@ -158,23 +158,23 @@ use Text::PSTemplate;
     sub split : TplExport {
         
         my $self = shift;
-		my @array;
-		if ($_[2]) {
-			@array = CORE::split($_[0],$_[1],$_[2]);
-		} else {
-			@array = CORE::split($_[0],$_[1]);
-		}
+        my @array;
+        if ($_[2]) {
+            @array = CORE::split($_[0],$_[1],$_[2]);
+        } else {
+            @array = CORE::split($_[0],$_[1]);
+        }
         return \@array;
     }
-	
+    
     ### ---
     ### int
     ### ---
-	sub int : TplExport {
-		
-		my ($self, $num) = @_;
-		return CORE::int($num);
-	}
+    sub int : TplExport {
+        
+        my ($self, $num) = @_;
+        return CORE::int($num);
+    }
     
     ### ---
     ### randomize array order
@@ -190,23 +190,23 @@ use Text::PSTemplate;
         }
         return @new;
     }
-	
+    
     ### ---
     ### random string of given length
     ### ---
-	sub random_string : TplExport {
-		
+    sub random_string : TplExport {
+        
         my ($self, $length, $candidates) = @_;
-		$candidates ||= 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-		my @c = split(//, $candidates);
-		my $c_len = scalar @c;
-		my $out = '';
-		for (my $i = 0; $i < $length; $i++) {
-			my $j = CORE::int(CORE::rand($c_len));
-			$out .= $c[$j];
-		}
-		return $out;
-	}
+        $candidates ||= 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        my @c = split(//, $candidates);
+        my $c_len = scalar @c;
+        my $out = '';
+        for (my $i = 0; $i < $length; $i++) {
+            my $j = CORE::int(CORE::rand($c_len));
+            $out .= $c[$j];
+        }
+        return $out;
+    }
 
 1;
 

@@ -16,14 +16,14 @@ use Carp;
         return bless {blocks => \@out, length => $length}, $class;
     }
     
-	sub get_left_chomp {
-		
+    sub get_left_chomp {
+        
         my ($self, $index) = @_;
-		my $data = $self->content($index);
-		$data =~ m{^(\r\n|\r|\n)};
-		return $1;
-	}
-	
+        my $data = $self->content($index);
+        $data =~ m{^(\r\n|\r|\n)};
+        return $1;
+    }
+    
     ### ---
     ### Get inline data
     ### ---
@@ -31,7 +31,7 @@ use Carp;
         
         my ($self, $index, $args) = @_;
         if (defined $index) {
-	        my $data = $self->{blocks}->[$index]->[0];
+            my $data = $self->{blocks}->[$index]->[0];
             if ($data && $args) {
                 if ($args->{chop_left}) {
                     $data =~ s{^(?:\r\n|\r|\n)}{};

@@ -4,92 +4,92 @@ use warnings;
 use Carp;
 use Text::PSTemplate::File;
 use overload (
-	q{""} => \&_stringify,
-	fallback => 1,
+    q{""} => \&_stringify,
+    fallback => 1,
 );
 
-	sub _stringify {
-		
-		my ($self) = @_;
-		my $out = $self->message || 'Unknown Error';
+    sub _stringify {
+        
+        my ($self) = @_;
+        my $out = $self->message || 'Unknown Error';
         $out =~ s{(\s)+}{ }g;
-		my $position = $self->position;
-		my $line     = $self->{line_number};
-		if (my $file = $self->file) {
-			my $file_name;
-			my $file_content;
-			if (ref $file eq 'Text::PSTemplate::File') {
-				my $file_name 		= $file->name;
-				my $file_content 	= $file->content;
-				if ($position) {
-					my $line_number = _line_number($file_content, $position);
-					$out = (split(/ at /, $out))[0];
-					$out .= " at $file_name line $line_number";
-				}
-			}
-		} elsif ($self->{filename}) {
-			$out .= " at ". $self->{filename};
-			if ($line) {
-				$out .= " line $line";
-			}
-		}
-		return $out;
-	}
+        my $position = $self->position;
+        my $line     = $self->{line_number};
+        if (my $file = $self->file) {
+            my $file_name;
+            my $file_content;
+            if (ref $file eq 'Text::PSTemplate::File') {
+                my $file_name       = $file->name;
+                my $file_content    = $file->content;
+                if ($position) {
+                    my $line_number = _line_number($file_content, $position);
+                    $out = (split(/ at /, $out))[0];
+                    $out .= " at $file_name line $line_number";
+                }
+            }
+        } elsif ($self->{filename}) {
+            $out .= " at ". $self->{filename};
+            if ($line) {
+                $out .= " line $line";
+            }
+        }
+        return $out;
+    }
 
     sub new {
-		
+        
         my ($class, $message, $position, $file) = @_;
-		
-		if (ref $_[1] eq __PACKAGE__) {
-			return $_[1];
-		}
-		
-		my $self = bless {
-			message     => $message,
-			line_number	=> undef,
-			position	=> $position,
-			file		=> $file,
-		}, $class;
-		if (scalar @_ >= 3) {
-			$self->{message} = (split(/ at /, $self->{message}))[0];
-		}
-		if (! $file && ! $Text::PSTemplate::current_file) {
-			my $at = Carp::shortmess_heavy();
-			if ($at =~ qr{at (.+?) line (\d+)}) {
-				$self->{filename} = $1;
-				$self->{line_number} = $2;
-			}
-		}
-		return $self;
+        
+        if (ref $_[1] eq __PACKAGE__) {
+            return $_[1];
+        }
+        
+        my $self = bless {
+            message     => $message,
+            line_number => undef,
+            position    => $position,
+            file        => $file,
+        }, $class;
+        if (scalar @_ >= 3) {
+            $self->{message} = (split(/ at /, $self->{message}))[0];
+        }
+        if (! $file && ! $Text::PSTemplate::current_file) {
+            my $at = Carp::shortmess_heavy();
+            if ($at =~ qr{at (.+?) line (\d+)}) {
+                $self->{filename} = $1;
+                $self->{line_number} = $2;
+            }
+        }
+        return $self;
     }
-	
+    
     sub set_message {
-		my ($self, $value) = @_;
+        my ($self, $value) = @_;
         $self->{message} = $value;
     }
-	
+    
     sub set_position {
-		my ($self, $value) = @_;
+        my ($self, $value) = @_;
         $self->{position} = $value;
     }
-	
+    
     sub set_file {
-		my ($self, $value) = @_;
+        my ($self, $value) = @_;
         $self->{file} = $value;
     }
-	
+    
     sub message {
-		my ($self) = @_;
+        my ($self) = @_;
         return $self->{message};
     }
-	
+    
     sub position {
-		my ($self) = @_;
+        my ($self) = @_;
         return $self->{position};
     }
-	
+    
     sub file {
-		my ($self) = @_;
+        my ($self) = @_;
         return $self->{file};
     }
     

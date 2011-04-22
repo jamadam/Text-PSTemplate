@@ -23,15 +23,15 @@ $Carp::Internal{ (__PACKAGE__) }++;
     my $MEM_NONEXIST                = 9;
     my $MEM_FUNC_NONEXIST           = 10;
     my $MEM_VAR_NONEXIST            = 11;
-	
-	### ---
-	### debug
-	### ---
-	sub dump {
+    
+    ### ---
+    ### debug
+    ### ---
+    sub dump {
         use Data::Dumper;
-		my $dump = Dumper($_[0]); $dump =~ s/\\x{([0-9a-z]+)}/chr(hex($1))/ge;
-		return $dump;
-	}
+        my $dump = Dumper($_[0]); $dump =~ s/\\x{([0-9a-z]+)}/chr(hex($1))/ge;
+        return $dump;
+    }
     
     ### ---
     ### constractor
@@ -66,8 +66,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
-			my $err = 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
-			die Text::PSTemplate::Exception->new($err);
+            my $err = 'Deep Recursion over '. $self->get_param($MEM_RECUR_LIMIT);
+            die Text::PSTemplate::Exception->new($err);
         }
         return $self;
     }
@@ -367,7 +367,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my $str_org = $str;
         
         if (! defined $str) {
-			die Text::PSTemplate::Exception->new('No template string found');
+            die Text::PSTemplate::Exception->new('No template string found');
         }
         my $out = '';
         my $eval_pos = 0;
@@ -412,9 +412,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
                         $self->get_param($MEM_NONEXIST)->($self, $org, $exception);
                     } catch {
                         my $exception = Text::PSTemplate::Exception->new($_);
-						if ($exception->file) {
-							die $exception;
-						}
+                        if ($exception->file) {
+                            die $exception;
+                        }
                         $exception->set_position($position + $eval_pos);
                         die $exception;
                     };
@@ -467,7 +467,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub get_file {
         
         my ($self, $name, $translate_ref) = (@_);
-		
+        
         if (scalar @_ == 2) {
             $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
         }
@@ -478,7 +478,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my $file = try {
             Text::PSTemplate::File->new($name, $encode);
         } catch {
-			die Text::PSTemplate::Exception->new($_);
+            die Text::PSTemplate::Exception->new($_);
         };
         return $file;
     }
