@@ -9,6 +9,7 @@ our $VERSION = '0.28';
 use 5.005;
 use Carp;
 use Try::Tiny;
+use Scalar::Util qw( blessed );
 no warnings 'recursion';
 $Carp::Internal{ (__PACKAGE__) }++;
 
@@ -281,9 +282,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
         }
         local $Text::PSTemplate::current_file = $Text::PSTemplate::current_file;
         my $str;
-        if (ref $_[1] eq 'Text::PSTemplate::File') {
-            $Text::PSTemplate::current_file = $_[1];
-            $str = $_[1]->content;
+		if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
+            $Text::PSTemplate::current_file = $file;
+            $str = $file->content;
         } else {
             my $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
             if (ref $translate_ref eq 'CODE') {
@@ -313,7 +314,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub parse_str {
         
         my ($self, $str) = @_;
-        if (ref $_[1] eq 'Text::PSTemplate::File') {
+		if (blessed($str) && $str->isa('Text::PSTemplate::File')) {
             local $Text::PSTemplate::current_file_parser =
                                         $Text::PSTemplate::get_current_parser;
             $Text::PSTemplate::current_file = $_[1];
