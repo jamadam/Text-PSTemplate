@@ -300,9 +300,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my $res = try {
             $self->parse($str);
         } catch {
-            if (! $_->file) {
-                $_->set_file($Text::PSTemplate::current_file);
-            }
+            $_->set_file($Text::PSTemplate::current_file);
+            $_->finalize;
             die $_;
         };
         return $res;
@@ -346,8 +345,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             } catch {
                 my $exception = Text::PSTemplate::Exception->new($_);
                 my $pos = $exception->position - 1;
-                my $chomp = $Text::PSTemplate::block->get_left_chomp($index);
-                $pos += ($option->{chop_left}) ? length($chomp) : 0;
+                $pos += length($Text::PSTemplate::block->get_left_chomp($index));
                 for (my $i = 0; $i < $index; $i++) {
                     $pos += length(Text::PSTemplate::get_block($i));
                 }
@@ -413,9 +411,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
                         $self->get_param($MEM_NONEXIST)->($self, $org, $exception);
                     } catch {
                         my $exception = Text::PSTemplate::Exception->new($_);
-                        if ($exception->file) {
-                            die $exception;
-                        }
                         $exception->set_position($position + $eval_pos);
                         die $exception;
                     };

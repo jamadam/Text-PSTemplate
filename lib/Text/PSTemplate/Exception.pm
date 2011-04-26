@@ -42,6 +42,7 @@ use overload (
             position    => $position,
             file        => $file,
             line_number => undef,
+			lock		=> undef,
         }, $class;
 		
         if (! $Text::PSTemplate::current_file) {
@@ -56,19 +57,38 @@ use overload (
     
     sub set_message {
         my ($self, $value) = @_;
+		if ($self->{lock}) {
+			return $self;
+		}
         $self->{message} = $value;
+		return $self;
     }
     
     sub set_position {
         my ($self, $value) = @_;
+		if ($self->{lock}) {
+			return $self;
+		}
         $self->{position} = $value;
+		return $self;
     }
     
     sub set_file {
         my ($self, $value) = @_;
+		if ($self->{lock}) {
+			return $self;
+		}
         $self->{file} = $value;
+		return $self;
     }
     
+	sub finalize {
+		
+		my ($self) = @_;
+		$self->{lock} = 1;
+		return $self;
+	}
+	
     sub message {
         my ($self) = @_;
         return $self->{message};
@@ -184,6 +204,8 @@ subroutines. They can be thrown at exception setters.
 =head2 $instance->position
 
 =head2 $instance->file
+
+=head2 $instance->finalize
 
 =head2 TEXT::PSTemplate::Exception->line_number_to_pos;
 
