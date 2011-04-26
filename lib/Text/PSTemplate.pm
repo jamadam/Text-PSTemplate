@@ -338,8 +338,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub parse_block {
         
         my ($self, $index, $option) = @_;
-        my $str = Text::PSTemplate::get_block($index, $option);
-        if ($str) {
+        if (ref $Text::PSTemplate::block && defined $index) {
+            my $str = $Text::PSTemplate::block->content($index, $option) || '';
             my $res = try {
                 $self->parse($str);
             } catch {
@@ -347,7 +347,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 my $pos = $exception->position - 1;
                 $pos += length($Text::PSTemplate::block->get_left_chomp($index));
                 for (my $i = 0; $i < $index; $i++) {
-                    $pos += length(Text::PSTemplate::get_block($i));
+                    $pos += length($Text::PSTemplate::block->content($i));
+                    $pos += length($Text::PSTemplate::block->delimiter($i));
                 }
                 $exception->set_position($pos);
                 die $exception;
