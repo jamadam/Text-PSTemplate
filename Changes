@@ -53,3 +53,6 @@ Revision history for Text-PSTemplate
 
 0.29 2011/04/27
   - ADDED: Error reporting improved.
+
+0.30 2011/04/27
+  - FIXED: func & var err callback for child parsers haven't been detected.

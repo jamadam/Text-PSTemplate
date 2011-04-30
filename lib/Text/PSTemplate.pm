@@ -5,7 +5,7 @@ use Fcntl qw(:flock);
 use Text::PSTemplate::Exception;
 use Text::PSTemplate::Block;
 use Text::PSTemplate::File;
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 use 5.005;
 use Carp;
 use Try::Tiny;
@@ -221,16 +221,19 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub var {
         
-        my ($self, $name) = @_;
+        my ($self, $name, $error_callback) = @_;
+		
+		$error_callback ||= $self->{$MEM_VAR_NONEXIST};
+		
         if (defined $name) {
             if (defined $self->{$MEM_VAR}->{$name}) {
                 return $self->{$MEM_VAR}->{$name};
             }
             if (defined $self->{$MEM_MOTHER}) {
-                return $self->{$MEM_MOTHER}->var($name);
+                return $self->{$MEM_MOTHER}->var($name, $error_callback);
             }
             if (! exists $self->{$MEM_VAR}->{$name}) {
-                return $self->get_param($MEM_VAR_NONEXIST)->($self, '$'. $name, 'variable');
+				return $error_callback->($self, '$'. $name, 'variable');
             }
             return;
         }
@@ -254,16 +257,19 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub func {
         
-        my ($self, $name) = @_;
+        my ($self, $name, $error_callback) = @_;
+		
+		$error_callback ||= $self->{$MEM_VAR_NONEXIST};
+		
         if (defined $name) {
             if (defined $self->{$MEM_FUNC}->{$name}) {
                 return $self->{$MEM_FUNC}->{$name};
             }
             if (defined $self->{$MEM_MOTHER}) {
-                return $self->{$MEM_MOTHER}->func($name);
+                return $self->{$MEM_MOTHER}->func($name, $error_callback);
             }
             if (! exists $self->{$MEM_FUNC}->{$name}) {
-                return $self->get_param($MEM_FUNC_NONEXIST)->($self, '&'. $name, 'function');
+                return $error_callback->($self, '&'. $name, 'function');
             }
             return;
         }
