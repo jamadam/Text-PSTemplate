@@ -57,6 +57,7 @@ t/01_PST_Exception/error_message_include_at6.t
 t/01_PST_Exception/error_message_include_at7.t
 t/01_PST_Exception/error_message_include_at8.t
 t/01_PST_Exception/line_number.t
+t/01_PST_Exception/set_var_exception.t
 t/01_PST_Exception/template/error_message.txt
 t/01_PST_Exception/template/error_message2.txt
 t/01_PST_Exception/template/error_message_include_at1_1.txt
