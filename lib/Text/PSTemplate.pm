@@ -222,9 +222,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub var {
         
         my ($self, $name, $error_callback) = @_;
-		
-		$error_callback ||= $self->{$MEM_VAR_NONEXIST};
-		
+        
+        $error_callback ||= $self->{$MEM_VAR_NONEXIST};
+        
         if (defined $name) {
             if (defined $self->{$MEM_VAR}->{$name}) {
                 return $self->{$MEM_VAR}->{$name};
@@ -233,7 +233,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 return $self->{$MEM_MOTHER}->var($name, $error_callback);
             }
             if (! exists $self->{$MEM_VAR}->{$name}) {
-				return $error_callback->($self, '$'. $name, 'variable');
+                return $error_callback->($self, '$'. $name, 'variable');
             }
             return;
         }
@@ -258,9 +258,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub func {
         
         my ($self, $name, $error_callback) = @_;
-		
-		$error_callback ||= $self->{$MEM_VAR_NONEXIST};
-		
+        
+        $error_callback ||= $self->{$MEM_VAR_NONEXIST};
+        
         if (defined $name) {
             if (defined $self->{$MEM_FUNC}->{$name}) {
                 return $self->{$MEM_FUNC}->{$name};
@@ -288,7 +288,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         }
         local $Text::PSTemplate::current_file = $Text::PSTemplate::current_file;
         my $str;
-		if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
+        if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
             $Text::PSTemplate::current_file = $file;
             $str = $file->content;
         } else {
@@ -319,7 +319,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub parse_str {
         
         my ($self, $str) = @_;
-		if (blessed($str) && $str->isa('Text::PSTemplate::File')) {
+        if (blessed($str) && $str->isa('Text::PSTemplate::File')) {
             local $Text::PSTemplate::current_file_parser =
                                         $Text::PSTemplate::get_current_parser;
             $Text::PSTemplate::current_file = $_[1];
