@@ -13,7 +13,7 @@ use Text::PSTemplate;
         
         my $tpl = Text::PSTemplate->get_current_parser;
         
-        if (grep {$_ eq $target} @$array_ref) {
+        if (defined $target && defined $array_ref && grep {$_ eq $target} @$array_ref) {
             if ($then) {
                 return $then;
             } else {
@@ -63,7 +63,7 @@ use Text::PSTemplate;
         
         my $tpl = Text::PSTemplate->new;
         
-        if ($target eq $value) {
+        if (defined $target && defined $value && $target eq $value) {
             if ($then) {
                 return $then;
             } else {
@@ -88,7 +88,7 @@ use Text::PSTemplate;
         
         my $tpl = Text::PSTemplate->get_current_parser;
         
-        if ($target =~ /$pattern/) {
+        if (defined $target && defined $pattern && $target =~ /$pattern/) {
             if ($then) {
                 return $then;
             } else {
@@ -129,9 +129,8 @@ use Text::PSTemplate;
             if (exists $case_ref->{$target}) {
                 return $case_ref->{$target};
             }
-            return $default;
         }
-        return;
+        return $tpl->parse($default);
     }
     
     ### ---

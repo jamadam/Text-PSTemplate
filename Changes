@@ -56,3 +56,6 @@ Revision history for Text-PSTemplate
 
 0.30 2011/04/27
   - FIXED: func & var err callback for child parsers haven't been detected.
+
+0.31 2011/05/06
+  - FIXED: control functions now capable of undef values.
