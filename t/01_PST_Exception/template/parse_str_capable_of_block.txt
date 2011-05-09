@@ -1,0 +1,11 @@
+<% hoge3()<<TPL,TPL2 %>
+<% TPL %>
+<% TPL2 %>
+<% hoge3()<<TPL,TPL2 %>
+
+
+
+
+<% TPL %>    parsed
+    <% $a %>
+<% TPL2 %>
