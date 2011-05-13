@@ -49,7 +49,7 @@ use Fcntl qw(:flock);
             _init_file_cacheable($class);
             _make_class_cacheable($class, $tpl);
         }
-        #$self->_set_tpl_funcs($tpl);
+        $self->_set_tpl_funcs($tpl);
         
         weaken $self->{$MEM_TPL};
         return $self;

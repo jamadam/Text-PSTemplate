@@ -8,7 +8,7 @@ use Data::Dumper;
 
     __PACKAGE__->runtests;
     
-    sub set_namespace : Test(2) {
+    sub set_namespace : Test(3) {
         
         my $plug;
         {
