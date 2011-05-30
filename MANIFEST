@@ -13,6 +13,7 @@ lib/Text/PSTemplate/Plugin/Env.pm
 lib/Text/PSTemplate/Plugin/Extends.pm
 lib/Text/PSTemplate/Plugin/FS.pm
 lib/Text/PSTemplate/Plugin/HTML.pm
+lib/Text/PSTemplate/Plugin/Time.pm
 lib/Text/PSTemplate/Plugin/TSV.pm
 lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
@@ -57,6 +58,7 @@ t/01_PST_Exception/error_message_include_at6.t
 t/01_PST_Exception/error_message_include_at7.t
 t/01_PST_Exception/error_message_include_at8.t
 t/01_PST_Exception/line_number.t
+t/01_PST_Exception/parse_str_capable_of_block.t
 t/01_PST_Exception/set_var_exception.t
 t/01_PST_Exception/template/error_message.txt
 t/01_PST_Exception/template/error_message2.txt
@@ -81,6 +83,8 @@ t/01_PST_Exception/template/error_message_include_at6_1.txt
 t/01_PST_Exception/template/error_message_include_at7_1.txt
 t/01_PST_Exception/template/error_message_include_at7_2.txt
 t/01_PST_Exception/template/error_message_include_at8_1.txt
+t/01_PST_Exception/template/parse_str_capable_of_block.txt
+t/02_PST_Plugable/additional_args.t
 t/02_PST_Plugable/basic.t
 t/02_PST_Plugable/basic2.t
 t/02_PST_Plugable/basic3.t
@@ -93,6 +97,7 @@ t/02_PST_Plugable/namespace.t
 t/02_PST_Plugable/no_tplexport.t
 t/02_PST_Plugable/respect_false_values.t
 t/02_PST_Plugable/weaken.t
+t/02_PST_Plugable/weaken2.t
 t/03_PST_Plugable/Control1.t
 t/03_PST_Plugable/Control2.t
 t/03_PST_Plugable/Control3.t
