@@ -13,6 +13,9 @@ use Carp;
     my @wdays   =
         qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday Sunday);
     
+    ### ---
+    ### Reformat time string
+    ### ---
     sub reformat : TplExport {
         
         my ($self, $ts, $format, $data, $asset) = @_;
@@ -61,7 +64,7 @@ use Carp;
     }
     
     ### ---
-    ### タイムスタンプから日付を抽出
+    ### extract date part from datetime
     ### ---
     sub date : TplExport {
         
@@ -76,6 +79,9 @@ use Carp;
             sprintf("%04d-%02d-%02d", $time_array[5], $time_array[4], $time_array[3]);
     }
     
+    ### ---
+    ### custom localtime
+    ### ---
     sub _localtime {
         my ($epoch) = @_;
         my @t = localtime($epoch || time);
@@ -84,6 +90,9 @@ use Carp;
         return @t[0..5];
     }
     
+    ### ---
+    ### iso8601
+    ### ---
     sub iso8601 : TplExport {
         
         my ($self, $date) = @_;
@@ -108,7 +117,7 @@ use Carp;
     }
     
     ### ---
-    ### あらゆる日付フォーマットをエポックに変換
+    ### Convert any date string to epoch
     ### ---
     sub date_to_epoch : TplExport {
         
@@ -123,7 +132,7 @@ use Carp;
     }
     
     ### ---
-    ### あらゆる日付フォーマットを分解し配列を返す
+    ### Split any date string to array
     ### ---
     sub split_date : TplExport {
         
@@ -138,7 +147,7 @@ use Carp;
     }
     
     ### ---
-    ### timelocalの引数範囲超過によるエラーを回避するラッパー
+    ### Flexible timelocal wrapper
     ### ---
     sub _fixed_timelocal {
         
