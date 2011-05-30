@@ -125,7 +125,7 @@ use Carp;
         
         my @time_array = $self->split_date($date) or _localtime();
         
-        $time_array[4]--; #ŒŽ
+        $time_array[4]--;
         $time_array[5] -= 1900;
         
         return _fixed_timelocal(@time_array);
