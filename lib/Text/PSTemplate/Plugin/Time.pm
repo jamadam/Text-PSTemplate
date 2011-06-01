@@ -13,6 +13,30 @@ use Carp;
     my @wdays   =
         qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday Sunday);
     
+    sub before : TplExport {
+        
+        my ($self, $date1, $date2, $include_equal) = @_;
+        my $ep1 = $self->date_to_epoch($date1);
+        my $ep2 = $self->date_to_epoch($date2);
+        if (($ep1 < $ep2) || ($include_equal && $ep1 == $ep2)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
+    sub after : TplExport {
+        
+        my ($self, $date1, $date2, $include_equal) = @_;
+        my $ep1 = $self->date_to_epoch($date1);
+        my $ep2 = $self->date_to_epoch($date2);
+        if (($ep1 > $ep2) || ($include_equal && $ep1 == $ep2)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
     ### ---
     ### Reformat time string
     ### ---
@@ -243,6 +267,10 @@ To activate this plugin, your template have to load it as follows
 =head2 reformat($ts, $format, $data, $asset)
 
 =head2 split_date([$date_string])
+
+=head2 before($date1, $date2)
+
+=head2 after($date1, $date2)
 
 =head1 AUTHOR
 

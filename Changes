@@ -59,3 +59,7 @@ Revision history for Text-PSTemplate
 
 0.31 2011/05/06
   - FIXED: control functions now capable of undef values.
+
+0.32 2011/06/01
+  - Time plugin fixed.
+  - Time::before Time::after added
