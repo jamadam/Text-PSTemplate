@@ -167,9 +167,13 @@ use Carp;
         $year += int($month / 12);
         $month = $month % 12;
         
-        return eval{
+        my $ret = eval{
             timelocal($sec, $minute, $hour, $date, $month, $year);
         };
+        if ($@ && $@ =~ 'Day too big') {
+            return '4458326400';
+        }
+        return $ret;
     }
     
     my @_normal = (31,30,31,30,31,30,31,31,30,31,30,31);
