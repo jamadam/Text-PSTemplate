@@ -13,8 +13,6 @@ use Carp;
         my $ep2 = Text::PSTemplate::Plugin::Time2::DateTime->parse($date2)->epoch;
         if (($ep1 < $ep2) || ($include_equal && $ep1 == $ep2)) {
             return 1;
-        } else {
-            return;
         }
     }
     
@@ -25,20 +23,21 @@ use Carp;
         my $ep2 = Text::PSTemplate::Plugin::Time2::DateTime->parse($date2)->epoch;
         if (($ep1 > $ep2) || ($include_equal && $ep1 == $ep2)) {
             return 1;
-        } else {
-            return;
         }
+    }
+    
+    sub new_datetime {
+        
+        my ($self, $date) = @_;
+        return Text::PSTemplate::Plugin::Time2::DateTime->parse($date);
     }
     
     ### ---
     ### Reformat time string
     ### ---
-    sub reformat : TplExport {
+    sub strftime : TplExport {
         
-        my ($self, $ts, $format, $data, $asset) = @_;
-        $format ||= '%04s-%02s-%02s %02s:%02s:%02s';
-        $data   ||= [5,4,3,2,1,0,10];
-        
+        my ($self, $ts, $format, $asset) = @_;
         my $dt = Text::PSTemplate::Plugin::Time2::DateTime->parse($ts);
         if ($asset->{months}) {
             $dt->set_month_asset($asset->{months});
@@ -46,28 +45,7 @@ use Carp;
         if ($asset->{wdays}) {
             $dt->set_weekday_asset($asset->{wdays});
         }
-        
-        my @elems = (
-            sub {$dt->second},
-            sub {$dt->minute},
-            sub {$dt->hour},
-            sub {$dt->day},
-            sub {$dt->month},
-            sub {$dt->year},
-            sub {$dt->day_of_week},
-            sub {$dt->day_of_year},
-            sub {undef}, # isdst deprecated
-            sub {$dt->epoch},
-            sub {$dt->day_name},
-            sub {$dt->day_abbr},
-            sub {$dt->month_name},
-            sub {$dt->month_abbr},
-            sub {$dt->year_abbr},
-            sub {$dt->am_or_pm},
-            sub {$dt->hour_12_0},
-        );
-        
-        return sprintf($format, map {$elems[$_]->()} @$data);
+        return $dt->strftime($format);
     }
     
     sub now : TplExport {
@@ -117,7 +95,7 @@ Text::PSTemplate::Plugin::Time2 - Time Utility [Experimental]
     <% epoch() %>
     <% iso8601() %>
     <% now() %>
-    <% reformat() %>
+    <% strftime() %>
     
 =head1 DESCRIPTION
 
@@ -141,7 +119,7 @@ To activate this plugin, your template have to load it as follows
 
 =head2 now()
 
-=head2 reformat($ts, $format, $data, $asset)
+=head2 strftime($ts, $format, $asset)
 
 =head2 before($date1, $date2)
 

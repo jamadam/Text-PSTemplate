@@ -36,6 +36,66 @@ use Carp;
         }, $class;
     }
     
+    my $_strftime_tbl = {
+        a => sub {$_[0]->day_abbr},
+        A => sub {$_[0]->day_name},
+        b => sub {$_[0]->month_abbr},
+        B => sub {$_[0]->month_name},
+        c => sub {'not implemented yet'},
+        C => sub {'not implemented yet'},
+        d => sub {sprintf('%02d', $_[0]->day)},
+        D => sub {'not implemented yet'},
+        e => sub {'not implemented yet'},
+        f => sub {'not implemented yet'},
+        F => sub {'not implemented yet'},
+        g => sub {'not implemented yet'},
+        G => sub {'not implemented yet'},
+        h => sub {'not implemented yet'},
+        H => sub {sprintf('%02d', $_[0]->hour)},
+        I => sub {sprintf('%02d', $_[0]->hour_12_0)},
+        j => sub {sprintf('%03d', $_[0]->day_of_year)},
+        k => sub {sprintf('%02d', $_[0]->hour)},
+        l => sub {sprintf('%02d', $_[0]->hour_12_0)},
+        m => sub {sprintf('%02d', $_[0]->month)},
+        M => sub {sprintf('%02d', $_[0]->minute)},
+        n => sub {'not implemented yet'},
+        N => sub {'not implemented yet'},
+        p => sub {$_[0]->am_or_pm},
+        P => sub {lc $_[0]->am_or_pm},
+        r => sub {'not implemented yet'},
+        R => sub {'not implemented yet'},
+        s => sub {$_[0]->epoch},
+        S => sub {sprintf('%02d', $_[0]->second)},
+        t => sub {'not implemented yet'},
+        T => sub {'not implemented yet'},
+        u => sub {$_[0]->day_of_week},
+        U => sub {'not implemented yet'},
+        V => sub {'not implemented yet'},
+        w => sub {'not implemented yet'},
+        W => sub {'not implemented yet'},
+        x => sub {'not implemented yet'},
+        X => sub {'not implemented yet'},
+        y => sub {$_[0]->year_abbr},
+        Y => sub {$_[0]->year},
+        z => sub {'not implemented yet'},
+        Z => sub {'not implemented yet'},
+        '%' => sub {'not implemented yet'},
+    };
+    
+    sub strftime {
+        
+        my ($self, $format) = @_;
+        $format ||= '%04s-%02s-%02s %02s:%02s:%02s';
+        $format =~ s{%(.)}{
+            if (exists $_strftime_tbl->{$1}) {
+                $_strftime_tbl->{$1}->($self);
+            } else {
+                '%'.$1;
+            }
+        }ge;
+        return $format;
+    }
+    
     sub set_month_asset {
         my ($self, $asset) = @_;
         $self->{asset}->[0] = $asset;

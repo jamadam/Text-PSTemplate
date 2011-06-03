@@ -7,7 +7,7 @@ use Text::PSTemplate::Plugin::Time2;
 
     __PACKAGE__->runtests;
     
-    sub constractor : Test(20) {
+    sub constractor : Test(21) {
         
         my $epoch = 1293851594;
         my $a = Text::PSTemplate::Plugin::Time2::DateTime->new($epoch);
@@ -31,9 +31,10 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->am_or_pm, 'PM');
         is($a->hour_12_0, 0);
         is($a->is_leap_year, '');
+        is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-01 12:13:14');
     }
     
-    sub parse : Test(19) {
+    sub parse : Test(20) {
         
         my $a = Text::PSTemplate::Plugin::Time2::DateTime->parse('2011-01-01 12:13:14');
         is($a->epoch, 1293851594);
@@ -55,6 +56,20 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->year_abbr, '11');
         is($a->hour_12_0, 0);
         is($a->is_leap_year, '');
+        is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-01 12:13:14');
+    }
+    
+    sub parse_zero_padding : Test(8) {
+        
+        my $a = Text::PSTemplate::Plugin::Time2::DateTime->parse('2011-01-01 02:03:04');
+        is($a->hour, 2);
+        is($a->minute, 3);
+        is($a->second, 4);
+        is($a->ymd, '2011-01-01');
+        is($a->ymd('/'), '2011/01/01');
+        is($a->iso8601, '2011-01-01 02:03:04');
+        is($a->hour_12_0, 2);
+        is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-01 02:03:04');
     }
     
     sub now : Test(1) {
@@ -65,9 +80,9 @@ use Text::PSTemplate::Plugin::Time2;
         is($a, $expect);
     }
     
-    sub reformat : Test(1) {
+    sub strftime : Test(1) {
         
-        my $a = Text::PSTemplate::Plugin::Time2->reformat('2011/01/01 12:13:14');
+        my $a = Text::PSTemplate::Plugin::Time2->strftime('2011/01/01 12:13:14', '%Y-%m-%d %H:%M:%S');
         is($a, '2011-01-01 12:13:14');
     }
     
