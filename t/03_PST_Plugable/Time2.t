@@ -7,24 +7,6 @@ use Text::PSTemplate::Plugin::Time2;
 
     __PACKAGE__->runtests;
     
-    sub timelocal : Test(3) {
-        {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,1,13,2011);
-            my @b = Text::PSTemplate::DateTime::_localtime($a);
-            is(join(',', @b[0..5]), '1,1,1,1,1,2012');
-        }
-        {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,32,12,2011);
-            my @b = Text::PSTemplate::DateTime::_localtime($a);
-            is(join(',', @b[0..5]), '1,1,1,1,1,2012');
-        }
-        {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,32,13,2011);
-            my @b = Text::PSTemplate::DateTime::_localtime($a);
-            is(join(',', @b[0..5]), '1,1,1,1,2,2012');
-        }
-    }
-    
     sub add : Test(7) {
         
         my $a = Text::PSTemplate::DateTime->parse('2011-01-01 12:13:14');
@@ -52,7 +34,7 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->ymd('/'), '2011/01/01');
         is($a->iso8601, '2011-01-01 12:13:14');
         is($a->day_of_week, 6);
-        is($a->day_of_year, 0);
+        is($a->day_of_year, 1);
         is($a->day_name, 'Saturday');
         is($a->month_name, 'January');
         is($a->day_abbr, 'Sat');
@@ -83,7 +65,7 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->ymd('/'), '2011/01/01');
         is($a->iso8601, '2011-01-01 12:13:14');
         is($a->day_of_week, 6);
-        is($a->day_of_year, 0);
+        is($a->day_of_year, 1);
         is($a->day_name, 'Saturday');
         is($a->month_name, 'January');
         is($a->day_abbr, 'Sat');

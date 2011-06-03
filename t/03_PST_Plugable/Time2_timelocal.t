@@ -37,32 +37,32 @@ use Text::PSTemplate::Plugin::Time2;
 
     sub timelocal : Test(6) {
         {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,1,13,2011);
+            my $a = Text::PSTemplate::DateTime::_timelocal([1,1,1,1,13,2011]);
             my @b = Text::PSTemplate::DateTime::_localtime($a);
             is(join(',', @b[0..5]), '1,1,1,1,1,2012');
         }
         {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,32,12,2011);
+            my $a = Text::PSTemplate::DateTime::_timelocal([1,1,1,32,12,2011]);
             my @b = Text::PSTemplate::DateTime::_localtime($a);
             is(join(',', @b[0..5]), '1,1,1,1,1,2012');
         }
         {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,32,13,2011);
+            my $a = Text::PSTemplate::DateTime::_timelocal([1,1,1,32,13,2011]);
             my @b = Text::PSTemplate::DateTime::_localtime($a);
             is(join(',', @b[0..5]), '1,1,1,1,2,2012');
         }
         {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,1,1,2011);
+            my $a = Text::PSTemplate::DateTime::_timelocal([1,1,1,1,1,2011]);
             my @b = Text::PSTemplate::DateTime::_localtime($a);
             is(join(',', @b[0..5]), '1,1,1,1,1,2011');
         }
         {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,0,1,2011);
+            my $a = Text::PSTemplate::DateTime::_timelocal([1,1,1,0,1,2011]);
             my @b = Text::PSTemplate::DateTime::_localtime($a);
             is(join(',', @b[0..5]), '1,1,1,31,12,2010');
         }
         {
-            my $a = Text::PSTemplate::DateTime::_timelocal(1,1,1,-1,1,2011);
+            my $a = Text::PSTemplate::DateTime::_timelocal([1,1,1,-1,1,2011]);
             my @b = Text::PSTemplate::DateTime::_localtime($a);
             is(join(',', @b[0..5]), '1,1,1,30,12,2010');
         }

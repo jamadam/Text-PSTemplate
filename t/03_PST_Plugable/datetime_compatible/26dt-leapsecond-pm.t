@@ -1,0 +1,52 @@
+# no pp test
+
+use strict;
+use warnings;
+
+use Test::More;
+
+use Text::PSTemplate::DateTime::LeapSecond;
+
+is( Text::PSTemplate::DateTime::LeapSecond::leap_seconds(100), 0, 'before 1970' );
+
+# at the start of the table:
+
+# 1972-06-30
+my $day = 720074;
+is( Text::PSTemplate::DateTime::LeapSecond::leap_seconds($day), 0,
+    'before leap-second transition' );
+
+is( Text::PSTemplate::DateTime::LeapSecond::extra_seconds($day) + 0, 1, 'leap day' );
+
+# 1972-07-01
+$day = 720075;
+is( Text::PSTemplate::DateTime::LeapSecond::leap_seconds($day), 1,
+    'day after leap-second day' );
+
+is( Text::PSTemplate::DateTime::LeapSecond::extra_seconds($day), 0, 'not a leap day' );
+
+# 1972-07-02
+$day = 720076;
+is( Text::PSTemplate::DateTime::LeapSecond::leap_seconds($day), 1, 'after leap-second day' );
+
+# at the end of the table:
+# 1998-12-31
+$day = 729754;
+is( Text::PSTemplate::DateTime::LeapSecond::leap_seconds($day), 21, 'before leap-second day' );
+
+# 1999-01-01
+$day = 729755;
+is( Text::PSTemplate::DateTime::LeapSecond::leap_seconds($day), 22, 'leap-second day' );
+
+# 1999-01-02
+$day = 729756;
+is( Text::PSTemplate::DateTime::LeapSecond::leap_seconds($day), 22, 'after leap-second day' );
+
+# some leap second dates:
+# 1972  Jul. 1
+# 1973  Jan. 1
+# ...
+# 1997  Jul. 1
+# 1999  Jan. 1
+
+done_testing();

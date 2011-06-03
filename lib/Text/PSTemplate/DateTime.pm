@@ -18,9 +18,10 @@ use Carp;
         my ($class, %args) = @_;
         if (scalar @_ == 1) {
             return bless {
-                epoch => time,
-                parts => [],
-                asset => [$months, $wdays]
+                epoch   => time,
+                parts   => [],
+                asset   => [$months, $wdays],
+                tz      => $args{time_zone},
             }, $class;
         } else {
             my @parts = (
@@ -28,33 +29,216 @@ use Carp;
                 $args{day}, $args{month}, $args{year}
             );
             return bless {
-                epoch => _timelocal(@parts),
-                parts => [],
-                asset => [$months, $wdays]
+                epoch   => _timelocal(\@parts, $args{time_zone}),
+                parts   => [],
+                asset   => [$months, $wdays],
+                tz      => $args{time_zone},
             }, $class;
         }
+    }
+    
+    sub now {
+        $_[0]->new;
+    }
+    
+    sub set_time_zone {
+        my ($self, $hour) = @_;
+        $self->{tz} = $hour;
+    }
+    
+    sub offset {
+        my ($self) = @_;
+        return $self->{tz};
     }
     
     sub from_epoch {
         
         my ($class, %args) = @_;
         return bless {
-            epoch => $args{epoch},
-            parts => [],
-            asset => [$months, $wdays]
+            epoch   => $args{epoch},
+            parts   => [],
+            asset   => [$months, $wdays],
+            tz      => $args{time_zone},
         }, $class;
     }
     
     sub parse {
         
-        my ($class, $str) = @_;
+        my ($class, $str, $timezone) = @_;
         my @a = map {$_ + 0} _split_date($str);
-        my $epoch = _timelocal(@a);
+        my $epoch = _timelocal(\@a, $timezone);
         return bless {
             epoch => $epoch,
             parts => \@a,
-            asset => [$months, $wdays]
+            asset => [$months, $wdays],
+            tz => $timezone,
         }, $class;
+    }
+    
+    sub ce_year {
+        
+        my ($self) = @_;
+        return $self->year;
+    }
+    
+    sub quarter {
+        
+        my ($self) = @_;
+        return
+            ($self->month <= 3) ? 1 :
+            ($self->month <= 6) ? 2 :
+            ($self->month <= 9) ? 3 : 4;
+    }
+    
+    sub month_0 {
+        my ($self) = @_;
+        return $self->month - 1;
+    }
+    
+    sub day_of_month {
+        my ($self) = @_;
+        return $self->day;
+    }
+    
+    sub day_of_month_0 {
+        my ($self) = @_;
+        return $self->day - 1;
+    }
+    
+    sub day_0 {
+        my ($self) = @_;
+        return $self->day - 1;
+    }
+    
+    sub mday_0 {
+        my ($self) = @_;
+        return $self->day - 1;
+    }
+    
+    sub mday {
+        my ($self) = @_;
+        return $self->day;
+    }
+    
+    sub hour_1 {
+        my ($self) = @_;
+        return $self->hour;
+    }
+    
+    sub hour_12 {
+        my ($self) = @_;
+        return $self->hour_12_0;
+    }
+    
+    sub min {
+        my ($self) = @_;
+        return $self->minute;
+    }
+    
+    sub sec {
+        my ($self) = @_;
+        return $self->second;
+    }
+    
+    sub day_of_year_0 {
+        my ($self) = @_;
+        return $self->day_of_year - 1;
+    }
+    
+    sub day_of_quarter {
+        warn 'not implemented yet';
+    }
+    
+    sub doq {
+        warn 'not implemented yet';
+    }
+    
+    sub day_of_quarter_0 {
+        warn 'not implemented yet';
+    }
+    
+    sub doq_0 {
+        warn 'not implemented yet';
+    }
+    
+    sub day_of_week_0 {
+        my ($self) = @_;
+        return $self->day_of_week;
+    }
+    
+    sub week_of_month {
+        warn 'not implemented yet';
+    }
+    
+    sub weekday_of_month {
+        warn 'not implemented yet';
+    }
+    
+    sub wday {
+        my ($self) = @_;
+        return $self->day_of_week;
+    }
+    
+    sub wday_0 {
+        my ($self) = @_;
+        return $self->day_of_week;
+    }
+    
+    sub dow {
+        my ($self) = @_;
+        return $self->day_of_week;
+    }
+    
+    sub dow_0 {
+        my ($self) = @_;
+        return $self->day_of_week;
+    }
+    
+    sub date {
+        my ($self) = @_;
+        return $self->ymd;
+    }
+    
+    sub mdy {
+        warn 'not implemented yet';
+    }
+    
+    sub dmy {
+        warn 'not implemented yet';
+    }
+    
+    sub hms {
+        my ($self, $delim) = @_;
+        $delim ||= ':';
+        my ($sec, $min, $hour, undef,undef,undef) = _localtime($self->{epoch}, $self->{tz});
+        return sprintf("%02d$delim%02d$delim%02d", $hour, $min, $sec);
+    }
+    
+    sub time {
+        my ($self) = @_;
+        return $self->hms;
+    }
+    
+    sub datetime {
+        my ($self) = @_;
+        return $self->ymd . 'T'. $self->hms;
+    }
+    
+    sub DateTime {
+        my ($self) = @_;
+        return $self->datetime;
+    }
+    
+    sub era_abbr {
+        return 'AD';
+    }
+    
+    sub era {
+        return 'AD';
+    }
+    
+    sub era_name {
+        return 'AD';
     }
     
     sub add {
@@ -168,7 +352,7 @@ use Carp;
         
         my ($self, $delim) = @_;
         $delim ||= '-';
-        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch});
+        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
         return sprintf("%04d$delim%02d$delim%02d", $year, $mon, $mday);
     }
     
@@ -178,14 +362,14 @@ use Carp;
     sub iso8601 {
         
         my ($self) = @_;
-        my ($sec, $min, $hour, $mday, $mon, $year) = _localtime($self->{epoch});
+        my ($sec, $min, $hour, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
         return sprintf($format, $year, $mon, $mday, $hour, $min, $sec);
     }
     
     sub year {
         my ($self) = @_;
         if (! $self->{parts}->[5]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
         return $self->{parts}->[5];
     }
@@ -193,7 +377,7 @@ use Carp;
     sub month {
         my ($self) = @_;
         if (! $self->{parts}->[4]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
         return $self->{parts}->[4];
     }
@@ -201,7 +385,7 @@ use Carp;
     sub day {
         my ($self) = @_;
         if (! $self->{parts}->[3]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
         return $self->{parts}->[3];
     }
@@ -209,7 +393,7 @@ use Carp;
     sub hour {
         my ($self) = @_;
         if (! $self->{parts}->[2]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
         return $self->{parts}->[2];
     }
@@ -217,7 +401,7 @@ use Carp;
     sub minute {
         my ($self) = @_;
         if (! $self->{parts}->[1]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
         return $self->{parts}->[1];
     }
@@ -225,7 +409,7 @@ use Carp;
     sub second {
         my ($self) = @_;
         if (! $self->{parts}->[0]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
         return $self->{parts}->[0];
     }
@@ -233,7 +417,7 @@ use Carp;
     sub day_of_week {
         my ($self) = @_;
         if (! $self->{parts}->[6]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
         return $self->{parts}->[6];
     }
@@ -241,9 +425,9 @@ use Carp;
     sub day_of_year {
         my ($self) = @_;
         if ($self->{parts}->[7]) {
-            $self->{parts} = [_localtime($self->{epoch})];
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
         }
-        return $self->{parts}->[7];
+        return $self->{parts}->[7] + 1;
     }
     
     sub month_name {
@@ -306,8 +490,11 @@ use Carp;
     ### custom localtime
     ### ---
     sub _localtime {
-        my ($epoch) = @_;
-        my @t = localtime($epoch || time);
+        my ($epoch, $tz) = @_;
+        if (defined $tz) {
+            $ENV{TZ} = $tz;
+        }
+        my @t = localtime($epoch);
         $t[5] += 1900;
         $t[4] += 1;
         return @t;
@@ -318,7 +505,8 @@ use Carp;
     ### ---
     sub _timelocal {
         
-        my ($sec, $minute, $hour, $date, $month, $year) = @_;
+        my ($args, $tz) = @_;
+        my ($sec, $minute, $hour, $date, $month, $year) = @$args;
         $sec ||= 0;
         $minute ||= 0;
         $hour ||= 0;
@@ -331,6 +519,10 @@ use Carp;
         ($hour, $minute) = _carry($hour, $minute, 60);
         ($date, $hour) = _carry($date, $hour, 24);
         ($year, $month) = _carry($year, $month, 12);
+        
+        if (defined $tz) {
+            $ENV{TZ} = $tz;
+        }
         
         my $ret = eval {
             timelocal($sec, $minute, $hour, 1, $month, $year - 1900);
