@@ -111,6 +111,8 @@ To activate this plugin, your template have to load it as follows
 
 =head1 TEMPLATE FUNCTIONS
 
+=head2 new_datetime([$date_string]);
+
 =head2 date([$date_string])
 
 =head2 epoch([$date_string])

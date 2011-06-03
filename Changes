@@ -63,6 +63,5 @@ Revision history for Text-PSTemplate
 0.32 2011/06/02
   - Time plugin fixed.
   - Time::before Time::after added
-  - Experimental new Time2 plugin added
-  - strftime method added to Time2
   - epoch method added to Time
+  - Time2 plugin added

@@ -277,6 +277,8 @@ To activate this plugin, your template have to load it as follows
 
 =head2 after($date1, $date2)
 
+=head2 epoch()
+
 =head1 AUTHOR
 
 Sugama Keita, E<lt>sugama@jamadam.comE<gt>

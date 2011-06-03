@@ -14,6 +14,8 @@ lib/Text/PSTemplate/Plugin/Extends.pm
 lib/Text/PSTemplate/Plugin/FS.pm
 lib/Text/PSTemplate/Plugin/HTML.pm
 lib/Text/PSTemplate/Plugin/Time.pm
+lib/Text/PSTemplate/Plugin/Time2.pm
+lib/Text/PSTemplate/Plugin/Time2/DateTime.pm
 lib/Text/PSTemplate/Plugin/TSV.pm
 lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
@@ -132,6 +134,7 @@ t/03_PST_Plugable/template/partial_exception2.txt
 t/03_PST_Plugable/template/PST_die_at.txt
 t/03_PST_Plugable/template/xslate_compatible.txt
 t/03_PST_Plugable/template/xslate_compatible_expected.txt
+t/03_PST_Plugable/Time2.t
 t/03_PST_Plugable/Util.t
 t/03_PST_Plugable/xslate_compatible.t
 t/05_FileCacheable/FileCacheable_basic.t

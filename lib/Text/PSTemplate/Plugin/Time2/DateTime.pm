@@ -15,10 +15,31 @@ use Carp;
     
     sub new {
         
-        my ($class, $epoch) = @_;
-        $epoch ||= time;
+        my ($class, %args) = @_;
+        if (scalar @_ == 1) {
+            return bless {
+                epoch => time,
+                parts => [],
+                asset => [$months, $wdays]
+            }, $class;
+        } else {
+            my @parts = (
+                $args{second}, $args{minute}, $args{hour},
+                $args{day}, $args{month}, $args{year}
+            );
+            return bless {
+                epoch => _timelocal(@parts),
+                parts => [],
+                asset => [$months, $wdays]
+            }, $class;
+        }
+    }
+    
+    sub from_epoch {
+        
+        my ($class, %args) = @_;
         return bless {
-            epoch => $epoch,
+            epoch => $args{epoch},
             parts => [],
             asset => [$months, $wdays]
         }, $class;
@@ -34,6 +55,38 @@ use Carp;
             parts => \@a,
             asset => [$months, $wdays]
         }, $class;
+    }
+    
+    sub add {
+        my ($self, %args) = @_;
+        my %new_args = (
+            year    => $self->{parts}->[5],
+            month   => $self->{parts}->[4],
+            day     => $self->{parts}->[3],
+            hour    => $self->{parts}->[2],
+            minute  => $self->{parts}->[1],
+            second  => $self->{parts}->[0],
+        );
+        if ($args{years}) {
+            $new_args{year} += $args{years};
+        }
+        if ($args{months}) {
+            $new_args{month} += $args{months};
+        }
+        if ($args{days}) {
+            $new_args{day} += $args{days};
+        }
+        if ($args{hours}) {
+            $new_args{hour} += $args{hours};
+        }
+        if ($args{minutes}) {
+            $new_args{minute} += $args{minutes};
+        }
+        if ($args{seconds}) {
+            $new_args{second} += $args{seconds};
+        }
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
     }
     
     my $_strftime_tbl = {
@@ -266,29 +319,42 @@ use Carp;
     sub _timelocal {
         
         my ($sec, $minute, $hour, $date, $month, $year) = @_;
-        $minute += int($sec / 60);
-        $sec     = $sec % 60;
-        $hour   += int($minute / 60);
-        $minute  = $minute % 60;
-        $date   += int($hour / 24);
-        $hour    = $hour % 24;
+        $sec ||= 0;
+        $minute ||= 0;
+        $hour ||= 0;
+        $date = ! defined $date ? 1 : $date; # $date must be 1..31
+        $date--;
+        $month = ! defined $month ? 1 : $month; # $month must be 1..12
+        $month--;
         
-        my $lastday = _day_count($year, $month);
+        ($minute, $sec) = _carry($minute, $sec, 60);
+        ($hour, $minute) = _carry($hour, $minute, 60);
+        ($date, $hour) = _carry($date, $hour, 24);
+        ($year, $month) = _carry($year, $month, 12);
         
-        $month = ($date > $lastday) ? $month + 1 : $month;
-        $date  = ($date > $lastday) ? $date - $lastday : $date;
-        
-        $year += int($month / 12);
-        $month = $month % 12;
-        
-        my $ret = eval{
-            timelocal($sec, $minute, $hour, $date, $month - 1, $year - 1900);
+        my $ret = eval {
+            timelocal($sec, $minute, $hour, 1, $month, $year - 1900);
         };
         if ($@ && $@ =~ 'Day too big') {
             warn 'Date overflow';
             return '4458326400'; # I know this is bull shit
         }
+        $ret += $date * 86400;
         return $ret;
+    }
+    
+    sub _carry {
+        
+        my ($super, $sub, $limit) = @_;
+        if ($sub >= 0) {
+            $super += int($sub / $limit);
+            $sub = $sub % $limit;
+        } else {
+            my $tmp = abs($sub) - 1;
+            $super -= (int($tmp / $limit) + 1);
+            $sub = $limit - (($tmp) % $limit + 1);
+        }
+        return ($super, $sub);
     }
     
     my @_normal = (31,30,31,30,31,30,31,31,30,31,30,31);
@@ -297,7 +363,9 @@ use Carp;
     sub _day_count {
         
         my ($year, $month) = @_;
-        return _is_leap_year($year) ? $_leaped[$month] : $_normal[$month];
+        return
+            _is_leap_year($year)
+                ? $_leaped[($month % 12) - 1] : $_normal[($month % 12) - 1];
     }
     
     sub _is_leap_year {
@@ -333,9 +401,15 @@ Pure perl DateTime Class
 
 =head2 parse
 
+=head2 from_epoch
+
+=head2 strftime
+
 =head2 set_month_asset
 
 =head2 set_weekday_asset
+
+=head2 add
 
 =head2 epoch
 

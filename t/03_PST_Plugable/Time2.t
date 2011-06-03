@@ -7,10 +7,40 @@ use Text::PSTemplate::Plugin::Time2;
 
     __PACKAGE__->runtests;
     
+    sub timelocal : Test(3) {
+        {
+            my $a = Text::PSTemplate::Plugin::Time2::DateTime::_timelocal(1,1,1,1,13,2011);
+            my @b = Text::PSTemplate::Plugin::Time2::DateTime::_localtime($a);
+            is(join(',', @b[0..5]), '1,1,1,1,1,2012');
+        }
+        {
+            my $a = Text::PSTemplate::Plugin::Time2::DateTime::_timelocal(1,1,1,32,12,2011);
+            my @b = Text::PSTemplate::Plugin::Time2::DateTime::_localtime($a);
+            is(join(',', @b[0..5]), '1,1,1,1,1,2012');
+        }
+        {
+            my $a = Text::PSTemplate::Plugin::Time2::DateTime::_timelocal(1,1,1,32,13,2011);
+            my @b = Text::PSTemplate::Plugin::Time2::DateTime::_localtime($a);
+            is(join(',', @b[0..5]), '1,1,1,1,2,2012');
+        }
+    }
+    
+    sub add : Test(7) {
+        
+        my $a = Text::PSTemplate::Plugin::Time2::DateTime->parse('2011-01-01 12:13:14');
+        is($a->add(years => 1)->strftime('%Y-%m-%d %H:%M:%S'), '2012-01-01 12:13:14');
+        is($a->add(months => 1)->strftime('%Y-%m-%d %H:%M:%S'), '2012-02-01 12:13:14');
+        is($a->add(months => -1)->strftime('%Y-%m-%d %H:%M:%S'), '2012-01-01 12:13:14');
+        is($a->add(months => 10)->strftime('%Y-%m-%d %H:%M:%S'), '2012-11-01 12:13:14');
+        is($a->add(months => 1)->strftime('%Y-%m-%d %H:%M:%S'), '2012-12-01 12:13:14');
+        is($a->add(months => 1)->strftime('%Y-%m-%d %H:%M:%S'), '2013-01-01 12:13:14');
+        is($a->add(hours => -13)->strftime('%Y-%m-%d %H:%M:%S'), '2012-12-31 23:13:14');
+    }
+    
     sub constractor : Test(21) {
         
         my $epoch = 1293851594;
-        my $a = Text::PSTemplate::Plugin::Time2::DateTime->new($epoch);
+        my $a = Text::PSTemplate::Plugin::Time2::DateTime->from_epoch(epoch => $epoch);
         is($a->epoch, 1293851594);
         is($a->year, 2011);
         is($a->month, 1);
@@ -32,6 +62,11 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->hour_12_0, 0);
         is($a->is_leap_year, '');
         is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-01 12:13:14');
+    }
+    
+    sub constractor2 : Test(1) {
+        
+        is(Text::PSTemplate::Plugin::Time2::DateTime->new(year => 2011, month => 12, day => 1)->iso8601, '2011-12-01 00:00:00');
     }
     
     sub parse : Test(20) {

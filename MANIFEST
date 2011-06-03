@@ -135,6 +135,7 @@ t/03_PST_Plugable/template/PST_die_at.txt
 t/03_PST_Plugable/template/xslate_compatible.txt
 t/03_PST_Plugable/template/xslate_compatible_expected.txt
 t/03_PST_Plugable/Time2.t
+t/03_PST_Plugable/Time2_timelocal.t
 t/03_PST_Plugable/Util.t
 t/03_PST_Plugable/xslate_compatible.t
 t/05_FileCacheable/FileCacheable_basic.t
