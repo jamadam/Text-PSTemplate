@@ -1,4 +1,4 @@
-package Text::PSTemplate::Plugin::Time2::DateTime;
+package Text::PSTemplate::DateTime;
 use strict;
 use warnings;
 use Time::Local;
@@ -387,7 +387,7 @@ __END__
 
 =head1 NAME
 
-Text::PSTemplate::Plugin::Time2::DateTime - Time Utility [Experimental]
+Text::PSTemplate::DateTime - Time Utility
 
 =head1 SYNOPSIS
     

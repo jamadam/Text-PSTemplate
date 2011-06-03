@@ -9,8 +9,8 @@ use Carp;
     sub before : TplExport {
         
         my ($self, $date1, $date2, $include_equal) = @_;
-        my $ep1 = Text::PSTemplate::Plugin::Time2::DateTime->parse($date1)->epoch;
-        my $ep2 = Text::PSTemplate::Plugin::Time2::DateTime->parse($date2)->epoch;
+        my $ep1 = Text::PSTemplate::DateTime->parse($date1)->epoch;
+        my $ep2 = Text::PSTemplate::DateTime->parse($date2)->epoch;
         if (($ep1 < $ep2) || ($include_equal && $ep1 == $ep2)) {
             return 1;
         }
@@ -19,8 +19,8 @@ use Carp;
     sub after : TplExport {
         
         my ($self, $date1, $date2, $include_equal) = @_;
-        my $ep1 = Text::PSTemplate::Plugin::Time2::DateTime->parse($date1)->epoch;
-        my $ep2 = Text::PSTemplate::Plugin::Time2::DateTime->parse($date2)->epoch;
+        my $ep1 = Text::PSTemplate::DateTime->parse($date1)->epoch;
+        my $ep2 = Text::PSTemplate::DateTime->parse($date2)->epoch;
         if (($ep1 > $ep2) || ($include_equal && $ep1 == $ep2)) {
             return 1;
         }
@@ -29,7 +29,7 @@ use Carp;
     sub new_datetime {
         
         my ($self, $date) = @_;
-        return Text::PSTemplate::Plugin::Time2::DateTime->parse($date);
+        return Text::PSTemplate::DateTime->parse($date);
     }
     
     ### ---
@@ -38,7 +38,7 @@ use Carp;
     sub strftime : TplExport {
         
         my ($self, $ts, $format, $asset) = @_;
-        my $dt = Text::PSTemplate::Plugin::Time2::DateTime->parse($ts);
+        my $dt = Text::PSTemplate::DateTime->parse($ts);
         if ($asset->{months}) {
             $dt->set_month_asset($asset->{months});
         }
@@ -51,7 +51,7 @@ use Carp;
     sub now : TplExport {
         
         my ($self) = @_;
-        return Text::PSTemplate::Plugin::Time2::DateTime->new->iso8601;
+        return Text::PSTemplate::DateTime->new->iso8601;
     }
     
     ### ---
@@ -60,7 +60,7 @@ use Carp;
     sub date : TplExport {
         
         my ($self, $date, $delim) = @_;
-        return Text::PSTemplate::Plugin::Time2::DateTime->parse($date)->ymd($delim);
+        return Text::PSTemplate::DateTime->parse($date)->ymd($delim);
     }
     
     ### ---
@@ -69,7 +69,7 @@ use Carp;
     sub iso8601 : TplExport {
         
         my ($self, $date) = @_;
-        return Text::PSTemplate::Plugin::Time2::DateTime->parse($date)->iso8601;
+        return Text::PSTemplate::DateTime->parse($date)->iso8601;
     }
     
     ### ---
@@ -78,7 +78,7 @@ use Carp;
     sub epoch : TplExport {
         
         my ($self, $date) = @_;
-        return Text::PSTemplate::Plugin::Time2::DateTime->parse($date)->epoch;
+        return Text::PSTemplate::DateTime->parse($date)->epoch;
     }
 
 1;

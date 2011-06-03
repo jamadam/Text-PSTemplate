@@ -1,6 +1,7 @@
 Changes
 lib/Text/PSTemplate.pm
 lib/Text/PSTemplate/Block.pm
+lib/Text/PSTemplate/DateTime.pm
 lib/Text/PSTemplate/Exception.pm
 lib/Text/PSTemplate/File.pm
 lib/Text/PSTemplate/Manual.pod
@@ -15,7 +16,6 @@ lib/Text/PSTemplate/Plugin/FS.pm
 lib/Text/PSTemplate/Plugin/HTML.pm
 lib/Text/PSTemplate/Plugin/Time.pm
 lib/Text/PSTemplate/Plugin/Time2.pm
-lib/Text/PSTemplate/Plugin/Time2/DateTime.pm
 lib/Text/PSTemplate/Plugin/TSV.pm
 lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
