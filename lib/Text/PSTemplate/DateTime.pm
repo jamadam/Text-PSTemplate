@@ -60,12 +60,12 @@ use Carp;
     sub add {
         my ($self, %args) = @_;
         my %new_args = (
-            year    => $self->{parts}->[5],
-            month   => $self->{parts}->[4],
-            day     => $self->{parts}->[3],
-            hour    => $self->{parts}->[2],
-            minute  => $self->{parts}->[1],
-            second  => $self->{parts}->[0],
+            year    => $self->year,
+            month   => $self->month,
+            day     => $self->day,
+            hour    => $self->hour,
+            minute  => $self->minute,
+            second  => $self->second,
         );
         if ($args{years}) {
             $new_args{year} += $args{years};
@@ -355,6 +355,12 @@ use Carp;
             $sub = $limit - (($tmp) % $limit + 1);
         }
         return ($super, $sub);
+    }
+    
+    sub last_day_of_month {
+        my ($class, %args) = @_;
+        my $self = $class->new(year => $args{year}, month => $args{month} + 1);
+        $self->add(days => -1);
     }
     
     my @_normal = (31,30,31,30,31,30,31,31,30,31,30,31);
