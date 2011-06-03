@@ -81,6 +81,11 @@ use Carp;
         return sprintf($format, map {$localtime[$_]} @$data);
     }
     
+    sub epoch : TplExport {
+        
+        return time;
+    }
+    
     sub now : TplExport {
         
         my ($self) = @_;
