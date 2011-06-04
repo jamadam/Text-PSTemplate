@@ -79,12 +79,6 @@ use Text::PSTemplate::DateTime;
 
     $dt->set_second(9);
     is( $dt->second, 9, 'check second after set_second' );
-
-    $dt->set_nanosecond(9999);
-    is( $dt->nanosecond, 9999, 'check nanosecond after set_nanosecond' );
-
-    $dt->set_locale('fr_FR');
-    is( $dt->month_name, 'mai', 'check month name after set_locale' );
 }
 
 done_testing();

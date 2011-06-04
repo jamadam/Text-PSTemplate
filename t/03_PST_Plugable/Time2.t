@@ -7,6 +7,10 @@ use Text::PSTemplate::Plugin::Time2;
 
     __PACKAGE__->runtests;
     
+    sub timezone_table : Test {
+        is(Text::PSTemplate::DateTime::Catalog::get_offset('Asia/Tokyo'), 32400);
+    }
+    
     sub add : Test(7) {
         
         my $a = Text::PSTemplate::DateTime->parse('2011-01-01 12:13:14');
@@ -32,7 +36,7 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->second, 14);
         is($a->ymd, '2011-01-01');
         is($a->ymd('/'), '2011/01/01');
-        is($a->iso8601, '2011-01-01 12:13:14');
+        is($a->iso8601(' '), '2011-01-01 12:13:14');
         is($a->day_of_week, 6);
         is($a->day_of_year, 1);
         is($a->day_name, 'Saturday');
@@ -42,13 +46,13 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->year_abbr, '11');
         is($a->am_or_pm, 'PM');
         is($a->hour_12_0, 0);
-        is($a->is_leap_year, '');
+        is($a->is_leap_year, 0);
         is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-01 12:13:14');
     }
     
-    sub constractor2 : Test(1) {
-        
-        is(Text::PSTemplate::DateTime->new(year => 2011, month => 12, day => 1)->iso8601, '2011-12-01 00:00:00');
+    sub constractor_case2 : Test(1) {
+        my $a = Text::PSTemplate::DateTime->new(year => 2011, month => 12, day => 1);
+        is($a->iso8601(' '), '2011-12-01 00:00:00');
     }
     
     sub parse : Test(20) {
@@ -63,7 +67,7 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->second, 14);
         is($a->ymd, '2011-01-01');
         is($a->ymd('/'), '2011/01/01');
-        is($a->iso8601, '2011-01-01 12:13:14');
+        is($a->iso8601(' '), '2011-01-01 12:13:14');
         is($a->day_of_week, 6);
         is($a->day_of_year, 1);
         is($a->day_name, 'Saturday');
@@ -72,10 +76,35 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->month_abbr, 'Jan');
         is($a->year_abbr, '11');
         is($a->hour_12_0, 0);
-        is($a->is_leap_year, '');
+        is($a->is_leap_year, 0);
         is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-01 12:13:14');
     }
     
+    sub parse_case2 : Test(20) {
+        
+        my $a = Text::PSTemplate::DateTime->parse('2011-01-06 12:13:14');
+        is($a->epoch, 1294283594);
+        is($a->year, 2011);
+        is($a->month, 1);
+        is($a->day, 6);
+        is($a->hour, 12);
+        is($a->minute, 13);
+        is($a->second, 14);
+        is($a->ymd, '2011-01-06');
+        is($a->ymd('/'), '2011/01/06');
+        is($a->iso8601(' '), '2011-01-06 12:13:14');
+        is($a->day_of_week, 4);
+        is($a->day_of_year, 6);
+        is($a->day_name, 'Thursday');
+        is($a->month_name, 'January');
+        is($a->day_abbr, 'Thu');
+        is($a->month_abbr, 'Jan');
+        is($a->year_abbr, '11');
+        is($a->hour_12_0, 0);
+        is($a->is_leap_year, 0);
+        is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-06 12:13:14');
+    }
+        
     sub parse_zero_padding : Test(8) {
         
         my $a = Text::PSTemplate::DateTime->parse('2011-01-01 02:03:04');
@@ -84,7 +113,7 @@ use Text::PSTemplate::Plugin::Time2;
         is($a->second, 4);
         is($a->ymd, '2011-01-01');
         is($a->ymd('/'), '2011/01/01');
-        is($a->iso8601, '2011-01-01 02:03:04');
+        is($a->iso8601(' '), '2011-01-01 02:03:04');
         is($a->hour_12_0, 2);
         is($a->strftime('%Y-%m-%d %H:%M:%S'), '2011-01-01 02:03:04');
     }
@@ -109,4 +138,16 @@ use Text::PSTemplate::Plugin::Time2;
         is($a, 1);
         my $b = Text::PSTemplate::Plugin::Time2->before('2011/01/01 12:13:14', '2011/01/01 12:13:13');
         is($b, undef);
+    }
+    
+    sub epoch : Test(2) {
+        
+        {
+            my $a = Text::PSTemplate::DateTime->from_epoch(epoch => 0, time_zone => 'GMT');
+            is($a->iso8601(' '), '1970-01-01 00:00:00');
+        }
+        {
+            my $a = Text::PSTemplate::DateTime->from_epoch(epoch => 0, time_zone => 'Asia/Tokyo');
+            is($a->iso8601(' '), '1970-01-01 09:00:00');
+        }
     }

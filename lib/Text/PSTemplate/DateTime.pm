@@ -3,7 +3,45 @@ use strict;
 use warnings;
 use Time::Local;
 use Carp;
+use overload (
+    fallback => 1,
+    '<=>' => '_compare_overload',
+    'cmp' => '_compare_overload',
+    '""'  => '_stringify_overload',
+    'eq'  => '_string_equals_overload',
+    'ne'  => '_string_not_equals_overload',
+);
     
+    sub _stringify_overload {
+        my $self = shift;
+    
+        return $self->iso8601 unless $self->{formatter};
+        return $self->{formatter}->format_datetime($self);
+    }
+    
+    sub _compare_overload
+    {
+        # note: $_[1]->compare( $_[0] ) is an error when $_[1] is not a
+        # DateTime (such as the INFINITY value)
+        return $_[2] ? - $_[0]->compare( $_[1] ) : $_[0]->compare( $_[1] );
+    }
+    
+    sub _string_equals_overload {
+        my ( $class, $dt1, $dt2 ) = ref $_[0] ? ( undef, @_ ) : @_;
+    
+        return unless(
+            blessed $dt1 && $dt1->can('utc_rd_values') &&
+            blessed $dt2 && $dt2->can('utc_rd_values')
+        );
+    
+        $class ||= ref $dt1;
+        return ! $class->compare( $dt1, $dt2 );
+    }
+    
+    sub _string_not_equals_overload {
+        return ! _string_equals_overload(@_);
+    }
+
     my $months  =
         [qw(January February March April May June July August
         September October November December)];
@@ -13,37 +51,223 @@ use Carp;
     
     my $format = '%04s-%02s-%02s %02s:%02s:%02s';
     
+    sub _tz_to_offset {
+        
+        my $name = shift;
+        my $ret;
+        if (defined $name) {
+            $ret = Text::PSTemplate::DateTime::Catalog::get_offset($name);
+        } elsif ($ENV{TZ}) {
+            $ret = Text::PSTemplate::DateTime::Catalog::get_offset($ENV{TZ});
+        } elsif (open(my $fh, '<', '/etc/timezone')){
+            $ret = Text::PSTemplate::DateTime::Catalog::get_offset(<$fh>);
+        }
+        return $ret || 0;
+    }
+    
     sub new {
         
         my ($class, %args) = @_;
+        my $self = {
+            asset   => [$months, $wdays],
+            parts   => [],
+            tz      => _tz_to_offset($args{time_zone}),
+        };
         if (scalar @_ == 1) {
-            return bless {
-                epoch   => time,
-                parts   => [],
-                asset   => [$months, $wdays],
-                tz      => $args{time_zone},
-            }, $class;
+            $self->{epoch} = time;
         } else {
             my @parts = (
                 $args{second}, $args{minute}, $args{hour},
                 $args{day}, $args{month}, $args{year}
             );
-            return bless {
-                epoch   => _timelocal(\@parts, $args{time_zone}),
-                parts   => [],
-                asset   => [$months, $wdays],
-                tz      => $args{time_zone},
-            }, $class;
+            my $offset = _tz_to_offset($args{time_zone});
+            $self->{epoch} = _timelocal(\@parts, $offset);
         }
+        return bless $self, $class;
     }
     
     sub now {
         $_[0]->new;
     }
     
+    sub from_epoch {
+        
+        my ($class, %args) = @_;
+        my $self = {
+            epoch   => $args{epoch},
+            parts   => [],
+            asset   => [$months, $wdays],
+            tz      => _tz_to_offset($args{time_zone}),
+        };
+        return bless $self, $class;
+    }
+    
+    sub parse {
+        
+        my ($class, $str, $timezone) = @_;
+        my @a = map {$_ + 0} _split_date($str);
+        my $offset = _tz_to_offset($timezone);
+        my $epoch = _timelocal(\@a, $offset);
+        my $self = {
+            epoch => $epoch,
+            parts => \@a,
+            asset => [$months, $wdays],
+            tz    => _tz_to_offset($timezone),
+        };
+        return bless $self, $class;
+    }
+    
+    sub add {
+        my ($self, %args) = @_;
+        if (scalar @_ > 3) {
+            croak 'You can set just one element to add at once';
+        }
+        my %new_args = (
+            year        => $self->year,
+            month       => $self->month,
+            day         => $self->day,
+            hour        => $self->hour,
+            minute      => $self->minute,
+            second      => $self->second,
+            time_zone   => $self->offset,
+        );
+        if ($args{weeks}) {
+            $new_args{day} += $args{weeks} * 7;
+        }
+        if ($args{years}) {
+            $new_args{year} += $args{years};
+        }
+        if ($args{months}) {
+            $new_args{month} += $args{months};
+        }
+        if ($args{days}) {
+            $new_args{day} += $args{days};
+        }
+        if ($args{hours}) {
+            $new_args{hour} += $args{hours};
+        }
+        if ($args{minutes}) {
+            $new_args{minute} += $args{minutes};
+        }
+        if ($args{seconds}) {
+            $new_args{second} += $args{seconds};
+        }
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+    
+    sub set_year {
+        my ($self, $val) = @_;
+        my %new_args = (
+            year        => $val,
+            month       => $self->month,
+            day         => $self->day,
+            hour        => $self->hour,
+            minute      => $self->minute,
+            second      => $self->second,
+            time_zone   => $self->offset,
+        );
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+    
+    sub set_month {
+        my ($self, $val) = @_;
+        my %new_args = (
+            year        => $self->year,
+            month       => $val,
+            day         => $self->day,
+            hour        => $self->hour,
+            minute      => $self->minute,
+            second      => $self->second,
+            time_zone   => $self->offset,
+        );
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+    
+    sub set_day {
+        my ($self, $val) = @_;
+        my %new_args = (
+            year        => $self->year,
+            month       => $self->month,
+            day         => $val,
+            hour        => $self->hour,
+            minute      => $self->minute,
+            second      => $self->second,
+            time_zone   => $self->offset,
+        );
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+    
+    sub set_hour {
+        my ($self, $val) = @_;
+        my %new_args = (
+            year        => $self->year,
+            month       => $self->month,
+            day         => $self->day,
+            hour        => $val,
+            minute      => $self->minute,
+            second      => $self->second,
+            time_zone   => $self->offset,
+        );
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+    
+    sub set_minute {
+        my ($self, $val) = @_;
+        my %new_args = (
+            year        => $self->year,
+            month       => $self->month,
+            day         => $self->day,
+            hour        => $self->hour,
+            minute      => $val,
+            second      => $self->second,
+            time_zone   => $self->offset,
+        );
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+    
+    sub set_second {
+        my ($self, $val) = @_;
+        my %new_args = (
+            year        => $self->year,
+            month       => $self->month,
+            day         => $self->day,
+            hour        => $self->hour,
+            minute      => $self->minute,
+            second      => $val,
+            time_zone   => $self->offset,
+        );
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+
+    sub set {
+        my ($self, %args) = @_;
+        my %new_args = (
+            year        => $self->year,
+            month       => $self->month,
+            day         => $self->day,
+            hour        => $self->hour,
+            minute      => $self->minute,
+            second      => $self->second,
+            time_zone   => $self->offset,
+            %args,
+        );
+        %$self = %{(ref $self)->new(%new_args)};
+        return $self;
+    }
+    
     sub set_time_zone {
-        my ($self, $hour) = @_;
-        $self->{tz} = $hour;
+        my ($self, $tz_name) = @_;
+        my $last_tz = $self->{tz};
+        my $offset = _tz_to_offset($tz_name);
+        $self->{parts} = [];
+        $self->{tz} = $offset;
     }
     
     sub offset {
@@ -51,34 +275,197 @@ use Carp;
         return $self->{tz};
     }
     
-    sub from_epoch {
-        
-        my ($class, %args) = @_;
-        return bless {
-            epoch   => $args{epoch},
-            parts   => [],
-            asset   => [$months, $wdays],
-            tz      => $args{time_zone},
-        }, $class;
+    sub compare {
+        my ($self, $obj) = @_;
+        if ($self->{epoch} == $obj->{epoch}) {
+            return 0;
+        } elsif ($self->{epoch} > $obj->{epoch}) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
     
-    sub parse {
+    my $_strftime_tbl = {
+        a => sub {$_[0]->day_abbr},
+        A => sub {$_[0]->day_name},
+        b => sub {$_[0]->month_abbr},
+        B => sub {$_[0]->month_name},
+        c => sub {'not implemented yet'},
+        C => sub {'not implemented yet'},
+        d => sub {sprintf('%02d', $_[0]->day)},
+        D => sub {'not implemented yet'},
+        e => sub {'not implemented yet'},
+        f => sub {'not implemented yet'},
+        F => sub {'not implemented yet'},
+        g => sub {'not implemented yet'},
+        G => sub {'not implemented yet'},
+        h => sub {'not implemented yet'},
+        H => sub {sprintf('%02d', $_[0]->hour)},
+        I => sub {sprintf('%02d', $_[0]->hour_12_0)},
+        j => sub {sprintf('%03d', $_[0]->day_of_year)},
+        k => sub {sprintf('%02d', $_[0]->hour)},
+        l => sub {sprintf('%02d', $_[0]->hour_12_0)},
+        m => sub {sprintf('%02d', $_[0]->month)},
+        M => sub {sprintf('%02d', $_[0]->minute)},
+        n => sub {'not implemented yet'},
+        N => sub {'not implemented yet'},
+        p => sub {$_[0]->am_or_pm},
+        P => sub {lc $_[0]->am_or_pm},
+        r => sub {'not implemented yet'},
+        R => sub {'not implemented yet'},
+        s => sub {$_[0]->epoch},
+        S => sub {sprintf('%02d', $_[0]->second)},
+        t => sub {'not implemented yet'},
+        T => sub {'not implemented yet'},
+        u => sub {$_[0]->day_of_week},
+        U => sub {'not implemented yet'},
+        V => sub {'not implemented yet'},
+        w => sub {'not implemented yet'},
+        W => sub {'not implemented yet'},
+        x => sub {'not implemented yet'},
+        X => sub {'not implemented yet'},
+        y => sub {$_[0]->year_abbr},
+        Y => sub {$_[0]->year},
+        z => sub {'not implemented yet'},
+        Z => sub {'not implemented yet'},
+        '%' => sub {'%'},
+    };
+    
+    sub strftime {
         
-        my ($class, $str, $timezone) = @_;
-        my @a = map {$_ + 0} _split_date($str);
-        my $epoch = _timelocal(\@a, $timezone);
-        return bless {
-            epoch => $epoch,
-            parts => \@a,
-            asset => [$months, $wdays],
-            tz => $timezone,
-        }, $class;
+        my ($self, $format) = @_;
+        $format ||= '%04s-%02s-%02s %02s:%02s:%02s';
+        $format =~ s{%(.)}{
+            if (exists $_strftime_tbl->{$1}) {
+                $_strftime_tbl->{$1}->($self);
+            } else {
+                '%'.$1;
+            }
+        }ge;
+        return $format;
     }
     
-    sub ce_year {
-        
+    sub set_month_asset {
+        my ($self, $asset) = @_;
+        $self->{asset}->[0] = $asset;
+    }
+    
+    sub set_weekday_asset {
+        my ($self, $asset) = @_;
+        $self->{asset}->[1] = $asset;
+    }
+    
+    sub epoch {
+        my $self = shift;
+        return $self->{epoch};
+    }
+    
+    sub ymd {
+        my ($self, $sepa) = @_;
+        $sepa ||= '-';
+        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
+        return sprintf("%04d%s%02d%s%02d", $year, $sepa, $mon, $sepa, $mday);
+    }
+    
+    sub year {
         my ($self) = @_;
-        return $self->year;
+        if (! $self->{parts}->[5]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[5];
+    }
+    
+    sub month {
+        my ($self) = @_;
+        if (! $self->{parts}->[4]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[4];
+    }
+    
+    sub day {
+        my ($self) = @_;
+        if (! $self->{parts}->[3]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[3];
+    }
+    
+    sub hour {
+        my ($self) = @_;
+        if (! $self->{parts}->[2]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[2];
+    }
+    
+    sub minute {
+        my ($self) = @_;
+        if (! $self->{parts}->[1]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[1];
+    }
+    
+    sub second {
+        my ($self) = @_;
+        if (! $self->{parts}->[0]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[0];
+    }
+    
+    sub day_of_week {
+        my ($self) = @_;
+        if (! $self->{parts}->[6]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[6];
+    }
+    
+    sub day_of_year {
+        my ($self) = @_;
+        if (! $self->{parts}->[7]) {
+            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        }
+        return $self->{parts}->[7] + 1;
+    }
+    
+    sub month_name {
+        my $self = shift;
+        return $self->{asset}->[0]->[$self->month - 1];
+    }
+    
+    sub month_abbr {
+        my $self = shift;
+        return substr($self->month_name, 0, 3)
+    }
+    
+    sub day_name {
+        my $self = shift;
+        $self->{asset}->[1]->[$self->day_of_week];
+    }
+    
+    sub day_abbr {
+        my $self = shift;
+        return substr($self->day_name, 0, 3)
+    }
+    
+    sub year_abbr {
+        my $self = shift;
+        return substr($self->year, 2, 2);
+    }
+    
+    sub am_or_pm {
+        my $self = shift;
+        return $self->hour < 12 ? 'AM' : 'PM'
+    }
+    
+    sub hour_12_0 {
+        my $self = shift;
+        my $hour = $self->hour;
+        return $hour < 12 ? $hour : $hour - 12,    
     }
     
     sub quarter {
@@ -145,33 +532,9 @@ use Carp;
         return $self->day_of_year - 1;
     }
     
-    sub day_of_quarter {
-        warn 'not implemented yet';
-    }
-    
-    sub doq {
-        warn 'not implemented yet';
-    }
-    
-    sub day_of_quarter_0 {
-        warn 'not implemented yet';
-    }
-    
-    sub doq_0 {
-        warn 'not implemented yet';
-    }
-    
     sub day_of_week_0 {
         my ($self) = @_;
-        return $self->day_of_week;
-    }
-    
-    sub week_of_month {
-        warn 'not implemented yet';
-    }
-    
-    sub weekday_of_month {
-        warn 'not implemented yet';
+        return $self->day_of_week - 1;
     }
     
     sub wday {
@@ -181,17 +544,7 @@ use Carp;
     
     sub wday_0 {
         my ($self) = @_;
-        return $self->day_of_week;
-    }
-    
-    sub dow {
-        my ($self) = @_;
-        return $self->day_of_week;
-    }
-    
-    sub dow_0 {
-        my ($self) = @_;
-        return $self->day_of_week;
+        return $self->day_of_week - 1;
     }
     
     sub date {
@@ -200,18 +553,24 @@ use Carp;
     }
     
     sub mdy {
-        warn 'not implemented yet';
+        my ($self, $sepa) = @_;
+        $sepa ||= '-';
+        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
+        return sprintf("%02d%s%02d%s%04d", $mon, $sepa, $mday, $sepa, $year);
     }
     
     sub dmy {
-        warn 'not implemented yet';
+        my ($self, $sepa) = @_;
+        $sepa ||= '-';
+        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
+        return sprintf("%02d%s%02d%s%04d", $mday, $sepa, $mon, $sepa, $year);
     }
     
     sub hms {
-        my ($self, $delim) = @_;
-        $delim ||= ':';
+        my ($self, $sepa) = @_;
+        $sepa ||= ':';
         my ($sec, $min, $hour, undef,undef,undef) = _localtime($self->{epoch}, $self->{tz});
-        return sprintf("%02d$delim%02d$delim%02d", $hour, $min, $sec);
+        return sprintf("%02d%s%02d%s%02d", $hour, $sepa, $min, $sepa, $sec);
     }
     
     sub time {
@@ -220,250 +579,15 @@ use Carp;
     }
     
     sub datetime {
-        my ($self) = @_;
-        return $self->ymd . 'T'. $self->hms;
+        my ($self, $sepa) = @_;
+        $sepa ||= 'T';
+        return $self->ymd . $sepa. $self->hms;
     }
     
-    sub DateTime {
-        my ($self) = @_;
-        return $self->datetime;
-    }
-    
-    sub era_abbr {
-        return 'AD';
-    }
-    
-    sub era {
-        return 'AD';
-    }
-    
-    sub era_name {
-        return 'AD';
-    }
-    
-    sub add {
-        my ($self, %args) = @_;
-        my %new_args = (
-            year    => $self->year,
-            month   => $self->month,
-            day     => $self->day,
-            hour    => $self->hour,
-            minute  => $self->minute,
-            second  => $self->second,
-        );
-        if ($args{years}) {
-            $new_args{year} += $args{years};
-        }
-        if ($args{months}) {
-            $new_args{month} += $args{months};
-        }
-        if ($args{days}) {
-            $new_args{day} += $args{days};
-        }
-        if ($args{hours}) {
-            $new_args{hour} += $args{hours};
-        }
-        if ($args{minutes}) {
-            $new_args{minute} += $args{minutes};
-        }
-        if ($args{seconds}) {
-            $new_args{second} += $args{seconds};
-        }
-        %$self = %{(ref $self)->new(%new_args)};
-        return $self;
-    }
-    
-    my $_strftime_tbl = {
-        a => sub {$_[0]->day_abbr},
-        A => sub {$_[0]->day_name},
-        b => sub {$_[0]->month_abbr},
-        B => sub {$_[0]->month_name},
-        c => sub {'not implemented yet'},
-        C => sub {'not implemented yet'},
-        d => sub {sprintf('%02d', $_[0]->day)},
-        D => sub {'not implemented yet'},
-        e => sub {'not implemented yet'},
-        f => sub {'not implemented yet'},
-        F => sub {'not implemented yet'},
-        g => sub {'not implemented yet'},
-        G => sub {'not implemented yet'},
-        h => sub {'not implemented yet'},
-        H => sub {sprintf('%02d', $_[0]->hour)},
-        I => sub {sprintf('%02d', $_[0]->hour_12_0)},
-        j => sub {sprintf('%03d', $_[0]->day_of_year)},
-        k => sub {sprintf('%02d', $_[0]->hour)},
-        l => sub {sprintf('%02d', $_[0]->hour_12_0)},
-        m => sub {sprintf('%02d', $_[0]->month)},
-        M => sub {sprintf('%02d', $_[0]->minute)},
-        n => sub {'not implemented yet'},
-        N => sub {'not implemented yet'},
-        p => sub {$_[0]->am_or_pm},
-        P => sub {lc $_[0]->am_or_pm},
-        r => sub {'not implemented yet'},
-        R => sub {'not implemented yet'},
-        s => sub {$_[0]->epoch},
-        S => sub {sprintf('%02d', $_[0]->second)},
-        t => sub {'not implemented yet'},
-        T => sub {'not implemented yet'},
-        u => sub {$_[0]->day_of_week},
-        U => sub {'not implemented yet'},
-        V => sub {'not implemented yet'},
-        w => sub {'not implemented yet'},
-        W => sub {'not implemented yet'},
-        x => sub {'not implemented yet'},
-        X => sub {'not implemented yet'},
-        y => sub {$_[0]->year_abbr},
-        Y => sub {$_[0]->year},
-        z => sub {'not implemented yet'},
-        Z => sub {'not implemented yet'},
-        '%' => sub {'not implemented yet'},
-    };
-    
-    sub strftime {
-        
-        my ($self, $format) = @_;
-        $format ||= '%04s-%02s-%02s %02s:%02s:%02s';
-        $format =~ s{%(.)}{
-            if (exists $_strftime_tbl->{$1}) {
-                $_strftime_tbl->{$1}->($self);
-            } else {
-                '%'.$1;
-            }
-        }ge;
-        return $format;
-    }
-    
-    sub set_month_asset {
-        my ($self, $asset) = @_;
-        $self->{asset}->[0] = $asset;
-    }
-    
-    sub set_weekday_asset {
-        my ($self, $asset) = @_;
-        $self->{asset}->[1] = $asset;
-    }
-    
-    sub epoch {
-        my $self = shift;
-        return $self->{epoch};
-    }
-    
-    sub ymd {
-        
-        my ($self, $delim) = @_;
-        $delim ||= '-';
-        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
-        return sprintf("%04d$delim%02d$delim%02d", $year, $mon, $mday);
-    }
-    
-    ### ---
-    ### 2000-01-01 23:23:23
-    ### ---
     sub iso8601 {
-        
-        my ($self) = @_;
-        my ($sec, $min, $hour, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
-        return sprintf($format, $year, $mon, $mday, $hour, $min, $sec);
-    }
-    
-    sub year {
-        my ($self) = @_;
-        if (! $self->{parts}->[5]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[5];
-    }
-    
-    sub month {
-        my ($self) = @_;
-        if (! $self->{parts}->[4]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[4];
-    }
-    
-    sub day {
-        my ($self) = @_;
-        if (! $self->{parts}->[3]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[3];
-    }
-    
-    sub hour {
-        my ($self) = @_;
-        if (! $self->{parts}->[2]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[2];
-    }
-    
-    sub minute {
-        my ($self) = @_;
-        if (! $self->{parts}->[1]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[1];
-    }
-    
-    sub second {
-        my ($self) = @_;
-        if (! $self->{parts}->[0]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[0];
-    }
-    
-    sub day_of_week {
-        my ($self) = @_;
-        if (! $self->{parts}->[6]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[6];
-    }
-    
-    sub day_of_year {
-        my ($self) = @_;
-        if ($self->{parts}->[7]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
-        }
-        return $self->{parts}->[7] + 1;
-    }
-    
-    sub month_name {
-        my $self = shift;
-        return $self->{asset}->[0]->[$self->month - 1];
-    }
-    
-    sub month_abbr {
-        my $self = shift;
-        return substr($self->month_name, 0, 3)
-    }
-    
-    sub day_name {
-        my $self = shift;
-        $self->{asset}->[1]->[$self->day_of_week];
-    }
-    
-    sub day_abbr {
-        my $self = shift;
-        return substr($self->day_name, 0, 3)
-    }
-    
-    sub year_abbr {
-        my $self = shift;
-        return substr($self->year, 2, 2);
-    }
-    
-    sub am_or_pm {
-        my $self = shift;
-        return $self->hour < 12 ? 'AM' : 'PM'
-    }
-    
-    sub hour_12_0 {
-        my $self = shift;
-        my $hour = $self->hour;
-        return $hour < 12 ? $hour : $hour - 12,    
+        my ($self, $sepa) = @_;
+        $sepa ||= 'T';
+        return $self->ymd . $sepa. $self->hms;
     }
     
     sub is_leap_year {
@@ -491,12 +615,11 @@ use Carp;
     ### ---
     sub _localtime {
         my ($epoch, $tz) = @_;
-        if (defined $tz) {
-            $ENV{TZ} = $tz;
-        }
-        my @t = localtime($epoch);
+        $epoch += ($tz || 0);
+        my @t = gmtime($epoch);
         $t[5] += 1900;
         $t[4] += 1;
+        $t[6] = $t[6] == 0 ? 7 : $t[6];
         return @t;
     }
     
@@ -520,18 +643,15 @@ use Carp;
         ($date, $hour) = _carry($date, $hour, 24);
         ($year, $month) = _carry($year, $month, 12);
         
-        if (defined $tz) {
-            $ENV{TZ} = $tz;
-        }
-        
         my $ret = eval {
-            timelocal($sec, $minute, $hour, 1, $month, $year - 1900);
+            timegm($sec, $minute, $hour, 1, $month, $year - 1900);
         };
         if ($@ && $@ =~ 'Day too big') {
-            warn 'Date overflow';
+            warn 'Day too big';
             return '4458326400'; # I know this is bull shit
         }
         $ret += $date * 86400;
+        $ret -= ($tz || 0);
         return $ret;
     }
     
@@ -567,16 +687,557 @@ use Carp;
     }
     
     sub _is_leap_year {
+        return 0 if $_[0] % 4;
+        return 1 if $_[0] % 100;
+        return 0 if $_[0] % 400;
+        return 1;
+    }
+
+package Text::PSTemplate::DateTime::Catalog;
+use strict;
+use warnings;
+
+    my %timezone_tbl = (
+        'AKST9AKDT' => -32400,
+        'Africa/Abidjan' => 0,
+        'Africa/Accra' => 0,
+        'Africa/Addis_Ababa' => 10800,
+        'Africa/Algiers' => 3600,
+        'Africa/Asmara' => 10800,
+        'Africa/Asmera' => 10800,
+        'Africa/Bamako' => 0,
+        'Africa/Bangui' => 3600,
+        'Africa/Banjul' => 0,
+        'Africa/Bissau' => 0,
+        'Africa/Blantyre' => 7200,
+        'Africa/Brazzaville' => 3600,
+        'Africa/Bujumbura' => 7200,
+        'Africa/Cairo' => 7200,
+        'Africa/Casablanca' => 0,
+        'Africa/Ceuta' => 3600,
+        'Africa/Conakry' => 0,
+        'Africa/Dakar' => 0,
+        'Africa/Dar_es_Salaam' => 10800,
+        'Africa/Djibouti' => 10800,
+        'Africa/Douala' => 3600,
+        'Africa/El_Aaiun' => 0,
+        'Africa/Freetown' => 0,
+        'Africa/Gaborone' => 7200,
+        'Africa/Harare' => 7200,
+        'Africa/Johannesburg' => 7200,
+        'Africa/Kampala' => 10800,
+        'Africa/Khartoum' => 10800,
+        'Africa/Kigali' => 7200,
+        'Africa/Kinshasa' => 3600,
+        'Africa/Lagos' => 3600,
+        'Africa/Libreville' => 3600,
+        'Africa/Lome' => 0,
+        'Africa/Luanda' => 3600,
+        'Africa/Lubumbashi' => 7200,
+        'Africa/Lusaka' => 7200,
+        'Africa/Malabo' => 3600,
+        'Africa/Maputo' => 7200,
+        'Africa/Maseru' => 7200,
+        'Africa/Mbabane' => 7200,
+        'Africa/Mogadishu' => 10800,
+        'Africa/Monrovia' => 0,
+        'Africa/Nairobi' => 10800,
+        'Africa/Ndjamena' => 3600,
+        'Africa/Niamey' => 3600,
+        'Africa/Nouakchott' => 0,
+        'Africa/Ouagadougou' => 0,
+        'Africa/Porto-Novo' => 3600,
+        'Africa/Sao_Tome' => 0,
+        'Africa/Timbuktu' => 0,
+        'Africa/Tripoli' => 7200,
+        'Africa/Tunis' => 3600,
+        'Africa/Windhoek' => 3600,
+        'America/Adak' => -36000,
+        'America/Anchorage' => -32400,
+        'America/Anguilla' => -14400,
+        'America/Antigua' => -14400,
+        'America/Araguaina' => -10800,
+        'America/Argentina/Buenos_Aires' => -10800,
+        'America/Argentina/Catamarca' => -10800,
+        'America/Argentina/ComodRivadavia' => -10800,
+        'America/Argentina/Cordoba' => -10800,
+        'America/Argentina/Jujuy' => -10800,
+        'America/Argentina/La_Rioja' => -10800,
+        'America/Argentina/Mendoza' => -10800,
+        'America/Argentina/Rio_Gallegos' => -10800,
+        'America/Argentina/Salta' => -10800,
+        'America/Argentina/San_Juan' => -10800,
+        'America/Argentina/San_Luis' => -14400,
+        'America/Argentina/Tucuman' => -10800,
+        'America/Argentina/Ushuaia' => -10800,
+        'America/Aruba' => -14400,
+        'America/Asuncion' => -14400,
+        'America/Atikokan' => -18000,
+        'America/Atka' => -36000,
+        'America/Bahia' => -10800,
+        'America/Barbados' => -14400,
+        'America/Belem' => -10800,
+        'America/Belize' => -21600,
+        'America/Blanc-Sablon' => -14400,
+        'America/Boa_Vista' => -14400,
+        'America/Bogota' => -18000,
+        'America/Boise' => -25200,
+        'America/Buenos_Aires' => -10800,
+        'America/Cambridge_Bay' => -25200,
+        'America/Campo_Grande' => -14400,
+        'America/Cancun' => -21600,
+        'America/Caracas' => -12600,
+        'America/Catamarca' => -10800,
+        'America/Cayenne' => -10800,
+        'America/Cayman' => -18000,
+        'America/Chicago' => -21600,
+        'America/Chihuahua' => -25200,
+        'America/Coral_Harbour' => -18000,
+        'America/Cordoba' => -10800,
+        'America/Costa_Rica' => -21600,
+        'America/Cuiaba' => -14400,
+        'America/Curacao' => -14400,
+        'America/Danmarkshavn' => 0,
+        'America/Dawson' => -28800,
+        'America/Dawson_Creek' => -25200,
+        'America/Denver' => -25200,
+        'America/Detroit' => -18000,
+        'America/Dominica' => -14400,
+        'America/Edmonton' => -25200,
+        'America/Eirunepe' => -14400,
+        'America/El_Salvador' => -21600,
+        'America/Ensenada' => -28800,
+        'America/Fort_Wayne' => -18000,
+        'America/Fortaleza' => -10800,
+        'America/Glace_Bay' => -14400,
+        'America/Godthab' => -10800,
+        'America/Goose_Bay' => -14400,
+        'America/Grand_Turk' => -18000,
+        'America/Grenada' => -14400,
+        'America/Guadeloupe' => -14400,
+        'America/Guatemala' => -21600,
+        'America/Guayaquil' => -18000,
+        'America/Guyana' => -14400,
+        'America/Halifax' => -14400,
+        'America/Havana' => -18000,
+        'America/Hermosillo' => -25200,
+        'America/Indiana/Indianapolis' => -18000,
+        'America/Indiana/Knox' => -21600,
+        'America/Indiana/Marengo' => -18000,
+        'America/Indiana/Petersburg' => -18000,
+        'America/Indiana/Tell_City' => -21600,
+        'America/Indiana/Vevay' => -18000,
+        'America/Indiana/Vincennes' => -18000,
+        'America/Indiana/Winamac' => -18000,
+        'America/Indianapolis' => -18000,
+        'America/Inuvik' => -25200,
+        'America/Iqaluit' => -18000,
+        'America/Jamaica' => -18000,
+        'America/Jujuy' => -10800,
+        'America/Juneau' => -32400,
+        'America/Kentucky/Louisville' => -18000,
+        'America/Kentucky/Monticello' => -18000,
+        'America/Knox_IN' => -21600,
+        'America/La_Paz' => -14400,
+        'America/Lima' => -18000,
+        'America/Los_Angeles' => -28800,
+        'America/Louisville' => -18000,
+        'America/Maceio' => -10800,
+        'America/Managua' => -21600,
+        'America/Manaus' => -14400,
+        'America/Marigot' => -14400,
+        'America/Martinique' => -14400,
+        'America/Matamoros' => -21600,
+        'America/Mazatlan' => -25200,
+        'America/Mendoza' => -10800,
+        'America/Menominee' => -21600,
+        'America/Merida' => -21600,
+        'America/Mexico_City' => -21600,
+        'America/Miquelon' => -10800,
+        'America/Moncton' => -14400,
+        'America/Monterrey' => -21600,
+        'America/Montevideo' => -10800,
+        'America/Montreal' => -18000,
+        'America/Montserrat' => -14400,
+        'America/Nassau' => -18000,
+        'America/New_York' => -18000,
+        'America/Nipigon' => -18000,
+        'America/Nome' => -32400,
+        'America/Noronha' => -7200,
+        'America/North_Dakota/Center' => -21600,
+        'America/North_Dakota/New_Salem' => -21600,
+        'America/Ojinaga' => -25200,
+        'America/Panama' => -18000,
+        'America/Pangnirtung' => -18000,
+        'America/Paramaribo' => -10800,
+        'America/Phoenix' => -25200,
+        'America/Port-au-Prince' => -18000,
+        'America/Port_of_Spain' => -14400,
+        'America/Porto_Acre' => -14400,
+        'America/Porto_Velho' => -14400,
+        'America/Puerto_Rico' => -14400,
+        'America/Rainy_River' => -21600,
+        'America/Rankin_Inlet' => -21600,
+        'America/Recife' => -10800,
+        'America/Regina' => -21600,
+        'America/Resolute' => -18000,
+        'America/Rio_Branco' => -14400,
+        'America/Rosario' => -10800,
+        'America/Santa_Isabel' => -28800,
+        'America/Santarem' => -10800,
+        'America/Santiago' => -14400,
+        'America/Santo_Domingo' => -14400,
+        'America/Sao_Paulo' => -10800,
+        'America/Scoresbysund' => -3600,
+        'America/Shiprock' => -25200,
+        'America/St_Barthelemy' => -14400,
+        'America/St_Johns' => -9000,
+        'America/St_Kitts' => -14400,
+        'America/St_Lucia' => -14400,
+        'America/St_Thomas' => -14400,
+        'America/St_Vincent' => -14400,
+        'America/Swift_Current' => -21600,
+        'America/Tegucigalpa' => -21600,
+        'America/Thule' => -14400,
+        'America/Thunder_Bay' => -18000,
+        'America/Tijuana' => -28800,
+        'America/Toronto' => -18000,
+        'America/Tortola' => -14400,
+        'America/Vancouver' => -28800,
+        'America/Virgin' => -14400,
+        'America/Whitehorse' => -28800,
+        'America/Winnipeg' => -21600,
+        'America/Yakutat' => -32400,
+        'America/Yellowknife' => -25200,
+        'Antarctica/Casey' => 28800,
+        'Antarctica/Davis' => 25200,
+        'Antarctica/DumontDUrville' => 36000,
+        'Antarctica/Mawson' => 21600,
+        'Antarctica/McMurdo' => 43200,
+        'Antarctica/Palmer' => -14400,
+        'Antarctica/Rothera' => -10800,
+        'Antarctica/South_Pole' => 43200,
+        'Antarctica/Syowa' => 10800,
+        'Antarctica/Vostok' => 0,
+        'Arctic/Longyearbyen' => 3600,
+        'Asia/Aden' => 10800,
+        'Asia/Almaty' => 21600,
+        'Asia/Amman' => 7200,
+        'Asia/Anadyr' => 43200,
+        'Asia/Aqtau' => 18000,
+        'Asia/Aqtobe' => 18000,
+        'Asia/Ashgabat' => 18000,
+        'Asia/Ashkhabad' => 18000,
+        'Asia/Baghdad' => 10800,
+        'Asia/Bahrain' => 10800,
+        'Asia/Baku' => 14400,
+        'Asia/Bangkok' => 25200,
+        'Asia/Beirut' => 7200,
+        'Asia/Bishkek' => 21600,
+        'Asia/Brunei' => 28800,
+        'Asia/Calcutta' => 19800,
+        'Asia/Choibalsan' => 28800,
+        'Asia/Chongqing' => 28800,
+        'Asia/Chungking' => 28800,
+        'Asia/Colombo' => 19800,
+        'Asia/Dacca' => 21600,
+        'Asia/Damascus' => 7200,
+        'Asia/Dhaka' => 21600,
+        'Asia/Dili' => 32400,
+        'Asia/Dubai' => 14400,
+        'Asia/Dushanbe' => 18000,
+        'Asia/Gaza' => 7200,
+        'Asia/Harbin' => 28800,
+        'Asia/Ho_Chi_Minh' => 25200,
+        'Asia/Hong_Kong' => 28800,
+        'Asia/Hovd' => 25200,
+        'Asia/Irkutsk' => 32400,
+        'Asia/Istanbul' => 7200,
+        'Asia/Jakarta' => 25200,
+        'Asia/Jayapura' => 32400,
+        'Asia/Jerusalem' => 7200,
+        'Asia/Kabul' => 16200,
+        'Asia/Kamchatka' => 43200,
+        'Asia/Karachi' => 21600,
+        'Asia/Kashgar' => 28800,
+        'Asia/Kathmandu' => 20700,
+        'Asia/Katmandu' => 20700,
+        'Asia/Kolkata' => 19800,
+        'Asia/Krasnoyarsk' => 28800,
+        'Asia/Kuala_Lumpur' => 28800,
+        'Asia/Kuching' => 28800,
+        'Asia/Kuwait' => 10800,
+        'Asia/Macao' => 28800,
+        'Asia/Macau' => 28800,
+        'Asia/Magadan' => 43200,
+        'Asia/Makassar' => 28800,
+        'Asia/Manila' => 28800,
+        'Asia/Muscat' => 14400,
+        'Asia/Nicosia' => 7200,
+        'Asia/Novokuznetsk' => 25200,
+        'Asia/Novosibirsk' => 25200,
+        'Asia/Omsk' => 25200,
+        'Asia/Oral' => 18000,
+        'Asia/Phnom_Penh' => 25200,
+        'Asia/Pontianak' => 25200,
+        'Asia/Pyongyang' => 32400,
+        'Asia/Qatar' => 10800,
+        'Asia/Qyzylorda' => 21600,
+        'Asia/Rangoon' => 23400,
+        'Asia/Riyadh' => 10800,
+        'Asia/Saigon' => 25200,
+        'Asia/Sakhalin' => 39600,
+        'Asia/Samarkand' => 18000,
+        'Asia/Seoul' => 32400,
+        'Asia/Shanghai' => 28800,
+        'Asia/Singapore' => 28800,
+        'Asia/Taipei' => 28800,
+        'Asia/Tashkent' => 18000,
+        'Asia/Tbilisi' => 14400,
+        'Asia/Tehran' => 12600,
+        'Asia/Tel_Aviv' => 7200,
+        'Asia/Thimbu' => 21600,
+        'Asia/Thimphu' => 21600,
+        'Asia/Tokyo' => 32400,
+        'Asia/Ujung_Pandang' => 28800,
+        'Asia/Ulaanbaatar' => 28800,
+        'Asia/Ulan_Bator' => 28800,
+        'Asia/Urumqi' => 28800,
+        'Asia/Vientiane' => 25200,
+        'Asia/Vladivostok' => 39600,
+        'Asia/Yakutsk' => 36000,
+        'Asia/Yekaterinburg' => 21600,
+        'Asia/Yerevan' => 14400,
+        'Atlantic/Azores' => -3600,
+        'Atlantic/Bermuda' => -14400,
+        'Atlantic/Canary' => 0,
+        'Atlantic/Cape_Verde' => -3600,
+        'Atlantic/Faeroe' => 0,
+        'Atlantic/Faroe' => 0,
+        'Atlantic/Jan_Mayen' => 3600,
+        'Atlantic/Madeira' => 0,
+        'Atlantic/Reykjavik' => 0,
+        'Atlantic/South_Georgia' => -7200,
+        'Atlantic/St_Helena' => 0,
+        'Atlantic/Stanley' => -14400,
+        'Australia/ACT' => 36000,
+        'Australia/Adelaide' => 34200,
+        'Australia/Brisbane' => 36000,
+        'Australia/Broken_Hill' => 34200,
+        'Australia/Canberra' => 36000,
+        'Australia/Currie' => 36000,
+        'Australia/Darwin' => 34200,
+        'Australia/Eucla' => 31500,
+        'Australia/Hobart' => 36000,
+        'Australia/LHI' => 37800,
+        'Australia/Lindeman' => 36000,
+        'Australia/Lord_Howe' => 37800,
+        'Australia/Melbourne' => 36000,
+        'Australia/NSW' => 36000,
+        'Australia/North' => 34200,
+        'Australia/Perth' => 28800,
+        'Australia/Queensland' => 36000,
+        'Australia/South' => 34200,
+        'Australia/Sydney' => 36000,
+        'Australia/Tasmania' => 36000,
+        'Australia/Victoria' => 36000,
+        'Australia/West' => 28800,
+        'Australia/Yancowinna' => 34200,
+        'Brazil/Acre' => -14400,
+        'Brazil/DeNoronha' => -7200,
+        'Brazil/East' => -10800,
+        'Brazil/West' => -14400,
+        'Canada/Atlantic' => -14400,
+        'Canada/Central' => -21600,
+        'Canada/East-Saskatchewan' => -21600,
+        'Canada/Eastern' => -18000,
+        'Canada/Mountain' => -25200,
+        'Canada/Newfoundland' => -9000,
+        'Canada/Pacific' => -28800,
+        'Canada/Saskatchewan' => -21600,
+        'Canada/Yukon' => -28800,
+        'Chile/Continental' => -14400,
+        'Chile/EasterIsland' => -21600,
+        'Cuba' => -18000,
+        'Egypt' => 7200,
+        'Eire' => 0,
+        'Etc/GMT' => 0,
+        'Etc/GMT+0' => 0,
+        'Etc/UCT' => 0,
+        'Etc/UTC' => 0,
+        'Etc/Universal' => 0,
+        'Etc/Zulu' => 0,
+        'Europe/Amsterdam' => 3600,
+        'Europe/Andorra' => 3600,
+        'Europe/Athens' => 7200,
+        'Europe/Belfast' => 0,
+        'Europe/Belgrade' => 3600,
+        'Europe/Berlin' => 3600,
+        'Europe/Bratislava' => 3600,
+        'Europe/Brussels' => 3600,
+        'Europe/Bucharest' => 7200,
+        'Europe/Budapest' => 3600,
+        'Europe/Chisinau' => 7200,
+        'Europe/Copenhagen' => 3600,
+        'Europe/Dublin' => 0,
+        'Europe/Gibraltar' => 3600,
+        'Europe/Guernsey' => 0,
+        'Europe/Helsinki' => 7200,
+        'Europe/Isle_of_Man' => 0,
+        'Europe/Istanbul' => 7200,
+        'Europe/Jersey' => 0,
+        'Europe/Kaliningrad' => 10800,
+        'Europe/Kiev' => 7200,
+        'Europe/Lisbon' => 0,
+        'Europe/Ljubljana' => 3600,
+        'Europe/London' => 0,
+        'Europe/Luxembourg' => 3600,
+        'Europe/Madrid' => 3600,
+        'Europe/Malta' => 3600,
+        'Europe/Mariehamn' => 7200,
+        'Europe/Minsk' => 7200,
+        'Europe/Monaco' => 3600,
+        'Europe/Moscow' => 14400,
+        'Europe/Nicosia' => 7200,
+        'Europe/Oslo' => 3600,
+        'Europe/Paris' => 3600,
+        'Europe/Podgorica' => 3600,
+        'Europe/Prague' => 3600,
+        'Europe/Riga' => 7200,
+        'Europe/Rome' => 3600,
+        'Europe/Samara' => 14400,
+        'Europe/San_Marino' => 3600,
+        'Europe/Sarajevo' => 3600,
+        'Europe/Simferopol' => 7200,
+        'Europe/Skopje' => 3600,
+        'Europe/Sofia' => 7200,
+        'Europe/Stockholm' => 3600,
+        'Europe/Tallinn' => 7200,
+        'Europe/Tirane' => 3600,
+        'Europe/Tiraspol' => 7200,
+        'Europe/Uzhgorod' => 7200,
+        'Europe/Vaduz' => 3600,
+        'Europe/Vatican' => 3600,
+        'Europe/Vienna' => 3600,
+        'Europe/Vilnius' => 7200,
+        'Europe/Volgograd' => 14400,
+        'Europe/Warsaw' => 3600,
+        'Europe/Zagreb' => 3600,
+        'Europe/Zaporozhye' => 7200,
+        'Europe/Zurich' => 3600,
+        'GB' => 0,
+        'GB-Eire' => 0,
+        'GMT' => 0,
+        'GMT+0' => 0,
+        'GMT-0' => 0,
+        'GMT0' => 0,
+        'Greenwich' => 0,
+        'Hongkong' => 28800,
+        'Iceland' => 0,
+        'Indian/Antananarivo' => 10800,
+        'Indian/Chagos' => 21600,
+        'Indian/Christmas' => 25200,
+        'Indian/Cocos' => 23400,
+        'Indian/Comoro' => 10800,
+        'Indian/Kerguelen' => 18000,
+        'Indian/Mahe' => 14400,
+        'Indian/Maldives' => 18000,
+        'Indian/Mauritius' => 14400,
+        'Indian/Mayotte' => 10800,
+        'Indian/Reunion' => 14400,
+        'Iran' => 12600,
+        'Israel' => 7200,
+        'JST-9' => 32400,
+        'Jamaica' => -18000,
+        'Japan' => 32400,
+        'Kwajalein' => 43200,
+        'Libya' => 7200,
+        'Mexico/BajaNorte' => -28800,
+        'Mexico/BajaSur' => -25200,
+        'Mexico/General' => -21600,
+        'NZ' => 43200,
+        'NZ-CHAT' => 45900,
+        'Navajo' => -25200,
+        'PRC' => 28800,
+        'Pacific/Apia' => -39600,
+        'Pacific/Auckland' => 43200,
+        'Pacific/Chatham' => 45900,
+        'Pacific/Easter' => -21600,
+        'Pacific/Efate' => 39600,
+        'Pacific/Enderbury' => 46800,
+        'Pacific/Fakaofo' => -36000,
+        'Pacific/Fiji' => 43200,
+        'Pacific/Funafuti' => 43200,
+        'Pacific/Galapagos' => -21600,
+        'Pacific/Gambier' => -32400,
+        'Pacific/Guadalcanal' => 39600,
+        'Pacific/Guam' => 36000,
+        'Pacific/Honolulu' => -36000,
+        'Pacific/Johnston' => -36000,
+        'Pacific/Kiritimati' => 50400,
+        'Pacific/Kosrae' => 39600,
+        'Pacific/Kwajalein' => 43200,
+        'Pacific/Majuro' => 43200,
+        'Pacific/Marquesas' => -30600,
+        'Pacific/Midway' => -39600,
+        'Pacific/Nauru' => 43200,
+        'Pacific/Niue' => -39600,
+        'Pacific/Norfolk' => 41400,
+        'Pacific/Noumea' => 39600,
+        'Pacific/Pago_Pago' => -39600,
+        'Pacific/Palau' => 32400,
+        'Pacific/Pitcairn' => -28800,
+        'Pacific/Ponape' => 39600,
+        'Pacific/Port_Moresby' => 36000,
+        'Pacific/Rarotonga' => -36000,
+        'Pacific/Saipan' => 36000,
+        'Pacific/Samoa' => -39600,
+        'Pacific/Tahiti' => -36000,
+        'Pacific/Tarawa' => 43200,
+        'Pacific/Tongatapu' => 46800,
+        'Pacific/Truk' => 36000,
+        'Pacific/Wake' => 43200,
+        'Pacific/Wallis' => 43200,
+        'Pacific/Yap' => 36000,
+        'Poland' => 3600,
+        'Portugal' => 0,
+        'ROC' => 28800,
+        'ROK' => 32400,
+        'Singapore' => 28800,
+        'Turkey' => 7200,
+        'UCT' => 0,
+        'US/Alaska' => -32400,
+        'US/Aleutian' => -36000,
+        'US/Arizona' => -25200,
+        'US/Central' => -21600,
+        'US/East-Indiana' => -18000,
+        'US/Eastern' => -18000,
+        'US/Hawaii' => -36000,
+        'US/Indiana-Starke' => -21600,
+        'US/Michigan' => -18000,
+        'US/Mountain' => -25200,
+        'US/Pacific' => -28800,
+        'US/Pacific-New' => -28800,
+        'US/Samoa' => -39600,
+        'Universal' => 0,
+        'W-SU' => 14400,
+        'Zulu' => 0,
+        'GMT' => 0,
+        'UTC' => 0,
+    );
     
-        return(
-            ($_[0]% 400 == 0 )
-            or
-            (
-                ($_[0] % 100 != 0)
-                and
-                ($_[0] % 4 == 0)
-            )
-        );
+    sub get_offset {
+        
+        my $name = shift;
+        $name =~ s{\r|\n}{};
+        my $offset = $timezone_tbl{$name};
+        if (defined $offset) {
+            return $offset;
+        }
+        if ($name =~ /^([\-\+])?(\d\d?)(\d\d)?(\d\d)?$/) {
+            return ($1 && $1 eq '-' ? '-' : ''). ($2 * 3600 + ($3||0) * 60 + ($4||0));
+        }
+        die 'Invalid Timezone';
     }
 
 1;
@@ -646,6 +1307,72 @@ Pure perl DateTime Class
 =head2 hour_12_0
 
 =head2 is_leap_year
+
+=head2 compare
+
+=head2 date
+
+=head2 datetime
+
+=head2 day_0
+
+=head2 day_of_month
+
+=head2 day_of_month_0
+
+=head2 day_of_week_0
+
+=head2 day_of_year_0
+
+=head2 dmy
+
+=head2 hms
+
+=head2 hour_1
+
+=head2 hour_12
+
+=head2 last_day_of_month
+
+=head2 mday
+
+=head2 mday_0
+
+=head2 mdy
+
+=head2 min
+
+=head2 month_0
+
+=head2 now
+
+=head2 offset
+
+=head2 quarter
+
+=head2 sec
+
+=head2 set
+
+=head2 set_day
+
+=head2 set_hour
+
+=head2 set_minute
+
+=head2 set_month
+
+=head2 set_second
+
+=head2 set_time_zone
+
+=head2 set_year
+
+=head2 time
+
+=head2 wday
+
+=head2 wday_0
 
 =head1 AUTHOR
 

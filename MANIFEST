@@ -19,6 +19,7 @@ lib/Text/PSTemplate/Plugin/Time2.pm
 lib/Text/PSTemplate/Plugin/TSV.pm
 lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
+lib/Time/Local.pm
 Makefile.PL
 MANIFEST
 README
@@ -105,6 +106,12 @@ t/03_PST_Plugable/Control2.t
 t/03_PST_Plugable/Control3.t
 t/03_PST_Plugable/Control4.t
 t/03_PST_Plugable/Control5.t
+t/03_PST_Plugable/datetime_compatible/02last-day.t
+t/03_PST_Plugable/datetime_compatible/03components.t
+t/03_PST_Plugable/datetime_compatible/04epoch.t
+t/03_PST_Plugable/datetime_compatible/05set.t
+t/03_PST_Plugable/datetime_compatible/06add.t
+t/03_PST_Plugable/datetime_compatible/07compare.t
 t/03_PST_Plugable/die_at.t
 t/03_PST_Plugable/Env.t
 t/03_PST_Plugable/Extends.t
