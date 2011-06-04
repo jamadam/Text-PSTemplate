@@ -51,6 +51,13 @@ use overload (
     
     my $format = '%04s-%02s-%02s %02s:%02s:%02s';
     
+    my $etc_timezone;
+    
+    if (open(my $fh, '<', '/etc/timezone')) {
+        $etc_timezone = <$fh>;
+        $etc_timezone =~ s{\r|\s}{};
+    }
+    
     sub _tz_to_offset {
         
         my $name = shift;
@@ -59,8 +66,8 @@ use overload (
             $ret = Text::PSTemplate::DateTime::Catalog::get_offset($name);
         } elsif ($ENV{TZ}) {
             $ret = Text::PSTemplate::DateTime::Catalog::get_offset($ENV{TZ});
-        } elsif (open(my $fh, '<', '/etc/timezone')){
-            $ret = Text::PSTemplate::DateTime::Catalog::get_offset(<$fh>);
+        } elsif ($etc_timezone) {
+            $ret = Text::PSTemplate::DateTime::Catalog::get_offset($etc_timezone);
         }
         return $ret || 0;
     }
