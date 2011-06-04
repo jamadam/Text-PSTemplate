@@ -80,8 +80,7 @@ use overload (
                 $args{second}, $args{minute}, $args{hour},
                 $args{day}, $args{month}, $args{year}
             );
-            my $offset = _tz_to_offset($args{time_zone});
-            $self->{epoch} = _timelocal(\@parts, $offset);
+            $self->{epoch} = _timelocal(\@parts, $self->{tz});
         }
         return bless $self, $class;
     }
@@ -112,7 +111,7 @@ use overload (
             epoch => $epoch,
             parts => \@a,
             asset => [$months, $wdays],
-            tz    => _tz_to_offset($timezone),
+            tz    => $offset,
         };
         return bless $self, $class;
     }
@@ -268,6 +267,17 @@ use overload (
         my $offset = _tz_to_offset($tz_name);
         $self->{parts} = [];
         $self->{tz} = $offset;
+        return $self;
+    }
+    
+    sub set_month_asset {
+        my ($self, $asset) = @_;
+        $self->{asset}->[0] = $asset;
+    }
+    
+    sub set_weekday_asset {
+        my ($self, $asset) = @_;
+        $self->{asset}->[1] = $asset;
     }
     
     sub offset {
@@ -291,16 +301,16 @@ use overload (
         A => sub {$_[0]->day_name},
         b => sub {$_[0]->month_abbr},
         B => sub {$_[0]->month_name},
-        c => sub {'not implemented yet'},
-        C => sub {'not implemented yet'},
+        c => sub {croak 'not implemented yet'},
+        C => sub {croak 'not implemented yet'},
         d => sub {sprintf('%02d', $_[0]->day)},
-        D => sub {'not implemented yet'},
-        e => sub {'not implemented yet'},
-        f => sub {'not implemented yet'},
-        F => sub {'not implemented yet'},
-        g => sub {'not implemented yet'},
-        G => sub {'not implemented yet'},
-        h => sub {'not implemented yet'},
+        D => sub {croak 'not implemented yet'},
+        e => sub {croak 'not implemented yet'},
+        f => sub {croak 'not implemented yet'},
+        F => sub {croak 'not implemented yet'},
+        g => sub {croak 'not implemented yet'},
+        G => sub {croak 'not implemented yet'},
+        h => sub {croak 'not implemented yet'},
         H => sub {sprintf('%02d', $_[0]->hour)},
         I => sub {sprintf('%02d', $_[0]->hour_12_0)},
         j => sub {sprintf('%03d', $_[0]->day_of_year)},
@@ -308,27 +318,27 @@ use overload (
         l => sub {sprintf('%02d', $_[0]->hour_12_0)},
         m => sub {sprintf('%02d', $_[0]->month)},
         M => sub {sprintf('%02d', $_[0]->minute)},
-        n => sub {'not implemented yet'},
-        N => sub {'not implemented yet'},
+        n => sub {croak 'not implemented yet'},
+        N => sub {croak 'not implemented yet'},
         p => sub {$_[0]->am_or_pm},
         P => sub {lc $_[0]->am_or_pm},
-        r => sub {'not implemented yet'},
-        R => sub {'not implemented yet'},
+        r => sub {croak 'not implemented yet'},
+        R => sub {croak 'not implemented yet'},
         s => sub {$_[0]->epoch},
         S => sub {sprintf('%02d', $_[0]->second)},
-        t => sub {'not implemented yet'},
-        T => sub {'not implemented yet'},
+        t => sub {croak 'not implemented yet'},
+        T => sub {croak 'not implemented yet'},
         u => sub {$_[0]->day_of_week},
-        U => sub {'not implemented yet'},
-        V => sub {'not implemented yet'},
-        w => sub {'not implemented yet'},
-        W => sub {'not implemented yet'},
-        x => sub {'not implemented yet'},
-        X => sub {'not implemented yet'},
+        U => sub {croak 'not implemented yet'},
+        V => sub {croak 'not implemented yet'},
+        w => sub {croak 'not implemented yet'},
+        W => sub {croak 'not implemented yet'},
+        x => sub {croak 'not implemented yet'},
+        X => sub {croak 'not implemented yet'},
         y => sub {$_[0]->year_abbr},
         Y => sub {$_[0]->year},
-        z => sub {'not implemented yet'},
-        Z => sub {'not implemented yet'},
+        z => sub {croak 'not implemented yet'},
+        Z => sub {croak 'not implemented yet'},
         '%' => sub {'%'},
     };
     
@@ -344,16 +354,6 @@ use overload (
             }
         }ge;
         return $format;
-    }
-    
-    sub set_month_asset {
-        my ($self, $asset) = @_;
-        $self->{asset}->[0] = $asset;
-    }
-    
-    sub set_weekday_asset {
-        my ($self, $asset) = @_;
-        $self->{asset}->[1] = $asset;
     }
     
     sub epoch {
