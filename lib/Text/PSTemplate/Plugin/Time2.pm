@@ -51,7 +51,7 @@ use Carp;
     sub now : TplExport {
         
         my ($self) = @_;
-        return Text::PSTemplate::DateTime->new->iso8601;
+        return Text::PSTemplate::DateTime->new->iso8601(' ');
     }
     
     ### ---
@@ -69,7 +69,7 @@ use Carp;
     sub iso8601 : TplExport {
         
         my ($self, $date) = @_;
-        return Text::PSTemplate::DateTime->parse($date)->iso8601;
+        return Text::PSTemplate::DateTime->parse($date)->iso8601(' ');
     }
     
     ### ---

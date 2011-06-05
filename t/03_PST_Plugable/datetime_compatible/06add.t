@@ -14,19 +14,19 @@ $t->add( weeks => 8 );
 
 is( $t->year,     1997,                  "year rollover" );
 is( $t->month,    1,                     "month set on year rollover" );
-is( $t->Text::PSTemplate::DateTime, '1997-01-17T18:30:20', 'okay on year rollover' );
+is( $t->datetime, '1997-01-17T18:30:20', 'okay on year rollover' );
 
 $t->add( weeks => 2 );
-is( $t->Text::PSTemplate::DateTime, '1997-01-31T18:30:20', 'Adding weeks' );
+is( $t->datetime, '1997-01-31T18:30:20', 'Adding weeks' );
 
 $t->add( seconds => 15 );
-is( $t->Text::PSTemplate::DateTime, '1997-01-31T18:30:35', 'Adding seconds' );
+is( $t->datetime, '1997-01-31T18:30:35', 'Adding seconds' );
 
 $t->add( minutes => 12 );
-is( $t->Text::PSTemplate::DateTime, '1997-01-31T18:42:35', 'Adding minutes' );
+is( $t->datetime, '1997-01-31T18:42:35', 'Adding minutes' );
 
-$t->add( minutes => 25, hours => 3, seconds => 7 );
-is( $t->Text::PSTemplate::DateTime, '1997-01-31T22:07:42', 'Adding h,m,s' );
+$t->add(minutes => 25)->add(hours => 3)->add(seconds => 7);
+is( $t->datetime, '1997-01-31T22:07:42', 'Adding h,m,s' );
 
 # Now, test the adding of durations
 $t = Text::PSTemplate::DateTime->new(
@@ -35,8 +35,8 @@ $t = Text::PSTemplate::DateTime->new(
     time_zone => 'UTC'
 );
 
-$t->add( minutes => 1, seconds => 12 );
-is( $t->Text::PSTemplate::DateTime, '1986-01-28T16:39:12',
+$t->add( minutes => 1)->add( seconds => 12 );
+is( $t->datetime, '1986-01-28T16:39:12',
     "Adding durations with minutes and seconds works" );
 
 $t = Text::PSTemplate::DateTime->new(
@@ -46,7 +46,7 @@ $t = Text::PSTemplate::DateTime->new(
 );
 
 $t->add( seconds => 30 );
-is( $t->Text::PSTemplate::DateTime, '1986-01-28T16:38:30',
+is( $t->datetime, '1986-01-28T16:38:30',
     "Adding durations with seconds only works" );
 
 $t = Text::PSTemplate::DateTime->new(
@@ -55,8 +55,8 @@ $t = Text::PSTemplate::DateTime->new(
     time_zone => 'UTC'
 );
 
-$t->add( hours => 1, minutes => 10 );
-is( $t->Text::PSTemplate::DateTime, '1986-01-28T17:48:00',
+$t->add( hours => 1)->add( minutes => 10 );
+is( $t->datetime, '1986-01-28T17:48:00',
     "Adding durations with hours and minutes works" );
 
 $t = Text::PSTemplate::DateTime->new(
@@ -66,7 +66,7 @@ $t = Text::PSTemplate::DateTime->new(
 );
 
 $t->add( days => 3 );
-is( $t->Text::PSTemplate::DateTime, '1986-01-31T16:38:00',
+is( $t->datetime, '1986-01-31T16:38:00',
     "Adding durations with days only works" );
 
 $t = Text::PSTemplate::DateTime->new(
@@ -75,8 +75,8 @@ $t = Text::PSTemplate::DateTime->new(
     time_zone => 'UTC'
 );
 
-$t->add( days => 3, hours => 2 );
-is( $t->Text::PSTemplate::DateTime, '1986-01-31T18:38:00',
+$t->add( days => 3)->add( hours => 2 );
+is( $t->datetime, '1986-01-31T18:38:00',
     "Adding durations with days and hours works" );
 
 $t = Text::PSTemplate::DateTime->new(
@@ -85,8 +85,8 @@ $t = Text::PSTemplate::DateTime->new(
     time_zone => 'UTC'
 );
 
-$t->add( days => 3, hours => 2, minutes => 20, seconds => 15 );
-is( $t->Text::PSTemplate::DateTime, '1986-01-31T18:58:15',
+$t->add( days => 3)->add( hours => 2)->add( minutes => 20)->add( seconds => 15 );
+is( $t->datetime, '1986-01-31T18:58:15',
     "Adding durations with days, hours, minutes, and seconds works" );
 
 # Add 15M - this test failed at one point in N::I::Time
@@ -97,11 +97,11 @@ $t = Text::PSTemplate::DateTime->new(
 );
 
 $t->add( minutes => 15 );
-is( $t->Text::PSTemplate::DateTime, '2001-04-05T16:15:00', "Adding minutes to an ical string" );
+is( $t->datetime, '2001-04-05T16:15:00', "Adding minutes to an ical string" );
 
 # Subtract a duration
 $t->add( minutes => -15 );
-is( $t->Text::PSTemplate::DateTime, '2001-04-05T16:00:00', "Back where we started" );
+is( $t->datetime, '2001-04-05T16:00:00', "Back where we started" );
 
 undef $t;
 
@@ -112,10 +112,10 @@ $t = Text::PSTemplate::DateTime->new(
 );
 
 $t->add( seconds => 60 );
-is( $t->Text::PSTemplate::DateTime, "1986-01-28T16:39:00",
+is( $t->datetime, "1986-01-28T16:39:00",
     "adding positive seconds with seconds works" );
 $t->add( seconds => -120 );
-is( $t->Text::PSTemplate::DateTime, "1986-01-28T16:37:00",
+is( $t->datetime, "1986-01-28T16:37:00",
     "adding negative seconds with seconds works" );
 
 # test sub months
@@ -256,7 +256,7 @@ $t->add( years => 17 );
 is( $t->date, '2018-03-28', 'Adding 17 years' );
 
 # Test a bunch of years, before leap day
-for ( 1 .. 99 ) {
+for ( 1 .. 37 ) {
     $t = Text::PSTemplate::DateTime->new(
         year      => 2000, month => 2, day => 28,
         time_zone => 'UTC',
@@ -267,7 +267,7 @@ for ( 1 .. 99 ) {
 }
 
 # Test a bunch of years, after leap day
-for ( 1 .. 99 ) {
+for ( 1 .. 37 ) {
     $t = Text::PSTemplate::DateTime->new(
         year      => 2000, month => 3, day => 28,
         time_zone => 'UTC',
@@ -280,7 +280,7 @@ for ( 1 .. 99 ) {
 # And more of the same, starting on a non-leap year
 
 # Test a bunch of years, before leap day
-for ( 1 .. 97 ) {
+for ( 1 .. 35 ) {
     $t = Text::PSTemplate::DateTime->new(
         year      => 2002, month => 2, day => 28,
         time_zone => 'UTC',
@@ -291,7 +291,7 @@ for ( 1 .. 97 ) {
 }
 
 # Test a bunch of years, after leap day
-for ( 1 .. 97 ) {
+for ( 1 .. 35 ) {
     $t = Text::PSTemplate::DateTime->new(
         year      => 2002, month => 3, day => 28,
         time_zone => 'UTC',
@@ -302,7 +302,7 @@ for ( 1 .. 97 ) {
 }
 
 # subtract years
-for ( 1 .. 97 ) {
+for ( 1 .. 37 ) {
     $t = Text::PSTemplate::DateTime->new(
         year      => 1999, month => 3, day => 1,
         time_zone => 'UTC',
@@ -330,35 +330,18 @@ $t = Text::PSTemplate::DateTime->new(
 $t->add( months => -1 );
 is( $t->date, '1996-12-01', 'Subtracting months--rollover year' );
 
-my $new = $t + Text::PSTemplate::DateTime::Duration->new( years => 2 );
-is( $new->date, '1998-12-01', 'test + overloading' );
 
-# test nanoseconds
-
-{
-    my $t = Text::PSTemplate::DateTime->new(
-        year       => 1997, month  => 1, day    => 1,
-        hour       => 1,    minute => 1, second => 59,
-        nanosecond => 500000000,
-        time_zone  => 'UTC',
-    );
-
-    $t->add( nanoseconds => 500000000 );
-    is( $t->second, 0, 'fractional second rollover' );
-    $t->add( nanoseconds => 123000000 );
-    is( $t->fractional_second, 0.123, 'as fractional_second' );
-}
 
 {
     my $dt = Text::PSTemplate::DateTime->new( year => 2003, month => 2, day => 28 );
-    $dt->add( months => 1, days => 1 );
+    $dt->add( days => 1 )->add( months => 1);
 
     is( $dt->ymd, '2003-04-01', 'order of units in date math' );
 }
 
 {
     my $dt = Text::PSTemplate::DateTime->new( year => 2003, hour => 12, minute => 1 );
-    $dt->add( minutes => 30, seconds => -1 );
+    $dt->add( minutes => 30)->add( seconds => -1 );
 
     is( $dt->hour,   12, 'hour is 12' );
     is( $dt->minute, 30, 'minute is 30' );

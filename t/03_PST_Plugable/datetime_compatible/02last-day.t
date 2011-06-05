@@ -33,15 +33,4 @@ foreach my $month ( 1 .. 12 ) {
     is( $dt->day,   $leap_last[ $month - 1 ], 'check day' );
 }
 
-{
-    eval {
-        Text::PSTemplate::DateTime->last_day_of_month( year => 2000, month => 1,
-            nanosecond => 2000 );
-    };
-    is(
-        $@, '',
-        "last_day_of_month should accept nanosecond"
-    );
-}
-
 done_testing();
