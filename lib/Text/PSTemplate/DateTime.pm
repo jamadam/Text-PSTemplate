@@ -1236,7 +1236,6 @@ use warnings;
     sub get_offset {
         
         my $name = shift;
-        $name =~ s{\r|\n}{};
         my $offset = $timezone_tbl{$name};
         if (defined $offset) {
             return $offset;
