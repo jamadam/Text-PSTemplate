@@ -653,9 +653,13 @@ use overload (
         my $ret = eval {
             timegm($sec, $minute, $hour, 1, $month, $year - 1900);
         };
-        if ($@ && $@ =~ 'Day too big') {
-            warn 'Day too big';
-            return '4458326400'; # I know this is bull shit
+        if ($@) {
+            if ($@ =~ 'Day too big') {
+                warn 'Day too big';
+                return '4458326400'; # I know this is bull shit
+            } else {
+                croak $@;
+            }
         }
         $ret += $date * 86400;
         $ret -= ($tz || 0);
