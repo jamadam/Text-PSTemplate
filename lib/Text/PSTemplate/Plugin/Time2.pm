@@ -27,7 +27,7 @@ use Carp;
         }
     }
     
-    sub new_datetime {
+    sub new_datetime : TplExport {
         
         my ($self, $date) = @_;
         return Text::PSTemplate::DateTime->parse($date);
