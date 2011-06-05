@@ -224,11 +224,6 @@ use Carp;
         return $self->ymd . 'T'. $self->hms;
     }
     
-    sub DateTime {
-        my ($self) = @_;
-        return $self->datetime;
-    }
-    
     sub era_abbr {
         return 'AD';
     }
