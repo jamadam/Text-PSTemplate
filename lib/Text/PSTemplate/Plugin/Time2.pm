@@ -39,6 +39,9 @@ use Carp;
     sub strftime : TplExport {
         
         my ($self, $ts, $format, $asset) = @_;
+        if (! $ts) {
+            return;
+        }
         my $dt = Text::PSTemplate::DateTime->parse($ts);
         if ($asset->{months}) {
             $dt->set_month_asset($asset->{months});

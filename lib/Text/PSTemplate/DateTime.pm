@@ -270,7 +270,6 @@ use overload (
     
     sub set_time_zone {
         my ($self, $tz_name) = @_;
-        my $last_tz = $self->{tz};
         my $offset = _tz_to_offset($tz_name);
         $self->{parts} = [];
         $self->{tz} = $offset;
