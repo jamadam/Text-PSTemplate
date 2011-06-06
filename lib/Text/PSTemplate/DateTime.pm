@@ -1273,13 +1273,14 @@ __END__
 
 =head1 NAME
 
-Text::PSTemplate::DateTime - Time Utility
+Text::PSTemplate::DateTime - Pure Perl implementation of DateTime
 
 =head1 SYNOPSIS
     
 =head1 DESCRIPTION
 
-Pure perl DateTime Class
+This is a Pure Perl implementation of DateTime. Very limited functionality is
+available.
 
 =head1 Method
 
