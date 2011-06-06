@@ -72,22 +72,27 @@ use overload (
         return $ret || 0;
     }
     
+    my $MEM_EPOCH   = 1;
+    my $MEM_PARTS   = 2;
+    my $MEM_ASSET   = 3;
+    my $MEM_OFFSET  = 4;
+    
     sub new {
         
         my ($class, %args) = @_;
         my $self = {
-            asset   => [$months, $wdays],
-            parts   => [],
-            tz      => _tz_to_offset($args{time_zone}),
+            $MEM_ASSET  => [$months, $wdays],
+            $MEM_PARTS  => [],
+            $MEM_OFFSET => _tz_to_offset($args{time_zone}),
         };
         if (scalar @_ == 1) {
-            $self->{epoch} = time;
+            $self->{$MEM_EPOCH} = time;
         } else {
             my @parts = (
                 $args{second}, $args{minute}, $args{hour},
                 $args{day}, $args{month}, $args{year}
             );
-            $self->{epoch} = _timelocal(\@parts, $self->{tz});
+            $self->{$MEM_EPOCH} = _timelocal(\@parts, $self->{$MEM_OFFSET});
         }
         return bless $self, $class;
     }
@@ -100,10 +105,10 @@ use overload (
         
         my ($class, %args) = @_;
         my $self = {
-            epoch   => $args{epoch},
-            parts   => [],
-            asset   => [$months, $wdays],
-            tz      => _tz_to_offset($args{time_zone}),
+            $MEM_EPOCH  => $args{epoch},
+            $MEM_PARTS  => [],
+            $MEM_ASSET  => [$months, $wdays],
+            $MEM_OFFSET => _tz_to_offset($args{time_zone}),
         };
         return bless $self, $class;
     }
@@ -115,10 +120,10 @@ use overload (
         my $offset = _tz_to_offset($timezone);
         my $epoch = _timelocal(\@a, $offset);
         my $self = {
-            epoch => $epoch,
-            parts => \@a,
-            asset => [$months, $wdays],
-            tz    => $offset,
+            $MEM_EPOCH  => $epoch,
+            $MEM_PARTS  => \@a,
+            $MEM_ASSET  => [$months, $wdays],
+            $MEM_OFFSET => $offset,
         };
         return bless $self, $class;
     }
@@ -271,31 +276,31 @@ use overload (
     sub set_time_zone {
         my ($self, $tz_name) = @_;
         my $offset = _tz_to_offset($tz_name);
-        $self->{parts} = [];
-        $self->{tz} = $offset;
+        $self->{$MEM_PARTS} = [];
+        $self->{$MEM_OFFSET} = $offset;
         return $self;
     }
     
     sub set_month_asset {
         my ($self, $asset) = @_;
-        $self->{asset}->[0] = $asset;
+        $self->{$MEM_ASSET}->[0] = $asset;
     }
     
     sub set_weekday_asset {
         my ($self, $asset) = @_;
-        $self->{asset}->[1] = $asset;
+        $self->{$MEM_ASSET}->[1] = $asset;
     }
     
     sub offset {
         my ($self) = @_;
-        return $self->{tz};
+        return $self->{$MEM_OFFSET};
     }
     
     sub compare {
         my ($self, $obj) = @_;
-        if ($self->{epoch} == $obj->{epoch}) {
+        if ($self->{$MEM_EPOCH} == $obj->{$MEM_EPOCH}) {
             return 0;
-        } elsif ($self->{epoch} > $obj->{epoch}) {
+        } elsif ($self->{$MEM_EPOCH} > $obj->{$MEM_EPOCH}) {
             return 1;
         } else {
             return -1;
@@ -364,83 +369,92 @@ use overload (
     
     sub epoch {
         my $self = shift;
-        return $self->{epoch};
+        return $self->{$MEM_EPOCH};
     }
     
     sub ymd {
         my ($self, $sepa) = @_;
         $sepa ||= '-';
-        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
+        my (undef, undef, undef, $mday, $mon, $year) =
+                        _localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET});
         return sprintf("%04d%s%02d%s%02d", $year, $sepa, $mon, $sepa, $mday);
     }
     
     sub year {
         my ($self) = @_;
-        if (! $self->{parts}->[5]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[5]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[5];
+        return $self->{$MEM_PARTS}->[5];
     }
     
     sub month {
         my ($self) = @_;
-        if (! $self->{parts}->[4]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[4]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[4];
+        return $self->{$MEM_PARTS}->[4];
     }
     
     sub day {
         my ($self) = @_;
-        if (! $self->{parts}->[3]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[3]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[3];
+        return $self->{$MEM_PARTS}->[3];
     }
     
     sub hour {
         my ($self) = @_;
-        if (! $self->{parts}->[2]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[2]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[2];
+        return $self->{$MEM_PARTS}->[2];
     }
     
     sub minute {
         my ($self) = @_;
-        if (! $self->{parts}->[1]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[1]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[1];
+        return $self->{$MEM_PARTS}->[1];
     }
     
     sub second {
         my ($self) = @_;
-        if (! $self->{parts}->[0]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[0]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[0];
+        return $self->{$MEM_PARTS}->[0];
     }
     
     sub day_of_week {
         my ($self) = @_;
-        if (! $self->{parts}->[6]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[6]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[6];
+        return $self->{$MEM_PARTS}->[6];
     }
     
     sub day_of_year {
         my ($self) = @_;
-        if (! $self->{parts}->[7]) {
-            $self->{parts} = [_localtime($self->{epoch}, $self->{tz})];
+        if (! $self->{$MEM_PARTS}->[7]) {
+            $self->{$MEM_PARTS} =
+                    [_localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET})];
         }
-        return $self->{parts}->[7] + 1;
+        return $self->{$MEM_PARTS}->[7] + 1;
     }
     
     sub month_name {
         my $self = shift;
-        return $self->{asset}->[0]->[$self->month - 1];
+        return $self->{$MEM_ASSET}->[0]->[$self->month - 1];
     }
     
     sub month_abbr {
@@ -450,7 +464,7 @@ use overload (
     
     sub day_name {
         my $self = shift;
-        $self->{asset}->[1]->[$self->day_of_week];
+        $self->{$MEM_ASSET}->[1]->[$self->day_of_week];
     }
     
     sub day_abbr {
@@ -561,21 +575,24 @@ use overload (
     sub mdy {
         my ($self, $sepa) = @_;
         $sepa ||= '-';
-        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
+        my (undef, undef, undef, $mday, $mon, $year) =
+                        _localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET});
         return sprintf("%02d%s%02d%s%04d", $mon, $sepa, $mday, $sepa, $year);
     }
     
     sub dmy {
         my ($self, $sepa) = @_;
         $sepa ||= '-';
-        my (undef, undef, undef, $mday, $mon, $year) = _localtime($self->{epoch}, $self->{tz});
+        my (undef, undef, undef, $mday, $mon, $year) =
+                        _localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET});
         return sprintf("%02d%s%02d%s%04d", $mday, $sepa, $mon, $sepa, $year);
     }
     
     sub hms {
         my ($self, $sepa) = @_;
         $sepa ||= ':';
-        my ($sec, $min, $hour, undef,undef,undef) = _localtime($self->{epoch}, $self->{tz});
+        my ($sec, $min, $hour, undef,undef,undef) =
+                        _localtime($self->{$MEM_EPOCH}, $self->{$MEM_OFFSET});
         return sprintf("%02d%s%02d%s%02d", $hour, $sepa, $min, $sepa, $sec);
     }
     
@@ -620,8 +637,8 @@ use overload (
     ### custom localtime
     ### ---
     sub _localtime {
-        my ($epoch, $tz) = @_;
-        $epoch += ($tz || 0);
+        my ($epoch, $offset) = @_;
+        $epoch += ($offset || 0);
         my @t = gmtime($epoch);
         $t[5] += 1900;
         $t[4] += 1;
@@ -634,7 +651,7 @@ use overload (
     ### ---
     sub _timelocal {
         
-        my ($args, $tz) = @_;
+        my ($args, $offset) = @_;
         my ($sec, $minute, $hour, $date, $month, $year) = @$args;
         $sec ||= 0;
         $minute ||= 0;
@@ -661,7 +678,7 @@ use overload (
             }
         }
         $ret += $date * 86400;
-        $ret -= ($tz || 0);
+        $ret -= ($offset || 0);
         return $ret;
     }
     
@@ -1244,7 +1261,8 @@ use warnings;
             return $offset;
         }
         if ($name =~ /^([\-\+])?(\d\d?)(\d\d)?(\d\d)?$/) {
-            return ($1 && $1 eq '-' ? '-' : ''). ($2 * 3600 + ($3||0) * 60 + ($4||0));
+            return
+            ($1 && $1 eq '-' ? '-' : ''). ($2 * 3600 + ($3||0) * 60 + ($4||0));
         }
         die 'Invalid Timezone';
     }
