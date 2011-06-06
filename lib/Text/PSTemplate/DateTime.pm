@@ -354,7 +354,6 @@ use overload (
     sub strftime {
         
         my ($self, $format) = @_;
-        $format ||= '%04s-%02s-%02s %02s:%02s:%02s';
         $format =~ s{%(.)}{
             if (exists $_strftime_tbl->{$1}) {
                 $_strftime_tbl->{$1}->($self);
