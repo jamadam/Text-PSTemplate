@@ -661,7 +661,7 @@ use overload (
         };
         if ($@) {
             if ($@ =~ 'Day too big') {
-                warn 'Day too big';
+                warn $@;
                 return '4458326400'; # I know this is bull shit
             } else {
                 croak $@;
