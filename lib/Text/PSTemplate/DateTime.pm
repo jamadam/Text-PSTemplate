@@ -116,7 +116,12 @@ use overload (
     sub parse {
         
         my ($class, $str, $timezone) = @_;
-        my @a = map {$_ + 0} _split_date($str);
+        my @a;
+        if ($str && $str =~ qr{^(\d{4})([\./-]?)(\d\d?)(?:\2(\d\d?)(?:( |T|\2)(\d\d?)([:-]?)(\d\d?)(?:\7(\d\d?)(\.\d+)?)?([\+\-]\d\d:?\d\d)?Z?)?)?$}) {
+            @a = map {$_ + 0} (($9 or 0), ($8 or 0), ($6 or 0), ($4 or 1), ($3 or 1), $1);
+        } else {
+            croak "Invalid date format: $str";
+        }
         my $offset = _tz_to_offset($timezone);
         my $epoch = _timelocal(\@a, $offset);
         my $self = {
@@ -616,21 +621,6 @@ use overload (
     sub is_leap_year {
         my $self = shift;
         _is_leap_year($self->year);
-    }
-    
-    ### ---
-    ### Split any date string to array
-    ### ---
-    sub _split_date {
-        
-        my ($date) = @_;
-        if (! $date) {
-            return;
-        }
-        if ($date =~ qr{^(\d{4})([\./-]?)(\d\d?)(?:\2(\d\d?)(?:( |T|\2)(\d\d?)([:-]?)(\d\d?)(?:\7(\d\d?)(\.\d+)?)?([\+\-]\d\d:?\d\d)?Z?)?)?$}) {
-            return ($9 or 0), ($8 or 0), ($6 or 0), ($4 or 1), ($3 or 1), $1;
-        }
-        croak "Invalid date format: $date";
     }
     
     ### ---
