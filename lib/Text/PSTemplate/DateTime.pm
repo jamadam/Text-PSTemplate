@@ -49,8 +49,6 @@ use overload (
     my $wdays   =
         [qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday Sunday)];
     
-    my $format = '%04s-%02s-%02s %02s:%02s:%02s';
-    
     my $etc_timezone;
     
     if (open(my $fh, '<', '/etc/timezone')) {
@@ -361,7 +359,6 @@ use overload (
     sub strftime {
         
         my ($self, $format) = @_;
-        $format ||= '%04s-%02s-%02s %02s:%02s:%02s';
         $format =~ s{%(.)}{
             if (exists $_strftime_tbl->{$1}) {
                 $_strftime_tbl->{$1}->($self);
