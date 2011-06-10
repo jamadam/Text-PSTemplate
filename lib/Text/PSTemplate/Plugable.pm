@@ -88,6 +88,31 @@ use Scalar::Util qw(weaken);
         $self->{default_plugin} = shift;
     }
 
+    sub get_func_list {
+
+        my $self = shift;
+        my $out = <<EOF;
+=============================================================
+List of all available template functions
+=============================================================
+EOF
+
+        for my $plug (keys %{$self->{pluged}}) {
+
+            $out .= "\n-- $plug namespace";
+            $out .= "\n";
+            $out .= "\n";
+
+            my $as = $self->{pluged}->{$plug}->{2};
+            for my $func (@{$plug->_get_tpl_exports}) {
+                $out .= '<% '. join('::', grep {$_} $as, $func->[2]) . '() %>';
+                $out .= "\n";
+            }
+            $out .= "\n";
+        }
+        return $out;
+    }
+
 1;
 
 __END__
@@ -178,6 +203,10 @@ Default plugin setting causes the fucntions can be called as ::func() style.
 
 This method returns the namespace for the plugin. Since it's just to be called
 from PluginBase abstract class, you don't warry about it.
+
+=head2 get_func_list
+
+Output list of available template function in text format.
 
 =head1 AUTHOR
 
