@@ -668,7 +668,7 @@ In a template
     
 Function definision
     
-    sub your_func() {
+    sub your_func {
         my $block1 = Text::PSTemplate::get_block(0) # foo with newline chara
         my $block2 = Text::PSTemplate::get_block(1) # bar with newline chara
         my $block1 = Text::PSTemplate::get_block(0, {chop_left => 1}) # foo
@@ -681,7 +681,7 @@ This setting will be thrown at file open method. Default is 'utf8'.
 
 =head2 $instance->set_exception($code_ref)
 
-This is a callback setter. If an error occurs at parsing phase, the $code_ref
+This is a callback setter. If any errors occured at parsing phase, the $code_ref
 will be called. Your callback subroutine can get following arguments.
 
     my ($self, $line, $err) = (@_);
