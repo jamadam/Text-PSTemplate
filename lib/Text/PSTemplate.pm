@@ -90,7 +90,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### Get file context mother
     ### ---
     sub get_current_file_parser {
-        
         return
             $Text::PSTemplate::current_file_parser
             || Text::PSTemplate::get_current_parser->get_current_parser
@@ -300,8 +299,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             $Text::PSTemplate::current_file = $file;
             $str = $file->content;
         }
-        local $Text::PSTemplate::current_file_parser =
-                                        $Text::PSTemplate::get_current_parser;
+        local $Text::PSTemplate::current_file_parser = $self;
 
         my $res = try {
             $self->parse($str);
@@ -320,8 +318,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         
         my ($self, $str) = @_;
         if (blessed($str) && $str->isa('Text::PSTemplate::File')) {
-            local $Text::PSTemplate::current_file_parser =
-                                        $Text::PSTemplate::get_current_parser;
+            local $Text::PSTemplate::current_file_parser = $self;
             $Text::PSTemplate::current_file = $_[1];
             $str = $_[1]->content;
         }

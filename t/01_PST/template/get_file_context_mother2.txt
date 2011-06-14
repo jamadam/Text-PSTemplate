@@ -1,1 +1,1 @@
-<% include('t/01_PST/template/get_file_context_mother.txt') %>
+<% a() %><% include('t/01_PST/template/get_file_context_mother3.txt') %>
