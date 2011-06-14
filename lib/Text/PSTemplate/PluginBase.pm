@@ -172,7 +172,7 @@ use Fcntl qw(:flock);
             my $ref = $func->[0];
             my $rapper = sub {
                 Text::PSTemplate::set_chop($func->[1]->{chop});
-                my $ret = $self->$ref($self->preceding_args, @_);
+                my $ret = $self->$ref(@_);
                 return (defined $ret ? $ret : '');
             };
             for my $namespace (@namespaces) {
@@ -181,13 +181,6 @@ use Fcntl qw(:flock);
         }
         
         return $self;
-    }
-    
-    ### ---
-    ### preceding args for template funcs
-    ### ---
-    sub preceding_args {
-        return ();
     }
     
     ### ---
@@ -402,21 +395,6 @@ Note that in list context, this always returns an array with 1 element.
 If the key doesn't exists, this returns (undef).
 
 =head2 $instance->die($message)
-
-=head2 $instance->preceding_args()
-
-This method must be overrided by sub classes for specifying preceding args for
-template funcs.
-
-    <% some_func('arg1') %>
-    
-    sub some_func : TplExport {
-        my ($self, $context, $arg) = @_;
-    }
-    
-    sub preceding_args {
-        return (Some::FrameWork->get_context);
-    }
     
 =head2 file_cache_expire
 
