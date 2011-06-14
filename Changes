@@ -65,3 +65,8 @@ Revision history for Text-PSTemplate
   - Time::before Time::after added
   - epoch method added to Time
   - Time2 plugin added
+  - Following experimental features removed.
+      - set_default_plugin
+      - set_namespace_base
+      - preceding_args
+  - Fixed a bug on getting current file parser
