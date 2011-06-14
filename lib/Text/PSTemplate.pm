@@ -92,8 +92,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub get_current_file_parser {
         return
             $Text::PSTemplate::current_file_parser
-            || Text::PSTemplate::get_current_parser->get_current_parser
-            || Text::PSTemplate::get_current_parser;
+            || $Text::PSTemplate::self->get_current_parser
+            || $Text::PSTemplate::self;
     }
     
     ### ---
