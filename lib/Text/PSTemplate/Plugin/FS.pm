@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
-use Carp;
 
     my $options = {
         e => sub {return -e $_[0]},
@@ -30,7 +29,7 @@ use Carp;
         
         my ($self, $dir, $regex, $default) = @_;
         
-        opendir(my $DIR, $dir) or croak "opendir $dir failed";
+        opendir(my $DIR, $dir) or die "opendir $dir failed";
         
         my @files =
             map {File::Spec->catfile($dir, $_)}

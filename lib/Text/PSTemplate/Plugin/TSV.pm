@@ -4,7 +4,6 @@ use warnings;
 use utf8;
 use Fcntl qw(:flock);
 use base qw(Text::PSTemplate::PluginBase);
-use Carp;
 
     sub load_all_hashref : TplExport {
         
@@ -102,8 +101,8 @@ use Carp;
         
         my @rows = ();
         my $tsv = Text::PSTemplate::Plugin::_TSV->new({row_size => $args{row_size}});
-        open(my $fh, "<:". $args{encoding}, $args{file}) or croak "open $args{file} failed";
-        flock($fh, LOCK_EX) or croak 'flock failed';
+        open(my $fh, "<:". $args{encoding}, $args{file}) or die "open $args{file} failed";
+        flock($fh, LOCK_EX) or die 'flock failed';
         
         if ($args{header_exist}) {
             my $rubbish = $tsv->getline($fh);

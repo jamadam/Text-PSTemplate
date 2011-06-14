@@ -5,7 +5,6 @@ use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
 use Text::PSTemplate::DateTime;
 use Time::Local;
-use Carp;
     
     sub before : TplExport {
         

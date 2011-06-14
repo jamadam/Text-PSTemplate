@@ -226,13 +226,13 @@ use Text::PSTemplate;
         
         if (ref $obj eq 'ARRAY') {
             if (! defined $obj->[$name]) {
-                $self->die('Undefined');
+                die 'Undefined';
             }
             return $obj->[$name];
         }
         if (ref $obj eq 'HASH') {
             if (! defined $obj->{$name}) {
-                $self->croak('Undefined');
+                die 'Undefined';
             }
             return $obj->{$name};
         }

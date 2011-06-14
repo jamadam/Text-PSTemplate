@@ -25,5 +25,5 @@ use base qw(Text::PSTemplate::PluginBase);
     sub test : TplExport {
 		
 		my $self = shift;
-		$self->die('ERROR');
+		die 'ERROR';
     }

@@ -183,18 +183,6 @@ use Fcntl qw(:flock);
         return $self;
     }
     
-    ### ---
-    ### die with context
-    ### ---
-    sub die {
-        
-        my $at =
-            (Text::PSTemplate::get_current_filename)
-                ? ' at '. Text::PSTemplate::get_current_filename. "\n"
-                : '';
-        Carp::croak $_[1]. $at;
-    }
-    
     sub _make_class_cacheable {
         
         my ($class) = @_;
@@ -393,8 +381,6 @@ Returns ini data for given key.
 
 Note that in list context, this always returns an array with 1 element.
 If the key doesn't exists, this returns (undef).
-
-=head2 $instance->die($message)
     
 =head2 file_cache_expire
 

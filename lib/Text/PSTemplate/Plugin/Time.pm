@@ -4,7 +4,6 @@ use warnings;
 use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
 use Time::Local;
-use Carp;
     
     my @months  =
         qw(January February March April May June July August
@@ -172,7 +171,7 @@ use Carp;
         if ($date =~ qr{^(\d{4})([\./-]?)(\d\d?)(?:\2(\d\d?)(?:( |T|\2)(\d\d?)([:-]?)(\d\d?)(?:\7(\d\d?)(\.\d+)?)?([\+\-]\d\d:?\d\d)?Z?)?)?$}) {
             return ($9 or 0), ($8 or 0), ($6 or 0), ($4 or 1), ($3 or 1), $1;
         }
-        croak "Invalid date format: $date";
+        die "Invalid date format: $date";
     }
     
     ### ---
