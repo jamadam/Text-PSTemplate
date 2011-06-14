@@ -55,9 +55,6 @@ use Scalar::Util qw(weaken);
     sub get_plugin {
         
         my ($self, $name) = @_;
-        if ($name =~ qr{^::}) {
-            $name = $self->{default_plugin}. $name;
-        }
         if (exists $self->{pluged}->{$name}) {
             return $self->{pluged}->{$name};
         } elsif(exists $self->{pluged}->{$self->{namespace_base}. '::'. $name}) {
@@ -80,12 +77,6 @@ use Scalar::Util qw(weaken);
         
         my $self = shift;
         $self->{namespace_base} = shift;
-    }
-    
-    sub set_default_plugin {
-        
-        my $self = shift;
-        $self->{default_plugin} = shift;
     }
 
     sub get_func_list {
@@ -131,7 +122,6 @@ Text::PSTemplate::Plugable - Plugable template engine
     $tpl->plug('MyPlug','My::Name::Space');
     
     $tpl->set_namespace_base('Foo::Bar');
-    $tpl->set_default_plugin('Foo::Bar');
     
     $tpl->parse('...<% say_hello_to('Nick') %>...');
     
@@ -194,10 +184,6 @@ This method returns the plugin instance for given name.
 This method sets a namespace base. Namespace base strips long modificated
 functions into short. If you set 'A::B' for namespace base, A::B::func()
 can call as just func(). Also, A::B::C::func() is active as C::func().
-
-=head2 $instance->set_default_plugin [experimental]
-
-Default plugin setting causes the fucntions can be called as ::func() style.
 
 =head2 $instance->get_as($plug_id)
 

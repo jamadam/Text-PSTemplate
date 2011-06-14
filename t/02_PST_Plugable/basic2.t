@@ -34,24 +34,3 @@ use Data::Dumper;
         my $parsed = $tpl->parse(q[left <% Plugin1::some_function() %> <% Plugin2::some_function() %> right]);
         is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
     }
-
-    sub get_template_pluged_default_plugin : Test {
-        
-        my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->set_default_plugin('Test::Plugin1');
-        $tpl->plug('Test::Plugin1');
-        $tpl->plug('Test::Plugin2');
-        my $parsed = $tpl->parse(q[left <% some_function() %> <% Test::Plugin2::some_function() %> right]);
-        is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
-    }
-
-    sub get_template_pluged_relative_path : Test {
-        
-        my $tpl = Text::PSTemplate::Plugable->new;
-        $tpl->set_default_plugin('Test');
-        $tpl->plug('Test::Plugin1');
-        $tpl->plug('Test::Plugin2');
-        my $parsed = $tpl->parse(q[left <% ::Plugin1::some_function() %> <% ::Plugin2::some_function() %> right]);
-        is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
-    }
-

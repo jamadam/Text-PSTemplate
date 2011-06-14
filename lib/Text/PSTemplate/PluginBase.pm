@@ -167,13 +167,6 @@ use Fcntl qw(:flock);
                 $org = $short;
             }
             push(@namespaces, $org);
-            if (my $default_plugin = $tpl->{default_plugin}) {
-                if ($org eq $default_plugin) {
-                    push(@namespaces, '');
-                } elsif ($org =~ /^$default_plugin\::(.+)/) {
-                    push(@namespaces, '::'. $1);
-                }
-            }
         }
         
         @namespaces = map {$_ ? $_.'::' : $_} grep {defined $_} @namespaces;
