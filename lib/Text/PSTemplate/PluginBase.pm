@@ -162,10 +162,6 @@ use Fcntl qw(:flock);
         if (defined $self->{$MEM_AS}) {
             push(@namespaces, $self->{$MEM_AS});
         } else {
-            my $org = $org;
-            if (my $short = $tpl->get_base($org)) {
-                $org = $short;
-            }
             push(@namespaces, $org);
         }
         

@@ -57,26 +57,8 @@ use Scalar::Util qw(weaken);
         my ($self, $name) = @_;
         if (exists $self->{pluged}->{$name}) {
             return $self->{pluged}->{$name};
-        } elsif(exists $self->{pluged}->{$self->{namespace_base}. '::'. $name}) {
-            return $self->{pluged}->{$self->{namespace_base}. '::'. $name};
         }
         croak "Plugin $name not loaded";
-    }
-    
-    sub get_base {
-        
-        my ($self, $plug_id) = @_;
-        if (my $namespace_base = $self->{namespace_base}) {
-            $plug_id =~ s{^$namespace_base\:\:}{};
-            return $plug_id;
-        }
-        return;
-    }
-    
-    sub set_namespace_base {
-        
-        my $self = shift;
-        $self->{namespace_base} = shift;
     }
 
     sub get_func_list {
@@ -120,8 +102,6 @@ Text::PSTemplate::Plugable - Plugable template engine
     
     $tpl->plug('MyPlug');
     $tpl->plug('MyPlug','My::Name::Space');
-    
-    $tpl->set_namespace_base('Foo::Bar');
     
     $tpl->parse('...<% say_hello_to('Nick') %>...');
     
@@ -176,14 +156,6 @@ used by core plugins.
 =head2 $instance->get_plugin($name)
 
 This method returns the plugin instance for given name.
-
-=head2 $instance->get_base($plug_id) [experimental];
-
-=head2 $instance->set_namespace_base [experimental]
-
-This method sets a namespace base. Namespace base strips long modificated
-functions into short. If you set 'A::B' for namespace base, A::B::func()
-can call as just func(). Also, A::B::C::func() is active as C::func().
 
 =head2 $instance->get_as($plug_id)
 
