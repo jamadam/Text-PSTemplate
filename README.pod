@@ -1,0 +1,285 @@
+=head1 NAME
+
+Text::PSTemplate - Multi purpose template engine
+
+=head1 SYNOPSIS
+
+    use Text::PSTemplate;
+    
+    $template = Text::PSTemplate->new;
+    $template->set_encoding($encodiing);
+    $template->set_recur_limit($number);
+    $template->set_exception($code_ref);
+    $template->set_filename_trans_coderef($code_ref);
+    $template->set_delimiter($left, $right);
+    
+    $template->set_var(key1 => $value1, key2 => $value2);
+    $template->set_func(key1 => \&func1, key2 => \&func2);
+    
+    $str = $template->parse($str);
+    $str = $template->parse_str($str);
+    $str = $template->parse_str($file_obj);
+    $str = $template->parse_file($filename);
+    $str = $template->parse_file($file_obj);
+    $str = $template->parse_block($index);
+    
+    $filename       = Text::PSTemplate::get_current_filename();
+    $mother_obj     = Text::PSTemplate::get_current_parser();
+    $block_data     = Text::PSTemplate::get_block($number, $options);
+    
+    $file_obj = Text::PSTemplate::File->new($filename);
+    $file_obj->content;
+    $file_obj->name;
+    
+    $code_ref = $Text::PSTemplate::PARTIAL_NULL;
+    $code_ref = $Text::PSTemplate::PARTIAL_DIE;
+    $code_ref = $Text::PSTemplate::TAG_NULL;
+    $code_ref = $Text::PSTemplate::TAG_NO_ACTION;
+    $code_ref = $Text::PSTemplate::TAG_DIE;
+    
+=head1 DESCRIPTION
+
+Text::PSTemplate is a multi purpose template engine.
+This module allows you to include variables and fucntion calls in your
+templates.
+
+This module doesn't provide any template functions in default. This doesn't
+provide any control structures such as 'if-then' or 'for'. Functions will be
+available by specifying code refs. Any control structures are feasible by
+implementing functions by yourself. See also L<Text::PSTemplate::Plugin::Util>
+for example.
+
+This module requires less sytaxes than popular template engines. Template
+designers only have to learn following rules.
+
+=over
+
+=item Special tagging
+
+    <% ... %>
+
+=item escaping
+
+    \<% ... %>
+
+=item Perl style variable and function calls
+
+    <% $some_var %>
+    <% some_func(...) %>
+
+=item Block syntax
+
+    <% some_func()<<EOF,EOF2 %>
+    inline data
+    <% EOF %>
+    inline data2
+    <% EOF2 %>
+
+=back
+
+=head1 METHODS
+
+=head2 Text::PSTemplate->new($mother)
+
+Constractor. This method can take an argument $mother which should be a
+Text::PSTemplate instance. Most member attributes will be inherited from their
+mother at refering phase. So you don't have to set all settings again and
+again. Just tell a mother to the constractor. If this constractor is
+called from a template function, meaning the instanciation is recursive, this
+constractor auto detects the nearest mother to be set to new instance's mother.
+
+If you want really new instance, give an undef to constractor explicitly.
+
+    Text::PSTemplate->new(undef)
+
+=head2 Text::PSTemplate::get_current_parser()
+
+This can be called from template functions. If current context is recursed
+instance, this returns mother instance.
+
+=head2 Text::PSTemplate::get_current_file_parser()
+
+This can be called from template functions. This returns file-contextual mother
+template instance. 
+
+=head2 Text::PSTemplate::get_current_filename()
+
+This can be called from template functions. If current context is origined from
+a file, this returns the file name.
+
+=head2 Text::PSTemplate::set_chop($mode)
+
+This method set the behavior of the parser how they should treat follow up line
+breaks. If argument $mode is 1, line breaks will not to be output. 0 is default.
+
+=head2 Text::PSTemplate::get_block($index, $options)
+
+This can be called from template functions. This Returns block data specified
+in templates.
+    
+In a template
+    
+    <% your_func()<<EOF1,EOF2 %>
+    foo
+    <% EOF1 %>
+    bar
+    <% EOF2 %>
+    
+Function definision
+    
+    sub your_func {
+        my $block1 = Text::PSTemplate::get_block(0) # foo with newline chara
+        my $block2 = Text::PSTemplate::get_block(1) # bar with newline chara
+        my $block1 = Text::PSTemplate::get_block(0, {chop_left => 1}) # foo
+        my $block2 = Text::PSTemplate::get_block(1, {chop_right => 1}) # bar
+    }
+
+=head2 $instance->set_encoding($encode)
+
+This setting will be thrown at file open method. Default is 'utf8'.
+
+=head2 $instance->set_exception($code_ref)
+
+This is a callback setter. If any errors occured at parsing phase, the $code_ref
+will be called. Your callback subroutine can get following arguments.
+
+    my ($self, $line, $err) = (@_);
+
+With these arguments, you can log the error, do nothing and return '', or
+reconstract the tag and return it as if the tag was escaped. See also
+Text::PSTemplate::Exception Class for example.
+
+=head2 $instance->set_var_exception($code_ref)
+
+=head2 $instance->set_func_exception($code_ref)
+
+=head2 $instance->set_recur_limit($number)
+
+This class instance can recursively have a mother instance as an attribute.
+This setting limits the recursion at given number.
+
+=head2 $instance->get_param($name)
+
+=head2 $instance->set_delimiter($left, $right)
+
+Set delimiters.
+
+    $instance->set_delimiter('<!-- ', ' -->')
+
+=head2 $instance->get_delimiter(0 or 1)
+
+Get delimiters
+
+    $instance->get_delimiter(0) # left delimiter
+    $instance->get_delimiter(1) # right delimiter
+
+=head2 $instance->set_var(%datasets)
+
+This method Sets variables which can be referred from templates.
+
+    $instance->set_var(a => 'b', c => 'd')
+
+This can take null string too. You can't set undef for value.
+
+=head2 $instance->var($name)
+
+Get template variables
+
+    $instance->var('a')
+
+=head2 $instance->set_func(some_name => $code_ref)
+
+Set template functions
+
+    $a = sub {
+        return 'Hello '. $_[0];
+    };
+    $instance->set_func(say_hello_to => $a)
+    
+    Inside template...
+    <% say_hello_to('Fujitsu san') %>
+
+=head2 $instance->func(name)
+
+Get template functions. This method is aimed at internal use.
+
+=head2 $instance->parse($str)
+
+This method parses templates given in string.
+
+    $tpl->parse('...')
+
+=head2 $instance->parse_str($str)
+
+=head2 $instance->parse_str($file_obj)
+
+This method parses templates given in string or Text::PSTemplate::File
+instance.
+
+    $tpl->parse_str('...')
+    $tpl->parse_str($obj)
+
+=head2 $instance->parse_file($file_path)
+
+=head2 $instance->parse_file($file_obj)
+
+This method parses templates given in filename or Text::PSTemplate::File
+instance.
+
+    $tpl->parse_file($file_path)
+    $tpl->parse_file($obj)
+
+=head2 $instance->parse_block($index, $args)
+
+    $tpl->parse_block(0, {chop_left => 1})
+
+=head2 $instance->get_file($name, $trans_ref)
+
+This returns a Text::PSTemplate::File instance of given file name which contains
+file name and file content together. If $trans_ref is set or $instance already
+has a translation code in its attribute, the file name is translated
+with the code. You can set undef for $trans_ref then both options are
+bypassed.
+
+=head2 $instance->set_filename_trans_coderef($code_ref)
+
+This method sets a callback subroutine which defines a translating rule for file
+name.
+
+This example sets the base template directory.
+
+    $trans = sub {
+        my $name = shift;
+        return '/path/to/template/base/directory'. $name;
+    }
+    $tpl->set_filename_trans_coderef($trans)
+
+This example allows common extension to be ommited.
+
+    $trans = sub {
+        my $name = shift;
+        if ($name !~ /\./) {
+            return $name . '.html'
+        }
+        return $name;
+    }
+    $tpl->set_filename_trans_coderef($trans)
+
+This also let you set a default template in case the template not found.
+
+=head2 Text::PSTemplate::dump($object)
+
+Debug
+
+=head1 AUTHOR
+
+Sugama Keita, E<lt>sugama@jamadam.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Sugama Keita.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut
