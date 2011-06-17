@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use Fcntl qw(:flock);
 use Carp;
+use Encode;
+use Encode::Guess;
 
     my $MEM_FILENAME    = 1;
     my $MEM_CONTENT     = 2;
@@ -10,20 +12,26 @@ use Carp;
     sub new {
         
         my ($class, $name, $encode) = @_;
+        $encode ||= 'utf8';
         my $fh;
         
         if (! $name) {
             die "file name is empty\n";
         }
         
-        if ($encode) {
-            open($fh, "<:encoding($encode)", $name) || die "File '$name' cannot be opened\n";
-        } else {
-            open($fh, "<:utf8", $name) || die "File '$name' cannot be opened\n";
-        }
+        open($fh, "<", $name) || die "File '$name' cannot be opened\n";
+        
         if ($fh and flock($fh, LOCK_EX)) {
             my $out = do { local $/; <$fh> };
             close($fh);
+            
+            if (ref $encode) {
+                my $guess = guess_encoding($out, @$encode);
+                $out = decode($guess, $out);
+            } else {
+                $out = decode($encode, $out);
+            }
+            
             return bless {
                 $MEM_FILENAME => $name,
                 $MEM_CONTENT => $out,
@@ -60,9 +68,9 @@ template parse for same file.
 
 =head1 METHODS
 
-=head2 TEXT::PSTemplate::File->new($filename)
+=head2 TEXT::PSTemplate::File->new($filename, [$encode or $encode_array_ref])
 
-Constractor. The filename must be given in string.
+Constractor. The filename must be given in string. 
 
 =head2 $instance->name
 
