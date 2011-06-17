@@ -19,11 +19,14 @@ lib/Text/PSTemplate/Plugin/Time2.pm
 lib/Text/PSTemplate/Plugin/TSV.pm
 lib/Text/PSTemplate/Plugin/Util.pm
 lib/Text/PSTemplate/PluginBase.pm
-lib/Time/Local.pm
 Makefile.PL
 MANIFEST
-README
+README.pod
 t/00_load.t
+t/01_File/basic.t
+t/01_File/template/cp932.txt
+t/01_File/template/ok.txt
+t/01_File/template/utf8.txt
 t/01_PST/autoload.t
 t/01_PST/basic.t
 t/01_PST/basic2.t
@@ -46,8 +49,9 @@ t/01_PST/partial_exception.t
 t/01_PST/template/basic.txt
 t/01_PST/template/basic_2.txt
 t/01_PST/template/filename_trans.txt
-t/01_PST/template/get_file_context_mother.txt
+t/01_PST/template/get_file_context_mother1.txt
 t/01_PST/template/get_file_context_mother2.txt
+t/01_PST/template/get_file_context_mother3.txt
 t/01_PST_Block/basic.t
 t/01_PST_Exception/basic.t
 t/01_PST_Exception/error_message.t
@@ -87,7 +91,6 @@ t/01_PST_Exception/template/error_message_include_at7_1.txt
 t/01_PST_Exception/template/error_message_include_at7_2.txt
 t/01_PST_Exception/template/error_message_include_at8_1.txt
 t/01_PST_Exception/template/parse_str_capable_of_block.txt
-t/02_PST_Plugable/additional_args.t
 t/02_PST_Plugable/basic.t
 t/02_PST_Plugable/basic2.t
 t/02_PST_Plugable/basic3.t
