@@ -70,3 +70,6 @@ Revision history for Text-PSTemplate
       - set_namespace_base
       - preceding_args
   - Fixed a bug on getting current file parser
+
+0.33 2011/06/17
+  - set_encoding now accept array ref for encoding guessing

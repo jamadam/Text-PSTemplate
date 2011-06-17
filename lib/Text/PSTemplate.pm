@@ -548,7 +548,7 @@ Text::PSTemplate - Multi purpose template engine
     use Text::PSTemplate;
     
     $template = Text::PSTemplate->new;
-    $template->set_encoding($encodiing);
+    $template->set_encoding($encoding);
     $template->set_recur_limit($number);
     $template->set_exception($code_ref);
     $template->set_filename_trans_coderef($code_ref);
@@ -675,9 +675,16 @@ Function definision
         my $block2 = Text::PSTemplate::get_block(1, {chop_right => 1}) # bar
     }
 
-=head2 $instance->set_encoding($encode)
+=head2 $instance->set_encoding($encode or $encode_array_ref)
 
 This setting will be thrown at file open method. Default is 'utf8'.
+
+    $instance->set_encoding('cp932')
+
+You can set a array reference for guessing encoding. The value will be thrown at
+Encode::guess_encoding.
+
+    $instance->set_encoding(['euc-jp', 'shiftjis', '7bit-jis'])
 
 =head2 $instance->set_exception($code_ref)
 
