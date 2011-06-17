@@ -8,6 +8,7 @@ use Encode::Guess;
 
     my $MEM_FILENAME    = 1;
     my $MEM_CONTENT     = 2;
+    my $MEM_ENCODE     = 3;
     
     sub new {
         
@@ -27,14 +28,16 @@ use Encode::Guess;
             
             if (ref $encode) {
                 my $guess = guess_encoding($out, @$encode);
-                $out = decode($guess, $out);
+                $out = Encode::decode($guess, $out);
+                $encode = $guess->name;
             } else {
-                $out = decode($encode, $out);
+                $out = Encode::decode($encode, $out);
             }
             
             return bless {
-                $MEM_FILENAME => $name,
-                $MEM_CONTENT => $out,
+                $MEM_FILENAME   => $name,
+                $MEM_CONTENT    => $out,
+                $MEM_ENCODE     => $encode,
             }, $class;
         } else {
             die "File '$name' cannot be opened\n";
@@ -47,6 +50,10 @@ use Encode::Guess;
     
     sub content {
         return $_[0]->{$MEM_CONTENT};
+    }
+    
+    sub detected_encoding {
+        return $_[0]->{$MEM_ENCODE};
     }
 
 1;
@@ -79,6 +86,10 @@ Returns file name may be with path name.
 =head2 $instance->content
 
 Returns file content.
+
+=head2 $instance->detected_encoding
+
+Returns file encoding.
 
 =head1 AUTHOR
 
