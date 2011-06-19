@@ -165,3 +165,4 @@ t/lib/Test/Plugin1.pm
 t/lib/Test/Plugin2.pm
 t/perlcritic.t
 t/perlcriticrc
+xt/memory_leak.t
