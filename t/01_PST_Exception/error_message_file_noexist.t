@@ -1,6 +1,7 @@
 package Template_Basic;
 use strict;
 use warnings;
+use lib 'lib';
 use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
@@ -17,7 +18,7 @@ use Data::Dumper;
 		like($@, qr/file/i);
 		like($@, qr/open/i);
 		like($@, qr{does_not_exist});
-		like($@, qr{line 15});
+		like($@, qr{line 16});
 		is((() = $@ =~ / at /g), 1);
 	}
     
@@ -30,7 +31,7 @@ use Data::Dumper;
 		like($@, qr/file/i);
 		like($@, qr/open/i);
 		like($@, qr{does_not_exist});
-		like($@, qr{line 28});
+		like($@, qr{line 29});
 		is((() = $@ =~ / at /g), 1);
 	}
 

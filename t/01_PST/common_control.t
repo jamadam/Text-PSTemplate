@@ -1,9 +1,10 @@
 package Template_Basic;
 use strict;
 use warnings;
+use lib 'lib';
+use lib 't/lib', 't/01_PST/lib';
 use base 'Test::Class';
 use Test::More;
-use lib 't/lib', 't/01_PST/lib';
 use Common_control;
 use Data::Dumper;
     

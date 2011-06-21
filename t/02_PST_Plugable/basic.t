@@ -1,8 +1,9 @@
 use strict;
 use warnings;
+use lib 'lib';
+use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use lib 't/lib';
 use Text::PSTemplate::Plugable;
 use Data::Dumper;
 

@@ -1,6 +1,7 @@
 package main;
 use strict;
 use warnings;
+use lib 'lib';
 use lib 't/05_FileCacheable/lib';
 use Test::More;
 use base 'Test::Class';

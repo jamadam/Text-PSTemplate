@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use lib 'lib';
 use Test::Memory::Cycle;
 use Test::More;
 use Text::PSTemplate::Plugable;

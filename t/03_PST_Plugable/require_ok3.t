@@ -1,8 +1,9 @@
 use strict;
 use warnings;
+use lib 'lib';
+use lib 't/lib', 't/03_PST_Plugable/lib';
 use base 'Test::Class';
 use Test::More;
-use lib 't/lib', 't/03_PST_Plugable/lib';
 use File::Path;
 
     __PACKAGE__->runtests;
