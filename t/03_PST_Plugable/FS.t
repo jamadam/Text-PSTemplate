@@ -45,7 +45,9 @@ use Text::PSTemplate::Plugable;
         my $tpl = Text::PSTemplate::Plugable->new();
 		{
 			my $res = $tpl->parse(q{res:"<% extract(&FS::find('t/03_PST_Plugable/template','FS'), 0) %>"});
-			is($res, q{res:"t/03_PST_Plugable/template/FS"});
+			use File::Spec;
+			my $expected_path = File::Spec->catfile(qw(t 03_PST_Plugable template FS));
+			is($res, qq{res:"$expected_path"});
 		}
 		{
 			my $res = $tpl->parse(q{res:"<% extract(&FS::find('t/03_PST_Plugable/template','FS2','not_found'), 0) %>"});
