@@ -27,7 +27,7 @@ use Text::PSTemplate::Plugin::Time2;
     sub constractor : Test(21) {
         
         my $epoch = 1293851594;
-        my $a = Text::PSTemplate::DateTime->from_epoch(epoch => $epoch);
+        my $a = Text::PSTemplate::DateTime->from_epoch(epoch => $epoch, time_zone => 'Asia/Tokyo');
         is($a->epoch, 1293851594);
         is($a->year, 2011);
         is($a->month, 1);
@@ -58,7 +58,7 @@ use Text::PSTemplate::Plugin::Time2;
     
     sub parse : Test(20) {
         
-        my $a = Text::PSTemplate::DateTime->parse('2011-01-01 12:13:14');
+        my $a = Text::PSTemplate::DateTime->parse('2011-01-01 12:13:14', 'Asia/Tokyo');
         is($a->epoch, 1293851594);
         is($a->year, 2011);
         is($a->month, 1);
@@ -83,7 +83,7 @@ use Text::PSTemplate::Plugin::Time2;
     
     sub parse_case2 : Test(20) {
         
-        my $a = Text::PSTemplate::DateTime->parse('2011-01-06 12:13:14');
+        my $a = Text::PSTemplate::DateTime->parse('2011-01-06 12:13:14', 'Asia/Tokyo');
         is($a->epoch, 1294283594);
         is($a->year, 2011);
         is($a->month, 1);
@@ -121,10 +121,12 @@ use Text::PSTemplate::Plugin::Time2;
     
     sub now : Test(1) {
         
+        my $backup = $ENV{TZ}; $ENV{TZ} = 'Asia/Tokyo';
         my $a = Text::PSTemplate::Plugin::Time2->now();
         my @d = localtime(time);
         my $expect = sprintf('%04s-%02s-%02s %02s:%02s:%02s', $d[5] + 1900,$d[4] + 1,$d[3],$d[2],$d[1],$d[0]);
         is($a, $expect);
+        $ENV{TZ} = $backup;
     }
     
     sub strftime : Test(1) {
