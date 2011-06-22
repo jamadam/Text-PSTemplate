@@ -13,7 +13,7 @@ use File::Path;
         eval {
             require 'lib/Text/PSTemplate/Plugable.pm';
         };
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('require_ok3_1');
 		is(require_ok3_1->internal_use(), 'a');
         rmtree('t/03_PST_Plugable/cache/Test');

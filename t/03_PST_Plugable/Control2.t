@@ -4,14 +4,14 @@ use lib 'lib';
 use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 
     __PACKAGE__->runtests;
     
     sub tpl_switch : Test(3) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             some_var1 => '1',
@@ -30,7 +30,7 @@ use Data::Dumper;
     
     sub substr : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             some_var1 => '1',
@@ -47,7 +47,7 @@ use Data::Dumper;
     
     sub each : Test(5) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             array => [1,2,3,4],
@@ -69,7 +69,7 @@ use Data::Dumper;
     
     sub each_not_affect_mother : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             array => [1,2,3,4],
@@ -82,7 +82,7 @@ use Data::Dumper;
     
     sub each_affects_mother : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             array => [1,2,3,4],

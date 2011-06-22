@@ -58,9 +58,9 @@ Environment variables into your template engine.
 
 To activate this plugin, your template have to load it as follows
 
-    use Text::PSTemplate::Plugable;
+    use Text::PSTemplate;
     
-    my $tpl = Text::PSTemplate::Plugable->new;
+    my $tpl = Text::PSTemplate->new;
     $tpl->plug('Text::PSTemplate::Plugin::Env', '');
 
 Since this has promoted to core plugin, you don't have to explicitly load it.

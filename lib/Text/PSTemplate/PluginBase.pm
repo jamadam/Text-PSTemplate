@@ -26,7 +26,7 @@ use Fcntl qw(:flock);
     sub new {
         
         my ($class, $tpl, $as) = (@_);
-        if (! $tpl || ! $tpl->isa('Text::PSTemplate::Plugable')) {
+        if (! $tpl || ! $tpl->isa('Text::PSTemplate')) {
             croak 'template is not given';
         }
         
@@ -278,7 +278,7 @@ Text::PSTemplate::PluginBase - Plugin Abstract Class
 
     package MyApp;
     
-    my $tpl = Text::PSTemplate::Plugable->new;
+    my $tpl = Text::PSTemplate->new;
     
     my $plugin = $tpl->plug('MyPlug1');
     # ..or..
@@ -313,7 +313,7 @@ Text::PSTemplate::PluginBase - Plugin Abstract Class
 =head1 DESCRIPTION
 
 This is an Abstract Class which represents plugins for
-Text::PSTemplate::Plugable.
+Text::PSTemplate.
 
 The plugin classes can contain subroutins with TplExport attribute.
 These subroutins are targeted as template function.
@@ -332,7 +332,7 @@ templates.
 
 Constractor. This takes template instance as argument.
 
-    my $tpl = Text::PSTemplate::Plugable->new;
+    my $tpl = Text::PSTemplate->new;
     my $myplug = My::Plug->new($tpl);
 
 Note that in list context, this always returns an array with 1 element.

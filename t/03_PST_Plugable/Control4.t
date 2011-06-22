@@ -4,7 +4,7 @@ use lib 'lib';
 use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 use File::Spec;
 
@@ -12,14 +12,14 @@ use File::Spec;
     
     sub include_recursive : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		my $parsed = $tpl->parse_file('t/03_PST_Plugable/template/Control4_1.txt');
 		is($parsed, 'ok');
     }
     
     sub include_recursive2 : Test(1) {
         
-        my $tpl0 = Text::PSTemplate::Plugable->new;
+        my $tpl0 = Text::PSTemplate->new;
 		$tpl0->plug('Test::DB', '');
 		my $parsed = $tpl0->parse_file('t/03_PST_Plugable/template/Control4_4.txt');
 		is($parsed, 'a:30:a:30:okb:31:okc:32:ok//b:31:a:30:okb:31:okc:32:ok//c:32:a:30:okb:31:okc:32:ok//');

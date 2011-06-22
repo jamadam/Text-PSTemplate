@@ -8,7 +8,7 @@ use base qw(Text::PSTemplate::PluginBase);
     sub extend : TplExport {
         my ($self) = @_;
 		my $block = Text::PSTemplate::get_block(0);
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('require_ok::_Sub', '');
 		$tpl->parse($block);
     }

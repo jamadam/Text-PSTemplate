@@ -92,7 +92,7 @@ __END__
 
 =head1 NAME
 
-Text::PSTemplate::Plugable - Plugable template engine
+Text::PSTemplate::Plugable - Plugable template engine [DEPRECATED]
 
 =head1 SYNOPSIS
 

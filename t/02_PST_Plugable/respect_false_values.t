@@ -4,28 +4,28 @@ use lib 'lib';
 use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 
     __PACKAGE__->runtests;
     
     sub zero : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('Test::_Plugin');
         my $parsed = $tpl->parse(q[left <% Test::_Plugin::zero() %> right]);
         is($parsed, 'left 0 right');
     }
 	
     sub null_string : Test(1) {
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('Test::_Plugin');
         my $parsed = $tpl->parse(q[left <% Test::_Plugin::null_string() %> right]);
         is($parsed, 'left  right');
 	}
 	
     sub undefined : Test(1) {
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('Test::_Plugin');
         my $parsed = $tpl->parse(q[left <% Test::_Plugin::undefined() %> right]);
         is($parsed, 'left  right');

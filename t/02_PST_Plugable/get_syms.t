@@ -4,14 +4,14 @@ use lib 'lib';
 use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 
     __PACKAGE__->runtests;
     
     sub flock_ok : Test {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         my $plug = eval {
 			$tpl->plug('_Test');
 		};

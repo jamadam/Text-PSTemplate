@@ -3,14 +3,14 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
     
     __PACKAGE__->runtests;
     
     sub basic : Test {
         
-        my $tpl = Text::PSTemplate::Plugable->new();
+        my $tpl = Text::PSTemplate->new();
         $tpl->plug('Text::PSTemplate::Plugin::Extends','');
         
         $tpl->set_var(blog_entries => [

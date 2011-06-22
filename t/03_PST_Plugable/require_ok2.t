@@ -11,14 +11,14 @@ eval {
     __PACKAGE__->runtests;
     
 	sub require : Test(1) {
-        my $tpl = Text::PSTemplate::Plugable->new;
-        my $tpl2 = Text::PSTemplate::Plugable->new;
-		is(ref $tpl2,'Text::PSTemplate::Plugable');
+        my $tpl = Text::PSTemplate->new;
+        my $tpl2 = Text::PSTemplate->new;
+		is(ref $tpl2,'Text::PSTemplate');
 	}
     
     sub basic : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		$tpl->plug('require_ok','');
 		my $parsed = $tpl->parse('<% extend()<<EOF %><% block() %><% EOF %>');
 		is($parsed, 'block');

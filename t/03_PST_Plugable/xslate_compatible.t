@@ -3,7 +3,7 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 use utf8;
 
@@ -30,7 +30,7 @@ use utf8;
             },
         };
         
-        my $template = Text::PSTemplate::Plugable->new;
+        my $template = Text::PSTemplate->new;
         $template->set_var(
             title    => "Perl Books",
             books    => $books,

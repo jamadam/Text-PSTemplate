@@ -4,14 +4,14 @@ use lib 'lib';
 use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 
     __PACKAGE__->runtests;
     
     sub if_equals : Test(5) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             some_var1 => '1',
@@ -35,7 +35,7 @@ use Data::Dumper;
     
     sub if : Test(6) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             some_var1 => '1',
@@ -60,7 +60,7 @@ use Data::Dumper;
     
     sub if_with_set_var : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             respect => 'org',
@@ -73,7 +73,7 @@ use Data::Dumper;
     
     sub if_in_array : Test(5) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             some_var1 => '1',
@@ -97,7 +97,7 @@ use Data::Dumper;
     
     sub switch : Test(8) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         
         $tpl->set_var(
             some_var1 => '1',

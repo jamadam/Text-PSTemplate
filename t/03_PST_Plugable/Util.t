@@ -3,13 +3,13 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 	
     __PACKAGE__->runtests;
     
 	sub counter : Test(2) {
 		
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         my $parsed = $tpl->parse(<<EOF);
 <% counter(start => 10, skip => 5) %>
 <% counter() %>

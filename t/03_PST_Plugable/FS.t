@@ -3,13 +3,13 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
     
     __PACKAGE__->runtests;
     
     sub file_test : Test(7) {
         
-        my $tpl = Text::PSTemplate::Plugable->new();
+        my $tpl = Text::PSTemplate->new();
 		{
 			my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS') %>"});
 			is($res, q{res:"1"});
@@ -42,7 +42,7 @@ use Text::PSTemplate::Plugable;
     
     sub findfile : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new();
+        my $tpl = Text::PSTemplate->new();
 		{
 			my $res = $tpl->parse(q{res:"<% extract(&FS::find('t/03_PST_Plugable/template','FS'), 0) %>"});
 			use File::Spec;

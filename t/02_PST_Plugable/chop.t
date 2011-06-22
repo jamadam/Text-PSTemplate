@@ -4,14 +4,14 @@ use lib 'lib';
 use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 
     __PACKAGE__->runtests;
     
     sub get_template_pluged : Test(5) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('Test::Plugin1','');
         my $parsed1 = $tpl->parse(q[a<% test1('b') %>c]);
         is($parsed1, 'abc');

@@ -11,14 +11,14 @@ eval {
     __PACKAGE__->runtests;
     
 	sub require : Test(1) {
-        my $tpl = Text::PSTemplate::Plugable->new;
-        my $tpl2 = Text::PSTemplate::Plugable->new;
-		is(ref $tpl2,'Text::PSTemplate::Plugable');
+        my $tpl = Text::PSTemplate->new;
+        my $tpl2 = Text::PSTemplate->new;
+		is(ref $tpl2,'Text::PSTemplate');
 	}
     
     sub basic : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		$tpl->plug('_Test','');
 		my $parsed = $tpl->parse('<% test()<<EOF %><% subtest() %><% EOF %>');
 		is($parsed, 'ok');
@@ -30,8 +30,8 @@ eval {
 	
 	sub internal_use : Test(3) {
 		
-        my $tpl = Text::PSTemplate::Plugable->new;
-		is(ref $tpl,'Text::PSTemplate::Plugable');
+        my $tpl = Text::PSTemplate->new;
+		is(ref $tpl,'Text::PSTemplate');
 		is(_Test->internal_use(), 'a');
 		is(_Test::_Sub2->internal_use(), 'a');
 	}
@@ -51,7 +51,7 @@ use Class::C3;
         
         my ($self) = @_;
 		my $block = Text::PSTemplate::get_block(0);
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('_Test::_Sub', '');
 		$tpl->parse($block);
     }

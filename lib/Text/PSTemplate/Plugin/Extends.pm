@@ -9,7 +9,7 @@ use base qw(Text::PSTemplate::PluginBase);
     sub extends : TplExport {
         
         my ($self, $file) = @_;
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->plug('Text::PSTemplate::Plugin::Extends::_Sub', '');
         $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
         return $tpl->parse_file($file);
@@ -99,9 +99,9 @@ your template engine.
 
 To activate this plugin, your template have to load it as follows
 
-    use Text::PSTemplate::Plugable;
+    use Text::PSTemplate;
     
-    my $tpl = Text::PSTemplate::Plugable->new;
+    my $tpl = Text::PSTemplate->new;
     $tpl->plug('Text::PSTemplate::Plugin::Control', '');
 
 Since this has promoted to core plugin, you don't have to explicitly load it.

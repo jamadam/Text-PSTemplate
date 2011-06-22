@@ -6,7 +6,7 @@ use lib 't/05_FileCacheable/lib';
 use Test::More;
 use base 'Test::Class';
 use File::Path;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
     
     my $cache_namespace_base = 't/05_FileCacheable/cache/Test';
     
@@ -18,7 +18,7 @@ use Text::PSTemplate::Plugable;
             rmtree($cache_namespace_base);
         }
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         my $plug = $tpl->plug('TestModule3');
         
         is(TestModule3->get_class, 'TestModule3'); # must be cached
@@ -51,7 +51,7 @@ use Text::PSTemplate::Plugable;
             rmtree($cache_namespace_base);
         }
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         my $plug = $tpl->plug('TestModule4');
         
         is($plug->sub2('sub2-1'), 'sub2-1'); # must be cached
@@ -66,7 +66,7 @@ use Text::PSTemplate::Plugable;
         eval {
             require 'TestModule5.pm';
         };
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         my $plug = $tpl->plug('TestModule5sub');
         
         is(TestModule5sub->file_cache_expire_called, undef);

@@ -3,13 +3,13 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 
     __PACKAGE__->runtests;
     
     sub die_in_plugin : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		$tpl->plug('Test::_Plugin','');
 		my $parsed = eval {
 			$tpl->parse_file('t/03_PST_Plugable/template/PST_die_at.txt');

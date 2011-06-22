@@ -4,7 +4,7 @@ use lib 'lib';
 use lib 't/lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
 use File::Spec;
 
@@ -12,7 +12,7 @@ use File::Spec;
     
     sub basic : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         $tpl->set_var(a => 'hoge');
 		my $parsed = $tpl->parse(q(test <% include('t/03_PST_Plugable/template/Control3.txt') %> test));
 		is($parsed, 'test ok hoge test');
@@ -20,7 +20,7 @@ use File::Spec;
     
     sub basedir : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		$tpl->set_filename_trans_coderef(sub{File::Spec->catfile('t/03_PST_Plugable/template', $_[0])});
         $tpl->set_var(a => 'hoge');
 		my $parsed = $tpl->parse(q(test <% include('Control3.txt') %> test));
@@ -29,7 +29,7 @@ use File::Spec;
     
     sub var_asign : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		$tpl->set_filename_trans_coderef(sub{File::Spec->catfile('t/03_PST_Plugable/template', $_[0])});
         $tpl->set_var(a => 'hoge');
 		my $parsed = $tpl->parse(q(test <% include('Control3.txt', {a => 'foo'}) %> test));
@@ -38,7 +38,7 @@ use File::Spec;
     
     sub set_var : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		my $parsed = $tpl->parse(<<'EOF');
 <% set_var(var1 => 'a', var2 => 'b') %>
 <% $var1 %><% $var2 %>
@@ -51,7 +51,7 @@ EOF
     
     sub set_delimiter : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		my $parsed = $tpl->parse(<<'EOF');
 <% set_var(var1 => 'a', var2 => 'b') %>
 <% set_delimiter('%%', '%%') %>
@@ -65,14 +65,14 @@ EOF
     
     sub bypass : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		my $parsed = $tpl->parse(q{<% bypass('aa') %>});
 		is($parsed, q{});
     }
     
     sub regex_capture_bug : Test(1) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		my $parsed = $tpl->parse(<<EOF);
 <% if(1)<<EOF1 %>
 	<% if(1)<<EOF2 %>1<% EOF2 %>

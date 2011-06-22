@@ -4,27 +4,27 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
     
     __PACKAGE__->runtests;
     
 	sub normal : Test(1) {
-        my $rend = Text::PSTemplate::Plugable->new;
+        my $rend = Text::PSTemplate->new;
 		$rend->plug('SomePlug', '');
 		my $parsed = $rend->parse(q{<% hoge3('parsed') %>});
 		is($parsed, 'parsedparsedparsed');
 	}
     
 	sub block : Test(1) {
-        my $rend = Text::PSTemplate::Plugable->new;
+        my $rend = Text::PSTemplate->new;
 		$rend->plug('SomePlug', '');
 		my $parsed = $rend->parse(q{<% hoge3()<<TPL,TPL2 %>parsed<% TPL %>parsed<% TPL2 %>});
 		is($parsed, 'parsedparsedparsed');
 	}
     
 	sub block_err : Test(2) {
-        my $rend = Text::PSTemplate::Plugable->new;
+        my $rend = Text::PSTemplate->new;
 		$rend->plug('SomePlug', '');
 		eval {
 			$rend->parse_file('./t/01_PST_Exception/template/parse_str_capable_of_block.txt');

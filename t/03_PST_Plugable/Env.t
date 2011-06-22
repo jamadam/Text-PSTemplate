@@ -3,13 +3,13 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
     
     __PACKAGE__->runtests;
     
     sub basic : Test(10) {
         
-        my $tpl = Text::PSTemplate::Plugable->new();
+        my $tpl = Text::PSTemplate->new();
         $ENV{'test'} = 'value';
         my $parsed1 = $tpl->parse(q{<% env('test') %>});
         is($parsed1, 'value');

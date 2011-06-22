@@ -6,7 +6,7 @@ use lib 't/05_FileCacheable/lib';
 use Test::More;
 use base 'Test::Class';
 use File::Path;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 
     my $cache_namespace_base = 't/05_FileCacheable/cache/Test';
     
@@ -14,7 +14,7 @@ use Text::PSTemplate::Plugable;
     
     sub dynamicaly_asign_id : Test(3) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
         my $a = $tpl->plug('TestModule6');
         if (-d $cache_namespace_base) {
             rmtree($cache_namespace_base);

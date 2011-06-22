@@ -3,13 +3,13 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 
     __PACKAGE__->runtests;
     
     sub extract : Test(2) {
         
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		my $var = {a => 'b', c => 'd'};
 		$tpl->set_var(var => $var);
 		my $parsed = $tpl->parse(q{<% extract($var,'a') %>});
@@ -22,7 +22,7 @@ use Text::PSTemplate::Plugable;
 	
 	sub default : Test(2) {
 		
-        my $tpl = Text::PSTemplate::Plugable->new;
+        my $tpl = Text::PSTemplate->new;
 		$tpl->set_var_exception(sub{''});
 		$tpl->set_var(var => 'a');
 		my $parsed = $tpl->parse(q{<% default($var,'default') %>});
@@ -33,7 +33,7 @@ use Text::PSTemplate::Plugable;
 	
 	sub with : Test(1) {
 		
-        my $tpl = Text::PSTemplate::Plugable->new();
+        my $tpl = Text::PSTemplate->new();
 		$tpl->set_var(arr => {foo => 'bar'});
         my $parsed = $tpl->parse(<<'EOF');
 <% $arr->{foo} %>

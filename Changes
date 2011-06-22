@@ -74,3 +74,4 @@ Revision history for Text-PSTemplate
 0.33 2011/06/17
   - set_encoding now accept array ref for encoding guessing.
   - ini and set_ini no longer available.
+  - Text::PSTemplate got plugable. Text::PSTemplate::Plugable is deprecated.

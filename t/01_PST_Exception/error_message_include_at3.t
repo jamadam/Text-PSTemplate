@@ -4,7 +4,7 @@ use warnings;
 use lib 'lib';
 use base 'Test::Class';
 use Test::More;
-use Text::PSTemplate::Plugable;
+use Text::PSTemplate;
 use Data::Dumper;
     
     __PACKAGE__->runtests;
@@ -20,7 +20,7 @@ use Data::Dumper;
 
 	sub error_include_line_number: Test(2) {
 		
-		my $tpl = Text::PSTemplate::Plugable->new;
+		my $tpl = Text::PSTemplate->new;
 		eval {
 			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_1.txt');
 		};
@@ -30,7 +30,7 @@ use Data::Dumper;
 
 	sub tag_syntax_error_in_block : Test(2) {
 		
-		my $tpl = Text::PSTemplate::Plugable->new;
+		my $tpl = Text::PSTemplate->new;
 		eval {
 			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_3.txt');
 		};
@@ -40,7 +40,7 @@ use Data::Dumper;
 
 	sub amp_ommited : Test(2) {
 		
-		my $tpl = Text::PSTemplate::Plugable->new;
+		my $tpl = Text::PSTemplate->new;
 		eval {
 			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at3_4.txt');
 		};
