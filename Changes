@@ -72,4 +72,5 @@ Revision history for Text-PSTemplate
   - Fixed a bug on getting current file parser
 
 0.33 2011/06/17
-  - set_encoding now accept array ref for encoding guessing
+  - set_encoding now accept array ref for encoding guessing.
+  - ini and set_ini no longer available.

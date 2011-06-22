@@ -17,7 +17,6 @@ use Fcntl qw(:flock);
     my %_cacheable_fnames;
     my %_findsym2_tbl;
     
-    my $MEM_INI = 1;
     my $MEM_AS  = 2;
     my $MEM_TPL = 3;
     
@@ -38,7 +37,6 @@ use Fcntl qw(:flock);
             }
         }
         my $self = bless {
-            $MEM_INI    => {},
             $MEM_TPL    => $tpl,
             $MEM_AS     => $as,
         }, $class;
@@ -106,30 +104,6 @@ use Fcntl qw(:flock);
             push(@out, @$a);
         }
         return \@out;
-    }
-    
-    ### ---
-    ### Set ini
-    ### ---
-    sub set_ini {
-        
-        my ($self, $hash) = (@_);
-        $self->{$MEM_INI} = $hash || {};
-        return $self;
-    }
-    
-    ### ---
-    ### Get ini
-    ### ---
-    sub ini {
-        
-        my ($self, $name) = (@_);
-        
-        if (exists $self->{$MEM_INI}->{$name}) {
-            return $self->{$MEM_INI}->{$name};
-        }
-        return (undef) if wantarray;
-        return;
     }
     
     ### ---
@@ -310,8 +284,6 @@ Text::PSTemplate::PluginBase - Plugin Abstract Class
     # ..or..
     my $plugin = $tpl->plug('MyPlug1', 'Your::Namespace');
     
-    $plugin->set_ini({key => 'value'});
-    
     package MyPlug1;
     
     use base qw(Text::PSTemplate::PluginBase);
@@ -319,8 +291,6 @@ Text::PSTemplate::PluginBase - Plugin Abstract Class
     sub say_hello_to : TplExport {
     
         my ($plugin, $name) = (@_);
-        
-        my $value = $plugin->ini($some_key);
         
         return "Hello $name";
     }
@@ -356,8 +326,6 @@ The Plugins can inherit other plugins. The new constractor automatically
 instanciates all depended plugins and template functions are inherited even in
 templates.
 
-This class also capable of managing ini datas for each plugins.
-
 =head1 METHODS
 
 =head2 Text::PSTemplate::PluginBase->new($template)
@@ -366,18 +334,6 @@ Constractor. This takes template instance as argument.
 
     my $tpl = Text::PSTemplate::Plugable->new;
     my $myplug = My::Plug->new($tpl);
-
-=head2 $instance->set_ini($hash)
-
-ini setter.
-
-    $myplug->set_ini($hash_ref);
-
-=head2 $instance->ini($key)
-
-Returns ini data for given key.
-
-    my $value = $myplug->ini($some_key);
 
 Note that in list context, this always returns an array with 1 element.
 If the key doesn't exists, this returns (undef).
