@@ -650,6 +650,22 @@ Text::PSTemplate - Multi purpose template engine
     $code_ref = $Text::PSTemplate::TAG_NO_ACTION;
     $code_ref = $Text::PSTemplate::TAG_DIE;
     
+    # Plugin feature
+    
+    $template->plug('MyPlug');
+    $template->plug('MyPlug','My::Name::Space');
+    
+    $template->parse('...<% say_hello_to('Nick') %>...');
+    
+    package MyPlug;
+    use strict;
+    use warnings;
+    use base qw(Text::PSTemplate::PluginBase);
+    sub say_hello_to : TplExport(chop => 1) {
+        my ($plugin, $name) = (@_);
+        return "Hello $name";
+    }
+
 =head1 DESCRIPTION
 
 Text::PSTemplate is a multi purpose template engine.
