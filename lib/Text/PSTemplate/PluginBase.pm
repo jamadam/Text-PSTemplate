@@ -21,7 +21,7 @@ use Fcntl qw(:flock);
     my $MEM_TPL = 3;
     
     ### ---
-    ### Constractor
+    ### Constructor
     ### ---
     sub new {
         
@@ -315,22 +315,22 @@ Text::PSTemplate::PluginBase - Plugin Abstract Class
 This is an Abstract Class which represents plugins for
 Text::PSTemplate.
 
-The plugin classes can contain subroutins with TplExport attribute.
-These subroutins are targeted as template function.
+The plugin classes can contain subroutines with TplExport attribute.
+These subroutines are targeted as template function.
 
 Text::PSTemplate::PluginBase is also a sub class of Class::FileCacheable so
-subtoutins can have FileCacheable attribute. See also
+subroutines can have FileCacheable attribute. See also
 L<Class::FileCacheable>.
 
-The Plugins can inherit other plugins. The new constractor automatically
-instanciates all depended plugins and template functions are inherited even in
+The Plugins can inherit other plugins. The new constructor automatically
+instantiates all depended plugins and template functions are inherited even in
 templates.
 
 =head1 METHODS
 
 =head2 Text::PSTemplate::PluginBase->new($template)
 
-Constractor. This takes template instance as argument.
+Constructor. This takes template instance as argument.
 
     my $tpl = Text::PSTemplate->new;
     my $myplug = My::Plug->new($tpl);
@@ -340,7 +340,7 @@ If the key doesn't exists, this returns (undef).
     
 =head2 file_cache_expire
 
-This is a callback method for specifying the condition for cache expiretion.
+This is a callback method for specifying the condition for cache expiration.
 Your module can override the method if necessary.
 
 file_cache_exipre will be called as instance method when the target method
@@ -406,13 +406,13 @@ cache the function calls as a sequence.
 
 =head2 TplExport [(chop => 1)]
 
-This attribute makes the subroutine availabe in templates.
+This attribute makes the subroutine available in templates.
 
     sub your_func : TplExport {
         
     }
 
-chop => 1 causes the following line breaks to be ommited.
+chop => 1 causes the following line breaks to be omitted.
 
     sub your_func : TplExport(chop => 1) {
         

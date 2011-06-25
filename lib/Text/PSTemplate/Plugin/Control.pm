@@ -311,7 +311,7 @@ __END__
 
 =head1 NAME
 
-Text::PSTemplate::Plugin::Control - Common controll structures
+Text::PSTemplate::Plugin::Control - Common control structures
 
 =head1 SYNOPSIS
 
@@ -378,7 +378,7 @@ Text::PSTemplate::Plugin::Control - Common controll structures
 
 =head1 DESCRIPTION
 
-This is a Plugin for Text::PSTemplate. This adds Common controll structures into
+This is a Plugin for Text::PSTemplate. This adds Common control structures into
 your template engine.
 
 To activate this plugin, your template have to load it as follows
@@ -392,7 +392,7 @@ Since this has promoted to core plugin, you don't have to explicitly load it.
 
 =head1 TEMPLATE FUNCTIONS
 
-Note that this document contains many keywords for specifing block endings such
+Note that this document contains many keywords for specifying block endings such
 as THEN or ELSE etc. These keywords are just examples. As the matter of
 fact, you can say 'EOF' for all of them. The template engine only matters
 the order of BLOCKs. So do not memorize any of them. 
@@ -436,7 +436,7 @@ For more about Block syntax, See if_equals function.
 =head2 if_in_array($var, $array_ref)<<THEN[,ELSE]
 
 Conditional branch for searching in array. If $var is in the array, returns
-$then, otherwize returns $else.
+$then, otherwise returns $else.
 
     <% if_in_array($var, [1,2,3,'a'], 'found', 'not found') %>
 

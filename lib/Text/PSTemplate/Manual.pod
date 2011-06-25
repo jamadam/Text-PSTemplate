@@ -66,7 +66,7 @@ Statements can include line breaks.
 =head2 escape
 
 Statement delimiter can be escaped by backslashes so that the delimiter
-charactors themselves appear to the output. If you want to parse the statement
+characters themselves appear to the output. If you want to parse the statement
 after backslash, you can double escape.
 
     \<% this appears literally %>   ### literally
@@ -75,7 +75,7 @@ after backslash, you can double escape.
     \\\\<% $var %>                  ### Two backlashes and parsed value
     ....
 
-Charactor $ and & is interpolated in any part of statements even in single
+Character $ and & is interpolated in any part of statements even in single
 quotes. So you must escape them with backslashes when it's needed. 
 
     <% some_func(price => '\$10.25') %>

@@ -44,7 +44,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     }
     
     ### ---
-    ### constractor
+    ### constructor
     ### ---
     sub new {
         
@@ -669,11 +669,11 @@ Text::PSTemplate - Multi purpose template engine
 =head1 DESCRIPTION
 
 Text::PSTemplate is a multi purpose template engine.
-This module allows you to include variables and fucntion calls in your
+This module allows you to include variables and function calls in your
 templates.
 
-This module requires less sytaxes than popular template engines. The essential
-syntax for writing tempate is as follows.
+This module requires less syntaxes than popular template engines. The essential
+syntax for writing template is as follows.
 
 =over
 
@@ -704,14 +704,14 @@ syntax for writing tempate is as follows.
 
 =head2 Text::PSTemplate->new($mother)
 
-Constractor. This method can take an argument $mother which should be a
+Constructor. This method can take an argument $mother which should be a
 Text::PSTemplate instance. Most member attributes will be inherited from their
-mother at refering phase. So you don't have to set all settings again and
-again. Just tell a mother to the constractor. If this constractor is
-called from a template function, meaning the instanciation is recursive, this
-constractor auto detects the nearest mother to be set to new instance's mother.
+mother at referring phase. So you don't have to set all settings again and
+again. Just tell a mother to the constructor. If this constructor is
+called from a template function, meaning the instantiation is recursive, this
+constructor auto detects the nearest mother to be set to new instance's mother.
 
-If you want really new instance, give an undef to constractor explicitly.
+If you want really new instance, give an undef to constructor explicitly.
 
     Text::PSTemplate->new(undef)
 
@@ -727,8 +727,8 @@ template instance.
 
 =head2 Text::PSTemplate::get_current_filename()
 
-This can be called from template functions. If current context is origined from
-a file, this returns the file name.
+This can be called from template functions. If current context is originated
+from a file, this returns the file name.
 
 =head2 Text::PSTemplate::set_chop($mode)
 
@@ -748,7 +748,7 @@ In a template
     bar
     <% EOF2 %>
     
-Function definision
+Function definition
     
     sub your_func {
         my $block1 = Text::PSTemplate::get_block(0) # foo with newline chara
@@ -770,13 +770,13 @@ Encode::guess_encoding.
 
 =head2 $instance->set_exception($code_ref)
 
-This is a callback setter. If any errors occured at parsing phase, the $code_ref
+This is a callback setter. If any errors occurred at parsing phase, the $code_ref
 will be called. Your callback subroutine can get following arguments.
 
     my ($self, $line, $err) = (@_);
 
 With these arguments, you can log the error, do nothing and return '', or
-reconstract the tag and return it as if the tag was escaped. See also
+reconstruct the tag and return it as if the tag was escaped. See also
 Text::PSTemplate::Exception Class for example.
 
 =head2 $instance->set_var_exception($code_ref)
@@ -884,7 +884,7 @@ This example sets the base template directory.
     }
     $tpl->set_filename_trans_coderef($trans)
 
-This example allows common extension to be ommited.
+This example allows common extension to be omitted.
 
     $trans = sub {
         my $name = shift;
@@ -919,7 +919,7 @@ This functions will available as follows
 
     <% MyNamespace::some_function(...) %>
 
-You can marge plugins into single namespace or even the root namespace which
+You can merge plugins into single namespace or even the root namespace which
 used by core plugins.
 
     $instance->plug('Plugin1', 'MyNamespace');
@@ -933,7 +933,7 @@ This method returns the plugin instance for given name.
 =head2 $instance->get_as($plug_id)
 
 This method returns the namespace for the plugin. Since it's just to be called
-from PluginBase abstract class, you don't warry about it.
+from PluginBase abstract class, you don't worry about it.
 
 =head2 get_func_list
 

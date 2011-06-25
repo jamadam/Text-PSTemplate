@@ -38,7 +38,7 @@ use Data::Dumper;
 		is((() = $@ =~ / at /g), 1);
 	}
 
-	sub amp_ommited : Test(2) {
+	sub amp_omitted : Test(2) {
 		
 		my $tpl = Text::PSTemplate->new;
 		eval {

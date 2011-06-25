@@ -27,7 +27,7 @@ use Data::Dumper;
 		is($num, '3');
 	}
     
-	sub pos_ommited : Test(1) {
+	sub pos_omitted : Test(1) {
 		
 		my $num = Text::PSTemplate::Exception::_line_number("1       \n  2    \n   3    \n");
 		is($num, '4');

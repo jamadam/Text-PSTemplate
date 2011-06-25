@@ -77,7 +77,7 @@ template parse for same file.
 
 =head2 TEXT::PSTemplate::File->new($filename, [$encode or $encode_array_ref])
 
-Constractor. The filename must be given in string. 
+Constructor. The filename must be given in string. 
 
 =head2 $instance->name
 

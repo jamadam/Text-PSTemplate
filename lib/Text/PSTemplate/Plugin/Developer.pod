@@ -39,7 +39,7 @@ TplExport attribute also can take following options.
 =item chop
 
 This option specifies how parser treats line breaks after template tags.
-chop => 1 causes a line break reduced right after closeing delimiter.
+chop => 1 causes a line break reduced right after closing delimiter.
 
     sub do_nothing : TplExport(chop => 1) {
         return '';

@@ -123,8 +123,8 @@ This extends some feature to Text::PSTemplate plugable.
 
 =head2 Text:PSTemplate::Plugable->new($mother)
 
-Constractor. This only does SUPER::new and loads some core plugins. See also
-new constractor of L<Text:PSTemplate>.
+Constructor. This only does SUPER::new and loads some core plugins. See also
+new constructor of L<Text:PSTemplate>.
 
     my $template = Text:PSTemplate::Plugable->new();
 
@@ -146,7 +146,7 @@ This functions will available as follows
 
     <% MyNamespace::some_function(...) %>
 
-You can marge plugins into single namespace or even the root namespace which
+You can merge plugins into single namespace or even the root namespace which
 used by core plugins.
 
     $instance->plug('Plugin1', 'MyNamespace');
@@ -160,7 +160,7 @@ This method returns the plugin instance for given name.
 =head2 $instance->get_as($plug_id)
 
 This method returns the namespace for the plugin. Since it's just to be called
-from PluginBase abstract class, you don't warry about it.
+from PluginBase abstract class, you don't worry about it.
 
 =head2 get_func_list
 

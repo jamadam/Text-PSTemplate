@@ -1271,123 +1271,123 @@ available.
 
 =head1 Method
 
-=head2 new
+=head2 DateTime->new
 
-=head2 parse
+=head2 DateTime->parse
 
-=head2 from_epoch
+=head2 DateTime->from_epoch
 
-=head2 strftime
+=head2 $instance->strftime
 
-=head2 set_month_asset
+=head2 $instance->set_month_asset
 
-=head2 set_weekday_asset
+=head2 $instance->set_weekday_asset
 
-=head2 add
+=head2 $instance->add
 
-=head2 epoch
+=head2 $instance->epoch
 
-=head2 ymd
+=head2 $instance->ymd
 
-=head2 iso8601
+=head2 $instance->iso8601
 
-=head2 year
+=head2 $instance->year
 
-=head2 month
+=head2 $instance->month
 
-=head2 day
+=head2 $instance->day
 
-=head2 hour
+=head2 $instance->hour
 
-=head2 minute
+=head2 $instance->minute
 
-=head2 second
+=head2 $instance->second
 
-=head2 day_of_week
+=head2 $instance->day_of_week
 
-=head2 day_of_year
+=head2 $instance->day_of_year
 
-=head2 month_name
+=head2 $instance->month_name
 
-=head2 month_abbr
+=head2 $instance->month_abbr
 
-=head2 day_name
+=head2 $instance->day_name
 
-=head2 day_abbr
+=head2 $instance->day_abbr
 
-=head2 year_abbr
+=head2 $instance->year_abbr
 
-=head2 am_or_pm
+=head2 $instance->am_or_pm
 
-=head2 hour_12_0
+=head2 $instance->hour_12_0
 
-=head2 is_leap_year
+=head2 $instance->is_leap_year
 
-=head2 compare
+=head2 $instance->compare
 
-=head2 date
+=head2 $instance->date
 
-=head2 datetime
+=head2 $instance->datetime
 
-=head2 day_0
+=head2 $instance->day_0
 
-=head2 day_of_month
+=head2 $instance->day_of_month
 
-=head2 day_of_month_0
+=head2 $instance->day_of_month_0
 
-=head2 day_of_week_0
+=head2 $instance->day_of_week_0
 
-=head2 day_of_year_0
+=head2 $instance->day_of_year_0
 
-=head2 dmy
+=head2 $instance->dmy
 
-=head2 hms
+=head2 $instance->hms
 
-=head2 hour_1
+=head2 $instance->hour_1
 
-=head2 hour_12
+=head2 $instance->hour_12
 
-=head2 last_day_of_month
+=head2 $instance->last_day_of_month
 
-=head2 mday
+=head2 $instance->mday
 
-=head2 mday_0
+=head2 $instance->mday_0
 
-=head2 mdy
+=head2 $instance->mdy
 
-=head2 min
+=head2 $instance->min
 
-=head2 month_0
+=head2 $instance->month_0
 
-=head2 now
+=head2 $instance->now
 
-=head2 offset
+=head2 $instance->offset
 
-=head2 quarter
+=head2 $instance->quarter
 
-=head2 sec
+=head2 $instance->sec
 
-=head2 set
+=head2 $instance->set
 
-=head2 set_day
+=head2 $instance->set_day
 
-=head2 set_hour
+=head2 $instance->set_hour
 
-=head2 set_minute
+=head2 $instance->set_minute
 
-=head2 set_month
+=head2 $instance->set_month
 
-=head2 set_second
+=head2 $instance->set_second
 
-=head2 set_time_zone
+=head2 $instance->set_time_zone
 
-=head2 set_year
+=head2 $instance->set_year
 
-=head2 time
+=head2 $instance->time
 
-=head2 wday
+=head2 $instance->wday
 
-=head2 wday_0
+=head2 $instance->wday_0
 
 =head1 AUTHOR
 
