@@ -13,6 +13,12 @@ use Scalar::Util qw( blessed weaken );
 no warnings 'recursion';
 $Carp::Internal{ (__PACKAGE__) }++;
 
+    our $current_file;
+    our $current_file_parser;
+    our $current_parser;
+    our $block;
+    our $chop;
+    
     my $MEM_MOTHER                  = 1;
     my $MEM_DELIMITER_LEFT          = 2;
     my $MEM_DELIMITER_RIGHT         = 3;
@@ -53,7 +59,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         if (scalar @_ == 2 && ! defined $mother) {
             $mother = undef;
         } else {
-            $mother ||= $Text::PSTemplate::self;
+            $mother ||= $current_parser;
         }
         
         my $self = bless {
@@ -98,7 +104,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         if (ref $self_or_class) {
             return $self_or_class->{$MEM_MOTHER};
         } else {
-            return $Text::PSTemplate::self;
+            return $current_parser;
         }
     }
     
@@ -107,9 +113,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub get_current_file_parser {
         return
-            $Text::PSTemplate::current_file_parser
-            || $Text::PSTemplate::self->get_current_parser
-            || $Text::PSTemplate::self;
+            $current_file_parser
+            || $current_parser->get_current_parser
+            || $current_parser;
     }
     
     ### ---
@@ -117,8 +123,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub get_current_filename {
         
-        if ($Text::PSTemplate::current_file) {
-            return $Text::PSTemplate::current_file->name;
+        if ($current_file) {
+            return $current_file->name;
         }
     }
     
@@ -189,7 +195,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub set_chop {
         
         my ($mode) = @_;
-        $Text::PSTemplate::chop = $mode;
+        $chop = $mode;
     }
     
     ### ---
@@ -298,13 +304,13 @@ $Carp::Internal{ (__PACKAGE__) }++;
         
         my ($self, $file) = @_;
         my $first_file_parse = 1;
-        if ($Text::PSTemplate::current_file) {
+        if ($current_file) {
             $first_file_parse = 0;
         }
-        local $Text::PSTemplate::current_file = $Text::PSTemplate::current_file;
+        local $current_file = $current_file;
         my $str;
         if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
-            $Text::PSTemplate::current_file = $file;
+            $current_file = $file;
             $str = $file->content;
         } else {
             my $translate_ref = $self->get_param($MEM_FILENAME_TRANS);
@@ -312,15 +318,15 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 $file = $translate_ref->($file);
             }
             my $file = $self->get_file($file, undef);
-            $Text::PSTemplate::current_file = $file;
+            $current_file = $file;
             $str = $file->content;
         }
-        local $Text::PSTemplate::current_file_parser = $self;
+        local $current_file_parser = $self;
 
         my $res = try {
             $self->parse($str);
         } catch {
-            $_->set_file($Text::PSTemplate::current_file);
+            $_->set_file($current_file);
             $_->finalize;
             die $_;
         };
@@ -334,8 +340,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
         
         my ($self, $str) = @_;
         if (blessed($str) && $str->isa('Text::PSTemplate::File')) {
-            local $Text::PSTemplate::current_file_parser = $self;
-            $Text::PSTemplate::current_file = $_[1];
+            local $current_file_parser = $self;
+            $current_file = $_[1];
             $str = $_[1]->content;
         }
         return $self->parse($str);
@@ -344,10 +350,10 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub get_block {
         
         my ($index, $args) = @_;
-        if (ref $Text::PSTemplate::block && defined $index) {
-            return $Text::PSTemplate::block->content($index, $args);
+        if (ref $block && defined $index) {
+            return $block->content($index, $args);
         } else {
-            return $Text::PSTemplate::block;
+            return $block;
         }
     }
 
@@ -357,17 +363,17 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub parse_block {
         
         my ($self, $index, $option) = @_;
-        if (ref $Text::PSTemplate::block && defined $index) {
-            my $str = $Text::PSTemplate::block->content($index, $option) || '';
+        if (ref $block && defined $index) {
+            my $str = $block->content($index, $option) || '';
             my $res = try {
                 $self->parse($str);
             } catch {
                 my $exception = Text::PSTemplate::Exception->new($_);
                 my $pos = $exception->position - 1;
-                $pos += length($Text::PSTemplate::block->get_left_chomp($index));
+                $pos += length($block->get_left_chomp($index));
                 for (my $i = 0; $i < $index; $i++) {
-                    $pos += length($Text::PSTemplate::block->content($i));
-                    $pos += length($Text::PSTemplate::block->delimiter($i));
+                    $pos += length($block->content($i));
+                    $pos += length($block->delimiter($i));
                 }
                 $exception->set_position($pos);
                 die $exception;
@@ -407,12 +413,12 @@ $Carp::Internal{ (__PACKAGE__) }++;
             if ($len % 2 == 1) {
                 $out .= $delim_l. $space_l. $prefix. $tag. $space_r. $delim_r;
             } else {
-                local $Text::PSTemplate::block;
-                local $Text::PSTemplate::self = $self;
-                local $Text::PSTemplate::chop;
+                local $block;
+                local $current_parser = $self;
+                local $chop;
                 
                 if ($tag =~ s{<<([a-zA-Z0-9_,]+)}{}) {
-                    $Text::PSTemplate::block = 
+                    $block = 
                     Text::PSTemplate::Block->new($1, \$right, $delim_l, $delim_r);
                 }
                 
@@ -437,14 +443,14 @@ $Carp::Internal{ (__PACKAGE__) }++;
                     return $ret;
                 };
                 
-                if ($Text::PSTemplate::chop) {
+                if ($chop) {
                     $right =~ s{^(\r\n|\r|\n)}{};
                     $eval_pos += length($1);
                 }
                 
                 $out .= $result;
-                if ($Text::PSTemplate::block) {
-                    $eval_pos += $Text::PSTemplate::block->get_followers_offset;
+                if ($block) {
+                    $eval_pos += $block->get_followers_offset;
                 }
             }
             $str = $right;
