@@ -303,11 +303,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub parse_file {
         
         my ($self, $file) = @_;
-        my $first_file_parse = 1;
-        if ($current_file) {
-            $first_file_parse = 0;
-        }
+        
         local $current_file = $current_file;
+        
         my $str;
         if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
             $current_file = $file;
@@ -317,9 +315,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
             if (ref $translate_ref eq 'CODE') {
                 $file = $translate_ref->($file);
             }
-            my $file = $self->get_file($file, undef);
-            $current_file = $file;
-            $str = $file->content;
+            $current_file = $self->get_file($file, undef);
+            $str = $current_file->content;
         }
         local $current_file_parser = $self;
 
@@ -364,9 +361,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
         
         my ($self, $index, $option) = @_;
         if (ref $block && defined $index) {
-            my $str = $block->content($index, $option) || '';
             my $res = try {
-                $self->parse($str);
+                $self->parse($block->content($index, $option) || '');
             } catch {
                 my $exception = Text::PSTemplate::Exception->new($_);
                 my $pos = $exception->position - 1;
@@ -496,9 +492,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
         if (ref $translate_ref eq 'CODE') {
             $name = $translate_ref->($name);
         }
-        my $encode = $self->get_param($MEM_ENCODING);
         my $file = try {
-            Text::PSTemplate::File->new($name, $encode);
+            Text::PSTemplate::File->new($name, $self->get_param($MEM_ENCODING));
         } catch {
             die Text::PSTemplate::Exception->new($_);
         };
