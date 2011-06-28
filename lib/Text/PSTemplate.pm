@@ -599,7 +599,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 die Text::PSTemplate::Exception->new($@);
             }
             if (! defined $res) {
-                die Text::PSTemplate::Exception->new('Tag resulted undefined', 0);
+                die Text::PSTemplate::Exception->new('Tag resulted undefined');
             }
             return $res;
         }

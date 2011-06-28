@@ -12,44 +12,36 @@ use overload (
     sub _stringify {
         
         my ($self) = @_;
-        my $out = $self->message || 'Unknown Error';
-        $out =~ s{(\s)+}{ }g;
-        my $position = $self->position;
-        my $line     = $self->{line_number};
-		my $file 	 = $self->file;
+        my $out = $self->{message} || 'Unknown Error';
+		my $file = $self->{file};
 		if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
-			my $line_number = _line_number($file->content, $position);
+			my $line = _line_number($file->content, $self->{position});
 			$out = (split(/ at /, $out))[0];
-			$out .= sprintf(" at %s line %s", $file->name, $line_number);
-        } elsif ($self->{filename}) {
-            $out .= " at ". $self->{filename};
-            if ($line) {
-                $out .= " line $line";
+			$out .= sprintf(" at %s line %s", $file->name, $line);
+        } elsif ($file) {
+            $out .= " at ". $file;
+            if ($self->{line}) {
+                $out .= " line $self->{line}";
             }
         }
+        $out =~ s{\s+}{ }g;
         return $out;
     }
 
     sub new {
         
-        my ($class, $message, $position, $file) = @_;
+        my ($class, $message) = @_;
         
         if (ref $_[1] eq __PACKAGE__) {
             return $_[1];
         }
-        my $self = bless {
-            message     => $message,
-            position    => $position,
-            file        => $file,
-            line_number => undef,
-			lock		=> undef,
-        }, $class;
+        my $self = bless {message => $message}, $class;
 		
         if (! $Text::PSTemplate::current_file) {
             my $at = Carp::shortmess_heavy();
             if ($at =~ qr{at (.+?) line (\d+)}) {
-                $self->{filename} = $1;
-                $self->{line_number} = $2;
+                $self->{file} = $1;
+                $self->{line} = $2;
             }
         }
         return $self;
@@ -191,7 +183,7 @@ subroutines. They can be thrown at exception setters.
 
 =head1 METHODS
 
-=head2 TEXT::PSTemplate::Exception->new($message, $line_number)
+=head2 TEXT::PSTemplate::Exception->new($message)
 
 =head2 $instance->set_message
 
