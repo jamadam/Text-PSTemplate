@@ -130,16 +130,9 @@ use Fcntl qw(:flock);
     sub _set_tpl_funcs {
         
         my ($self, $tpl) = (@_);
-        my @namespaces = ();
-        
         my $org = ref $self;
-        if (defined $self->{$MEM_AS}) {
-            push(@namespaces, $self->{$MEM_AS});
-        } else {
-            push(@namespaces, $org);
-        }
-        
-        @namespaces = map {$_ ? $_.'::' : $_} grep {defined $_} @namespaces;
+        my $namespace = defined $self->{$MEM_AS} ? $self->{$MEM_AS} : $org;
+        $namespace .= $namespace ? '::' : '';
         
         my $_tpl_exports = _get_tpl_exports($org);
         foreach my $func (@$_tpl_exports) {
@@ -149,9 +142,7 @@ use Fcntl qw(:flock);
                 my $ret = $self->$ref(@_);
                 return (defined $ret ? $ret : '');
             };
-            for my $namespace (@namespaces) {
-                $tpl->set_func($namespace. $func->[2] => $rapper);
-            }
+            $tpl->set_func($namespace. $func->[2] => $rapper);
         }
         
         return $self;
