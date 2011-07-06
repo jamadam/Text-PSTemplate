@@ -19,7 +19,7 @@ use Text::PSTemplate;
     }
     
     ### ---
-    ### 配列のランダマイズ
+    ### replace linebreaks to <br /> tag
     ### ---
     sub linebreak2br : TplExport {
         

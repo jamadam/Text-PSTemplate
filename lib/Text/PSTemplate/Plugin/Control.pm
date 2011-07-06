@@ -394,8 +394,9 @@ Since this has promoted to core plugin, you don't have to explicitly load it.
 
 Note that this document contains many keywords for specifying block endings such
 as THEN or ELSE etc. These keywords are just examples. As the matter of
-fact, you can say 'EOF' for all of them. The template engine only matters
-the order of BLOCKs. So do not memorize any of them. 
+fact, you can say 'EOF' for any of them. The template engine only matters the
+order of BLOCKs. Think of Perl's here document. That's it. 
+So do not attempt to memorize them. 
 
 =head2 if_equals($var, $case, $then, [$else])
 
@@ -407,7 +408,7 @@ returns $else. $else if optional.
     <% if_equals($a, '1', 'matched') %>
 
 Instead of arguments, you can pass 1 or 2 blocks for each conditions. The blocks
-will be parsed as template.
+will recursively be parsed as template.
 
     <% if_equals($a, '1')<<THEN %>
         This is <% escape_or_something($a) %>.
@@ -475,13 +476,32 @@ for each cases and returns the parsed string.
 
 =head2 if_like($var, $pattern)<<THEN,ELSE
 
-Not written yet.
+Regular expression matching. If matched, returns $then otherwise returns $else.
+
+    <% if_like($var, '^\d+$', 'match', 'unmatch') %>
+
+Block syntax is also available. 
+
+    <% if_like($var, '^\d+$')<<THEN,ELSE %>
+        match
+    <% THEN %>
+        unmatch
+    <% ELSE %>
 
 =head2 each($var, $value)<<TPL
 
 =head2 each($var, $key => $value)<<TPL
 
-Not written yet.
+Iteration control for given array or hash.
+
+    <% each($array => 'name')<<EOF%>
+        <% $name %>
+    <% EOF %>
+
+    <% each($hash, 'key' => 'value')<<EOF %>
+        <% $key %>
+        <% $value %>
+    <% EOF %>
 
 =head2 bypass('')
 
@@ -491,7 +511,7 @@ This function do nothing and returns null string.
     <base href="../">
     <!-- ') %> -->
 
-PSTemplate parses above as..
+Above results as..
 
     <!--  -->
 
@@ -505,7 +525,7 @@ This function include a file content of given name into current template.
 
 =head2 set_var(%dataset) [deprecated]
 
-Assigns variables with given dataset. The variables are available in current
+Assigns variables with given dataset. The variables will be available in current
 file context. 
 
     <% set_var({some_name => 'some value'}) %>
@@ -516,13 +536,43 @@ assign does not affect mother templates but sub templates.
 
 =head2 set_delimiter(LEFT, RIGHT)
 
+This method changes the tag delimiter for parse.
+
+    <% set_delimiter('[%', '%]') %>
+
 =head2 extract($obj, $key)
+
+Extracts element out of hash or object.
+    
+    <% extract($obj, 'name') %>
+
+You also can say..
+
+    <% $obj->{name} %>
 
 =head2 default($var, $default)
 
-=head2 with($dataset)
+If $var is null string, returns $default.
 
-=head2 echo($data)
+    <% default($var, 'empty') %>
+
+=head2 with($dataset)<<BLOCK
+
+Parses block with given variables.
+
+    <% with([var => 'hoge'])<<EOF %>
+        <% $var %>
+    <% EOF %>
+
+=head2 echo($var)
+
+This fucntion just returns given argument.
+
+    <% echo($var) %>
+
+This may risky but if necessary you can wrap perl code as follows.
+
+    <% echo($var. 'foo') %>
 
 =head1 AUTHOR
 
