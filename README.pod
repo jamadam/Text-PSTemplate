@@ -59,6 +59,8 @@ Text::PSTemplate is a multi purpose template engine.
 This module allows you to include variables and function calls into your
 templates.
 
+=head2 Essential syntax
+
 The essential syntax for writing template is as follows.
 
 =over
@@ -86,8 +88,10 @@ The essential syntax for writing template is as follows.
 
 =back
 
-Core plugins provides some syntax & functions.
-    
+=head2 Core plugins
+
+Some core plugins provides syntax & functions.
+
 =item Core plugins
 
     Control
