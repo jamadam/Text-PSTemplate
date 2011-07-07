@@ -747,7 +747,7 @@ Text::PSTemplate::Plugin::Control plugin
     <% tpl_switch($some_var, {
         a => 'path/to/tpl_a.txt',
         b => 'path/to/tpl_b.txt',
-    }, 'path/to/tpl_default.txt) %>
+    }, 'path/to/tpl_default.txt') %>
     
     <% substr($some_var, 0, 2, '...') %>
     
