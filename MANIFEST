@@ -93,7 +93,6 @@ t/01_PST_Exception/template/error_message_include_at8_1.txt
 t/01_PST_Exception/template/parse_str_capable_of_block.txt
 t/02_PST_Plugable/basic.t
 t/02_PST_Plugable/basic2.t
-t/02_PST_Plugable/basic3.t
 t/02_PST_Plugable/basic4.t
 t/02_PST_Plugable/basic5.t
 t/02_PST_Plugable/chop.t
@@ -156,13 +155,14 @@ t/05_FileCacheable/lib/TestModule4.pm
 t/05_FileCacheable/lib/TestModule5.pm
 t/05_FileCacheable/lib/TestModule6.pm
 t/05_FileCacheable/lib/TestModule7.pm
-t/99_pod.t
-t/99_podcoverage.t
 t/lib/Algorithm/C3.pm
 t/lib/Class/C3.pm
 t/lib/Class/C3/next.pm
 t/lib/Test/Plugin1.pm
 t/lib/Test/Plugin2.pm
-t/perlcritic.t
-t/perlcriticrc
 xt/memory_leak.t
+xt/perlcritic.t
+xt/perlcriticrc
+xt/pod.t
+xt/podcoverage.t
+xt/podspell.t
