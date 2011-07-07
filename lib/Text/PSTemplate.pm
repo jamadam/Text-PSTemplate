@@ -670,11 +670,10 @@ Text::PSTemplate - Multi purpose template engine
 =head1 DESCRIPTION
 
 Text::PSTemplate is a multi purpose template engine.
-This module allows you to include variables and function calls in your
+This module allows you to include variables and function calls into your
 templates.
 
-This module requires less syntaxes than popular template engines. The essential
-syntax for writing template is as follows.
+The essential syntax for writing template is as follows.
 
 =over
 
@@ -700,6 +699,124 @@ syntax for writing template is as follows.
     <% EOF2 %>
 
 =back
+
+Core plugins provides some syntax & functions.
+    
+=item Core plugins
+
+    Control
+    Env
+    Extends
+    Util
+    FS
+
+=back
+
+Text::PSTemplate::Plugin::Control plugin
+
+    <% if_equals($some_var, 'a')<<THEN,ELSE %>
+        then
+    <% THEN %>
+        else
+    <% ELSE %>
+    
+    <% if($some_var)<<THEN,ELSE %>
+        true
+    <% THEN %>
+        not true
+    <% ELSE %>
+    
+    <% if_in_array($some_var, ['a','b','c'])<<THEN,ELSE %>
+        found
+    <% THEN %>
+        not found
+    <% ELSE %>
+    
+    <% switch($some_var, ['a', 'b'])<<CASE1,CASE2,DEFAULT %>
+        match a
+    <% CASE1 %>
+        match b
+    <% CASE2 %>
+        default
+    <% DEFAULT %>
+    
+    <% tpl_switch($some_var, {
+        a => 'path/to/tpl_a.txt',
+        b => 'path/to/tpl_b.txt',
+    }, 'path/to/tpl_default.txt) %>
+    
+    <% substr($some_var, 0, 2, '...') %>
+    
+    <% each($array_ref, 'name')<<TPL %>
+        This is <%$name%>.
+    <% TPL %>
+
+    <% each($array_ref, 'index' => 'name')<<TPL %>
+        No.<%$index%> is <%$name%>.
+    <% TPL %>
+
+    <% each($hash_ref, 'name')<<TPL %>
+        This is <%$name%>.
+    <% TPL %>
+
+    <% each($has_href, 'key' => 'name')<<TPL %>
+        Key '<%$key%>' contains <%$name%>.
+    <% TPL %>
+    
+    <% include('path/to/file.txt', {some_var => 'aaa'}) %>
+    
+    <% default($var, $default) %>
+
+Text::PSTemplate::Plugin::Extends plugin
+
+    base.html
+    
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <link rel="stylesheet" href="style.css" />
+        <title><% placeholder('title')<<DEFAULT %>My amazing site<% DEFAULT %></title>
+    </head>
+    
+    <body>
+        <div id="sidebar">
+            <% placeholder('sidebar')<<DEFAULT %>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/blog/">Blog</a></li>
+            </ul>
+            <% DEFAULT %>
+        </div>
+    
+        <div id="content">
+            <% placeholder('content')<<DEFAULT %><% DEFAULT %>
+        </div>
+    </body>
+    </html>
+    
+    child.html
+    
+    <% extends('base.html')<<EXTENDS %>
+        <% block('title')<<BLOCK %>My amazing blog<% BLOCK %>
+        <% block('content')<<BLOCK %><% each($blog_entries, 'entry')<<ENTRIES %>
+            <h2><% $entry->{title} %></h2>
+            <p><% $entry->{body} %></p>
+        <% ENTRIES %><% BLOCK %>
+    <% EXTENDS %>
+
+Text::PSTemplate::Plugin::Util plugin
+
+    <% commify($num) %>
+    
+    <% substr($var, $start, $length, $alterative) %>
+    <% substr($some_var, 0, 2, '...') %>
+
+    <% counter(start=10, skip=5) %>
+    <% counter() %>
+    <% counter() %>
+    <% counter(start=10, direction=down) %>
+    <% counter() %>
 
 =head1 METHODS
 
