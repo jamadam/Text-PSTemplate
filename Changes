@@ -1,64 +1,13 @@
 Revision history for Text-PSTemplate
 
-0.01 2011/02/07
-  - initial release
+0.34 2011/06/28
+  - Exception API simplified.
+  - A dependency for test specified
 
-0.15 2011/02/23
-  - FIX: set_var in if blocks haven't work
-
-0.16 2011/02/23
-  - FIX: EXCEPTION class constants renamed and some added
-
-0.17 2011/02/23
-  - FIX: BLOCK syntax sometimes didn't work propery.
-
-0.18 2011/02/25
-  - FIX: PluginBase->die() added for report message with template file name
-
-0.19 2011/02/26
-  - Plugin architecture stoped resorting to singleton pattern.
-
-0.20 2011/02/26
-  - ADD: New feature chop added. Plugins now can manage behaviors with line
-    breaks
-
-0.21 2011/03/03
-  - Mother search bypass architecture no longer available. New feature
-    get_file_mother added instead.
-
-0.22 2011/03/04
-  - Some API renamed
-    Text::PSTemplate::mother -> Text::PSTemplate::get_current_parser
-    Text::PSTemplate::get_file_mother -> Text::PSTemplate::get_current_file_parser
-    Text::PSTemplate::context -> Text::PSTemplate::get_current_filename
-    Text::PSTemplate::inline_data -> Text::PSTemplate::get_block
-
-0.23 2011/03/05
-  - PluginBase no longer support ini cascading.
-
-0.24 2011/03/09
-  - Now plugable class and plugins can be loaded with require instead of use.
-
-0.25 2011/03/11
-  - Fix: PlugBase has been conflicted with Fcntl LOCK_EX
-
-0.26 2011/03/11
-  - Fix: Sometimes child parse hasn't inherit mother
-
-0.27 2011/03/11
-  - ADDED: Now template parser dies with template file names and line numbers.
-
-0.28 2011/04/22
-  - ADDED: Error reporting improved.
-
-0.29 2011/04/27
-  - ADDED: Error reporting improved.
-
-0.30 2011/04/27
-  - FIXED: func & var err callback for child parsers haven't been detected.
-
-0.31 2011/05/06
-  - FIXED: control functions now capable of undef values.
+0.33 2011/06/17
+  - set_encoding now accept array ref for encoding guessing.
+  - ini and set_ini no longer available.
+  - Text::PSTemplate got plugable. Text::PSTemplate::Plugable is deprecated.
 
 0.32 2011/06/02
   - Time plugin fixed.
@@ -71,11 +20,62 @@ Revision history for Text-PSTemplate
       - preceding_args
   - Fixed a bug on getting current file parser
 
-0.33 2011/06/17
-  - set_encoding now accept array ref for encoding guessing.
-  - ini and set_ini no longer available.
-  - Text::PSTemplate got plugable. Text::PSTemplate::Plugable is deprecated.
+0.31 2011/05/06
+  - FIXED: control functions now capable of undef values.
 
-0.34 2011/06/28
-  - Exception API simplified.
-  - A dependency for test specified
+0.30 2011/04/27
+  - FIXED: func & var err callback for child parsers haven't been detected.
+
+0.29 2011/04/27
+  - ADDED: Error reporting improved.
+
+0.28 2011/04/22
+  - ADDED: Error reporting improved.
+
+0.27 2011/03/11
+  - ADDED: Now template parser dies with template file names and line numbers.
+
+0.26 2011/03/11
+  - Fix: Sometimes child parse hasn't inherit mother
+
+0.25 2011/03/11
+  - Fix: PlugBase has been conflicted with Fcntl LOCK_EX
+
+0.24 2011/03/09
+  - Now plugable class and plugins can be loaded with require instead of use.
+
+0.23 2011/03/05
+  - PluginBase no longer support ini cascading.
+
+0.22 2011/03/04
+  - Some API renamed
+    Text::PSTemplate::mother -> Text::PSTemplate::get_current_parser
+    Text::PSTemplate::get_file_mother -> Text::PSTemplate::get_current_file_parser
+    Text::PSTemplate::context -> Text::PSTemplate::get_current_filename
+    Text::PSTemplate::inline_data -> Text::PSTemplate::get_block
+
+0.21 2011/03/03
+  - Mother search bypass architecture no longer available. New feature
+    get_file_mother added instead.
+
+0.20 2011/02/26
+  - ADD: New feature chop added. Plugins now can manage behaviors with line
+    breaks
+
+0.19 2011/02/26
+  - Plugin architecture stoped resorting to singleton pattern.
+
+0.18 2011/02/25
+  - FIX: PluginBase->die() added for report message with template file name
+
+0.17 2011/02/23
+  - FIX: BLOCK syntax sometimes didn't work propery.
+
+0.16 2011/02/23
+  - FIX: EXCEPTION class constants renamed and some added
+
+0.15 2011/02/23
+  - FIX: set_var in if blocks haven't work
+
+0.01 2011/02/07
+  - initial release
