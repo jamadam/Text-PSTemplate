@@ -78,3 +78,4 @@ Revision history for Text-PSTemplate
 
 0.34 2011/06/28
   - Exception API simplified.
+  - A dependency for test specified
