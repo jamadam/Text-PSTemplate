@@ -702,9 +702,24 @@ The essential syntax for writing template is as follows.
 
 =back
 
+=head2 Plugin
+
+This template engine provides a plugin mechanism. A plugin can define fucntions
+for templates.
+
+A plugin must inherites Text::PSTemplate::PluginBase. Once inherit it, the
+plugin class get capable of TplExport attribute.
+
+    use base qw(Text::PSTemplate::PluginBase);
+
+    sub say_hello_to : TplExport {
+        my ($self, $name) = (@_);
+        return "Hello $name";
+    }
+
 =head2 Core plugins
 
-Some core plugins provides syntax & functions.
+Text::PSTemplate automatically activate some core plugins.
 
 =item Core plugins
 
