@@ -621,11 +621,6 @@ Text::PSTemplate - Multi purpose template engine
     use Text::PSTemplate;
     
     $template = Text::PSTemplate->new;
-    $template->set_encoding($encoding);
-    $template->set_recur_limit($number);
-    $template->set_exception($code_ref);
-    $template->set_filename_trans_coderef($code_ref);
-    $template->set_delimiter($left, $right);
     
     $template->set_var(key1 => $value1, key2 => $value2);
     $template->set_func(key1 => \&func1, key2 => \&func2);
@@ -636,36 +631,6 @@ Text::PSTemplate - Multi purpose template engine
     $str = $template->parse_file($filename);
     $str = $template->parse_file($file_obj);
     $str = $template->parse_block($index);
-    
-    $filename       = Text::PSTemplate::get_current_filename();
-    $mother_obj     = Text::PSTemplate::get_current_parser();
-    $block_data     = Text::PSTemplate::get_block($number, $options);
-    
-    $file_obj = Text::PSTemplate::File->new($filename);
-    $file_obj->content;
-    $file_obj->name;
-    
-    $code_ref = $Text::PSTemplate::PARTIAL_NULL;
-    $code_ref = $Text::PSTemplate::PARTIAL_DIE;
-    $code_ref = $Text::PSTemplate::TAG_NULL;
-    $code_ref = $Text::PSTemplate::TAG_NO_ACTION;
-    $code_ref = $Text::PSTemplate::TAG_DIE;
-    
-    # Plugin feature
-    
-    $template->plug('MyPlug');
-    $template->plug('MyPlug','My::Name::Space');
-    
-    $template->parse('...<% say_hello_to('Nick') %>...');
-    
-    package MyPlug;
-    use strict;
-    use warnings;
-    use base qw(Text::PSTemplate::PluginBase);
-    sub say_hello_to : TplExport(chop => 1) {
-        my ($plugin, $name) = (@_);
-        return "Hello $name";
-    }
 
 =head1 DESCRIPTION
 
@@ -709,13 +674,26 @@ for templates.
 
 A plugin must inherites Text::PSTemplate::PluginBase. Once inherit it, the
 plugin class get capable of TplExport attribute.
-
+    
+    package MyPlug;
     use base qw(Text::PSTemplate::PluginBase);
 
     sub say_hello_to : TplExport {
         my ($self, $name) = (@_);
         return "Hello $name";
     }
+
+You can activate it as follows.
+
+    $template->plug('MyPlug');
+    
+    # or with namespace
+    
+    $template->plug('MyPlug','My::Name::Space');
+
+The function is available as follows.
+
+    <% say_hello_to('Nick') %>
 
 =head2 Core plugins
 
@@ -856,11 +834,15 @@ If you want really new instance, give an undef to constructor explicitly.
 
 This can be called from template functions. If current context is recursed
 instance, this returns mother instance.
+    
+    $parser = Text::PSTemplate::get_current_parser;
 
 =head2 Text::PSTemplate::get_current_file_parser()
 
 This can be called from template functions. This returns file-contextual mother
-template instance. 
+template instance.
+
+    $parser = Text::PSTemplate::get_current_file_parser;
 
 =head2 Text::PSTemplate::get_current_filename()
 
@@ -910,7 +892,9 @@ Encode::guess_encoding.
 This is a callback setter. If any errors occurred at parsing phase, the $code_ref
 will be called. Your callback subroutine can get following arguments.
 
-    my ($self, $line, $err) = (@_);
+    $template->set_exception(sub {
+        my ($self, $line, $err) = (@_);
+    });
 
 With these arguments, you can log the error, do nothing and return '', or
 reconstruct the tag and return it as if the tag was escaped. See also
@@ -923,7 +907,9 @@ Text::PSTemplate::Exception Class for example.
 =head2 $instance->set_recur_limit($number)
 
 This class instance can recursively have a mother instance as an attribute.
-This setting limits the recursion at given number.
+This setting limits the recursion at given number. The default is 10.
+
+    $template->set_recur_limit(10);
 
 =head2 $instance->get_param($name)
 
@@ -1015,11 +1001,10 @@ name.
 
 This example sets the base template directory.
 
-    $trans = sub {
+    $tpl->set_filename_trans_coderef(sub {
         my $name = shift;
         return '/path/to/template/base/directory'. $name;
-    }
-    $tpl->set_filename_trans_coderef($trans)
+    });
 
 This example allows common extension to be omitted.
 

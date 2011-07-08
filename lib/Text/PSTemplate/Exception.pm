@@ -175,6 +175,12 @@ TEXT::PSTemplate::Exception - A Class represents exceptions
 
     use Text::PSTemplate::Exception;
     
+    $code_ref = $Text::PSTemplate::PARTIAL_NULL;
+    $code_ref = $Text::PSTemplate::PARTIAL_DIE;
+    $code_ref = $Text::PSTemplate::TAG_NULL;
+    $code_ref = $Text::PSTemplate::TAG_NO_ACTION;
+    $code_ref = $Text::PSTemplate::TAG_DIE;
+    
 =head1 DESCRIPTION
 
 This class represents exceptions which contains error messages and the line

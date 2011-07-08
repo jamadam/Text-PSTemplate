@@ -66,6 +66,10 @@ Text::PSTemplate::Block - A Class represents template blocks
 
 =head1 SYNOPSIS
     
+    $file_obj = Text::PSTemplate::File->new($filename);
+    $file_obj->content;
+    $file_obj->name;
+
 =head1 DESCRIPTION
 
 This class represents template files. With this class, you can take file
