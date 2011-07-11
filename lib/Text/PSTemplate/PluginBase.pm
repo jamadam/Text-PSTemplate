@@ -13,8 +13,6 @@ use File::Path;
 use Fcntl qw(:flock);
 
     my %_attr_tpl_export_cache;
-    my %_attr_file_cacheable_cache;
-    my %_cacheable_fnames;
     my %_findsym2_tbl;
     
     my $MEM_AS  = 2;
@@ -44,8 +42,6 @@ use Fcntl qw(:flock);
         if (! $_findsym2_tbl{$class}) {
             _findsym2($class);
             _init_tpl_exports($class);
-            _init_file_cacheable($class);
-            _make_class_cacheable($class, $tpl);
         }
         $self->_set_tpl_funcs($tpl);
         
@@ -57,14 +53,6 @@ use Fcntl qw(:flock);
         
         my $class = shift;
         for my $entry (@{$_attr_tpl_export_cache{$class}}) {
-            $entry->[2] = $_findsym2_tbl{$class}->{$entry->[0]};
-        }
-    }
-    
-    sub _init_file_cacheable {
-        
-        my $class = shift;
-        for my $entry (@{$_attr_file_cacheable_cache{$class}}) {
             $entry->[2] = $_findsym2_tbl{$class}->{$entry->[0]};
         }
     }
@@ -116,15 +104,6 @@ use Fcntl qw(:flock);
     }
     
     ### ---
-    ### Define FileCacheable attribute
-    ### ---
-    sub FileCacheable : ATTR(BEGIN) {
-        
-        my($pkg, undef, $ref, undef, $data, undef) = @_;
-        push(@{$_attr_file_cacheable_cache{$pkg}}, [$ref, $data ? {@$data} : {}]);
-    }
-    
-    ### ---
     ### Register template functions
     ### ---
     sub _set_tpl_funcs {
@@ -146,115 +125,6 @@ use Fcntl qw(:flock);
         }
         
         return $self;
-    }
-    
-    sub _make_class_cacheable {
-        
-        my ($class) = @_;
-        my $funcs = $_attr_file_cacheable_cache{$class};
-        for my $func (@$funcs) {
-            no warnings 'redefine';
-            no strict 'refs';
-            my $sym = $func->[2];
-            my $ref = \&{$class. '::'. $sym};
-            *{"$class\::$sym"} = sub {
-                my $self = shift;
-                my %opt = (
-                    %{__PACKAGE__->file_cache_options},
-                    %{$self->file_cache_options}
-                );
-                my $args = $func->[1];
-                my $cache_id_seed = $args->{key} || $opt{default_key};
-                my $cache_id = *{$sym}. "\t". ($cache_id_seed || '');
-                if ($opt{number_cache_id}) {
-                    $cache_id .= "\t" . ($_cacheable_fnames{*{$sym}}++);
-                }
-                
-                my $output;
-                
-                my @idarray = split(//, md5_hex($cache_id), $opt{cache_depth} + 1);
-                
-                ### check if cache has expired
-                my $fpath = File::Spec->catfile(
-                    $opt{cache_root},
-                    $opt{namespace},
-                    @idarray,
-                );
-                
-                if (-f $fpath) {
-                    if (my $cache_tp = (stat $fpath)[9]) {
-                        if ($args->{expire}) {
-                            if (! $args->{expire}->($self, $cache_tp)) {
-                                $output = _get_cache($fpath);
-                            }
-                        } elsif (! $self->file_cache_expire($cache_tp)) {
-                            $output = _get_cache($fpath);
-                        }
-                    }
-                }
-                
-                ### generate cache
-                if (! defined($output)) {
-                    no strict 'refs';
-                    $output = $self->$ref(@_);
-                    
-                    if (! defined $output) {
-                        return;
-                    }
-                    
-                    umask $opt{directory_umask};
-                    
-                    pop(@idarray);
-                    mkpath(File::Spec->catfile($opt{cache_root}, $opt{namespace}, @idarray));
-                    
-                    if (open(my $OUT, '>:utf8', $fpath)) {
-                        binmode($OUT, "utf8");
-                        print $OUT $output;
-                        close($OUT);
-                    } else {
-                        print STDERR "Cache \"$fpath\" write failed";
-                    }
-                }
-                
-                return $output;
-            }
-        }
-    }
-    
-    ### ---
-    ### Get Cache
-    ### ---
-    sub _get_cache {
-        
-        my ($fpath) = @_;
-        
-        my $FH;
-        if (open($FH, "<:utf8", $fpath) and flock($FH, LOCK_EX)) {
-            my $a = do { local $/; <$FH> };
-            close($FH);
-            return $a;
-        }
-        CORE::die "Cache open failed";
-    }
-    
-    ### ---
-    ### return true if cache *EXPIRED*
-    ### ---
-    sub file_cache_expire {
-        return 0;
-    }
-    
-    ### ---
-    ### return options
-    ### ---
-    sub file_cache_options {
-        return {
-            cache_root => File::Spec->catdir(File::Spec->tmpdir(), 'FileCache'),
-            cache_depth     => 3,
-            directory_umask => '000',
-            number_cache_id => 0,
-            namespace       => 'Default',
-        };
     }
 
 1;
@@ -288,12 +158,9 @@ Text::PSTemplate::PluginBase - Plugin Abstract Class
     
     # in templates ..
     # <% Your::Namespace::say_hello_to('Jamadam') %>
-
-    # Template functions can be cached into files
     
     use LWP::Simple;
-    
-    sub insert_remote_data : TplExport FileCacheable {
+    sub insert_remote_data : TplExport {
         my ($plugin, $url) = (@_);
         return LWP::Simple::get($url);
     }
@@ -308,10 +175,6 @@ Text::PSTemplate.
 
 The plugin classes can contain subroutines with TplExport attribute.
 These subroutines are targeted as template function.
-
-Text::PSTemplate::PluginBase is also a sub class of Class::FileCacheable so
-subroutines can have FileCacheable attribute. See also
-L<Class::FileCacheable>.
 
 The Plugins can inherit other plugins. The new constructor automatically
 instantiates all depended plugins and template functions are inherited even in
@@ -328,70 +191,6 @@ Constructor. This takes template instance as argument.
 
 Note that in list context, this always returns an array with 1 element.
 If the key doesn't exists, this returns (undef).
-    
-=head2 file_cache_expire
-
-This is a callback method for specifying the condition for cache expiration.
-Your module can override the method if necessary.
-
-file_cache_exipre will be called as instance method when the target method
-called. This method takes timestamp of the cache as argument.
-
-    sub file_cache_expire {
-        my ($self, $timestamp) = @_;
-        if (some_condifion) {
-            return 1;
-        }
-    }
-
-=head2 file_cache_options
-
-This is a callback method for specifying options. Your module can override
-the method if necessary.
-
-    sub file_cache_options {
-        return {
-            'namespace' => 'Test',
-            'cache_root' => 't/cache',
-        };
-    }
-
-you can set options bellow
-
-=over
-
-=item cache_root
-
-The location in the filesystem that will hold the root of the cache. Defaults
-to the 'FileCache' under the OS default temp directory ( often '/tmp' on
-UNIXes ) unless explicitly set.
-
-=item cache_depth
-
-The number of subdirectories deep to cache object item. This should be large
-enough that no cache directory has more than a few hundred objects. Defaults
-to 3 unless explicitly set.
-
-=item directory_umask
-
-The directories in the cache on the filesystem should be globally writable to
-allow for multiple users. While this is a potential security concern, the
-actual cache entries are written with the user's umask, thus reducing the risk
-of cache poisoning. If you desire it to only be user writable, set
-the 'directory_umask' option to '077' or similar. Defaults to '000' unless
-explicitly set.
-
-=item namespace
-
-The namespace associated with this cache. Defaults to "Default" if not explicitly set.
-
-=item number_cache_id
-
-This takes 1 or 0 for value. '1' causes the cache ids automatically numbered so
-the caches doesn't affect in single process. This is useful if you want to
-cache the function calls as a sequence.
-
-=back
 
 =head1 ATTRIBUTE
 
@@ -406,16 +205,6 @@ This attribute makes the subroutine available in templates.
 chop => 1 causes the following line breaks to be omitted.
 
     sub your_func : TplExport(chop => 1) {
-        
-    }
-
-=head2 FileCacheable
-
-=head2 FileCacheable(\%args)
-
-This attribute makes the subroutine cacheable. See also L<Class::FileCacheable>
-
-    sub your_func : FileCacheable {
         
     }
 

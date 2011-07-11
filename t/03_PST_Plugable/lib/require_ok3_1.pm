@@ -10,7 +10,7 @@ use base qw(require_ok3);
 		}
 	}
 	
-	sub internal_use : FileCacheable {
+	sub internal_use {
 		shift->next::method();
 	}
 

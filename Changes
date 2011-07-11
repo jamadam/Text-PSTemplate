@@ -3,6 +3,7 @@ Revision history for Text-PSTemplate
 0.34 2011/06/28
   - Exception API simplified.
   - A dependency for test specified
+  - File cache feature no longer available
 
 0.33 2011/06/17
   - set_encoding now accept array ref for encoding guessing.

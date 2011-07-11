@@ -147,17 +147,6 @@ t/03_PST_Plugable/Time2.t
 t/03_PST_Plugable/Time2_timelocal.t
 t/03_PST_Plugable/Util.t
 t/03_PST_Plugable/xslate_compatible.t
-t/05_FileCacheable/FileCacheable_basic.t
-t/05_FileCacheable/FileCacheable_basic2.t
-t/05_FileCacheable/FileCacheable_expire.t
-t/05_FileCacheable/lib/TestModule3.pm
-t/05_FileCacheable/lib/TestModule4.pm
-t/05_FileCacheable/lib/TestModule5.pm
-t/05_FileCacheable/lib/TestModule6.pm
-t/05_FileCacheable/lib/TestModule7.pm
-t/lib/Algorithm/C3.pm
-t/lib/Class/C3.pm
-t/lib/Class/C3/next.pm
 t/lib/Test/Plugin1.pm
 t/lib/Test/Plugin2.pm
 xt/memory_leak.t
