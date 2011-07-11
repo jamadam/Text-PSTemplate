@@ -51,22 +51,21 @@ $Carp::Internal{ (__PACKAGE__) }++;
     
     ### ---
     ### constructor
+    ### my ($class, $mother) = @_;
     ### ---
     sub new {
         
-        my ($class, $mother) = @_;
-        
-        if (scalar @_ == 2 && ! defined $mother) {
-            $mother = undef;
+        if (scalar @_ == 2 && ! defined $_[1]) {
+            #$_[1] = undef;
         } else {
-            $mother ||= $current_parser;
+            $_[1] ||= $current_parser;
         }
         
         my $self = bless {
-            $MEM_MOTHER      => $mother, 
+            $MEM_MOTHER      => $_[1], 
             $MEM_FUNC        => {},
             $MEM_VAR         => {},
-        }, $class;
+        }, $_[0];
         
         if (! defined $self->{$MEM_MOTHER}) {
             $self->{$MEM_ENCODING}          = 'utf8';
@@ -86,13 +85,13 @@ $Carp::Internal{ (__PACKAGE__) }++;
             die Text::PSTemplate::Exception->new($err);
         }
         
-        if (! $mother) {
+        if (! $_[1]) {
             for my $key (keys %CORE_LIST) {
                 $self->plug('Text::PSTemplate::Plugin::'. $key, $CORE_LIST{$key});
             }
         }
         
-        return $self;
+        $self;
     }
     
     ### ---
@@ -100,11 +99,10 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub get_current_parser {
         
-        my $self_or_class = shift;
-        if (ref $self_or_class) {
-            return $self_or_class->{$MEM_MOTHER};
+        if (ref $_[0]) {
+            $_[0]->{$MEM_MOTHER};
         } else {
-            return $current_parser;
+            $current_parser;
         }
     }
     
@@ -142,8 +140,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub set_func_exception {
         
-        my ($self, $code_ref) = @_;
-        $self->{$MEM_FUNC_NONEXIST} = $code_ref;
+        $_[0]->{$MEM_FUNC_NONEXIST} = $_[1];
     }
     
     ### ---
@@ -151,8 +148,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub set_var_exception {
         
-        my ($self, $code_ref) = @_;
-        $self->{$MEM_VAR_NONEXIST} = $code_ref;
+        $_[0]->{$MEM_VAR_NONEXIST} = $_[1];
     }
     
     ### ---
@@ -160,8 +156,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub set_recur_limit {
         
-        my ($self, $limit) = @_;
-        $self->{$MEM_RECUR_LIMIT} = $limit;
+        $_[0]->{$MEM_RECUR_LIMIT} = $_[1];
     }
     
     ### ---
@@ -169,8 +164,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub set_encoding {
         
-        my ($self, $encoding) = @_;
-        $self->{$MEM_ENCODING} = $encoding;
+        $_[0]->{$MEM_ENCODING} = $_[1];
     }
     
     ### ---
@@ -186,7 +180,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 return $_[0]->{$MEM_MOTHER}->get_param($_[1]);
             }
         }
-        return;
     }
     
     ### ---
@@ -194,8 +187,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub set_chop {
         
-        my ($mode) = @_;
-        $chop = $mode;
+        $chop = $_[0];
     }
     
     ### ---
@@ -206,23 +198,22 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my ($self, $left, $right) = @_;
         $self->{$MEM_DELIMITER_LEFT} = $left;
         $self->{$MEM_DELIMITER_RIGHT} = $right;
-        return $self;
+        $self;
     }
+    
+    my $delim_tbl = [$MEM_DELIMITER_LEFT, $MEM_DELIMITER_RIGHT];
     
     ### ---
     ### Get delimiter
     ### ---
     sub get_delimiter {
         
-        my ($self, $index) = @_;
-        my $name = ($MEM_DELIMITER_LEFT, $MEM_DELIMITER_RIGHT)[$index];
-        if (defined $self->{$name}) {
-            return $self->{$name};
+        if (defined $_[0]->{$delim_tbl->[$_[1]]}) {
+            return $_[0]->{$delim_tbl->[$_[1]]};
         }
-        if (defined $self->{$MEM_MOTHER}) {
-            return $self->{$MEM_MOTHER}->get_delimiter($index);
+        if (defined $_[0]->{$MEM_MOTHER}) {
+            return $_[0]->{$MEM_MOTHER}->get_delimiter($_[1]);
         }
-        return;
     }
     
     ### ---
@@ -231,34 +222,33 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub set_var {
         
         my ($self, %args) = (@_);
-        while ((my $key, my $value) = each %args) {
+        while (my ($key, $value) = each %args) {
             $self->{$MEM_VAR}->{$key} = $value;
         }
-        return $self;
+        $self;
     }
     
     ### ---
     ### Get a template variable
+    ### my ($self, $name, $error_callback) = @_;
     ### ---
     sub var {
         
-        my ($self, $name, $error_callback) = @_;
+        $_[2] ||= $_[0]->{$MEM_VAR_NONEXIST};
         
-        $error_callback ||= $self->{$MEM_VAR_NONEXIST};
-        
-        if (defined $name) {
-            if (defined $self->{$MEM_VAR}->{$name}) {
-                return $self->{$MEM_VAR}->{$name};
+        if (defined $_[1]) {
+            if (defined $_[0]->{$MEM_VAR}->{$_[1]}) {
+                return $_[0]->{$MEM_VAR}->{$_[1]};
             }
-            if (defined $self->{$MEM_MOTHER}) {
-                return $self->{$MEM_MOTHER}->var($name, $error_callback);
+            if (defined $_[0]->{$MEM_MOTHER}) {
+                return $_[0]->{$MEM_MOTHER}->var($_[1], $_[2]);
             }
-            if (! exists $self->{$MEM_VAR}->{$name}) {
-                return $error_callback->($self, '$'. $name, 'variable');
+            if (! exists $_[0]->{$MEM_VAR}->{$_[1]}) {
+                return $_[2]->($_[0], '$'. $_[1], 'variable');
             }
             return;
         }
-        return $self->{$MEM_VAR};
+        $_[0]->{$MEM_VAR};
     }
     
     ### ---
@@ -270,31 +260,28 @@ $Carp::Internal{ (__PACKAGE__) }++;
         while ((my $key, my $value) = each %args) {
             $self->{$MEM_FUNC}->{$key} = $value;
         }
-        return $self;
+        $self;
     }
     
     ### ---
     ### Get template function
+    ### my ($self, $name, $error_callback) = @_;
     ### ---
     sub func {
         
-        my ($self, $name, $error_callback) = @_;
+        $_[2] ||= $_[0]->{$MEM_VAR_NONEXIST};
         
-        $error_callback ||= $self->{$MEM_VAR_NONEXIST};
-        
-        if (defined $name) {
-            if (defined $self->{$MEM_FUNC}->{$name}) {
-                return $self->{$MEM_FUNC}->{$name};
+        if (defined $_[1]) {
+            if (defined $_[0]->{$MEM_FUNC}->{$_[1]}) {
+                return $_[0]->{$MEM_FUNC}->{$_[1]};
             }
-            if (defined $self->{$MEM_MOTHER}) {
-                return $self->{$MEM_MOTHER}->func($name, $error_callback);
+            if (defined $_[0]->{$MEM_MOTHER}) {
+                return $_[0]->{$MEM_MOTHER}->func($_[1], $_[2]);
             }
-            if (! exists $self->{$MEM_FUNC}->{$name}) {
-                return $error_callback->($self, '&'. $name, 'function');
+            if (! exists $_[0]->{$MEM_FUNC}->{$_[1]}) {
+                return $_[2]->($_[0], '&'. $_[1], 'function');
             }
-            return;
         }
-        return;
     }
     
     ### ---
@@ -327,7 +314,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             $_->finalize;
             die $_;
         };
-        return $res;
+        $res;
     }
     
     ### ---
@@ -341,7 +328,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             $current_file = $_[1];
             $str = $_[1]->content;
         }
-        return $self->parse($str);
+        $self->parse($str);
     }
     
     sub get_block {
@@ -349,9 +336,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my ($index, $args) = @_;
         if (ref $block && defined $index) {
             return $block->content($index, $args);
-        } else {
-            return $block;
         }
+        $block;
     }
 
     ### ---
@@ -376,7 +362,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             };
             return $res;
         }
-        return '';
+        '';
     }
     
     ### ---
@@ -451,32 +437,31 @@ $Carp::Internal{ (__PACKAGE__) }++;
             }
             $str = $right;
         }
-        return $out;
+        $out;
     }
     
+    ### ---
+    ### Get template from a file
+    ### ($self, $escape, $prefix, $ident)= @_;
+    ### ---
     sub _interpolate_partial {
         
-        my ($self, $escape, $prefix, $ident)= @_;
         my $out;
-        my $escaped;
-        if ($escape) {
-            my $len = length($escape);
+        if ($_[1]) {
+            my $len = length($_[1]);
             $out = '\\' x int($len / 2);
             if ($len % 2 == 1) {
-                $escaped = 1;
-                $out .= $prefix. $ident;
+                return $out. $_[2]. $_[3];
             }
         }
-        if (! $escaped) {
-            if ($prefix eq '$') {
-                $out .= qq{\$self->var('$ident')};
-            } elsif ($prefix eq '&') {
-                $out .= qq!\$self->func('$ident')->!;
-            } else {
-                $out .= $prefix . $ident;
-            }
+        if ($_[2] eq '$') {
+            $out .= qq{\$self->var('$_[3]')};
+        } elsif ($_[2] eq '&') {
+            $out .= qq!\$self->func('$_[3]')->!;
+        } else {
+            $out .= $_[2] . $_[3];
         }
-        return $out;
+        $out;
     }
     
     ### ---
@@ -497,7 +482,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         } catch {
             die Text::PSTemplate::Exception->new($_);
         };
-        return $file;
+        $file;
     }
     
     ### ---
@@ -514,12 +499,10 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub _count_recursion {
         
-        my ($self) = (@_);
-        
-        if (defined $self->{$MEM_MOTHER}) {
-            return $self->{$MEM_MOTHER}->_count_recursion() + 1;
+        if (defined $_[0]->{$MEM_MOTHER}) {
+            return $_[0]->{$MEM_MOTHER}->_count_recursion() + 1;
         }
-        return 0;
+        0;
     }
     
     sub plug {
@@ -541,7 +524,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             $self->{pluged}->{$plugin} = $p_instance;
             weaken $self->{pluged}->{$plugin};
         }
-        return $self->{pluged}->{$plugin};
+        $self->{pluged}->{$plugin};
     }
     
     sub get_plugin {
@@ -588,8 +571,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
         my $self;
         sub _do {
             $self = $_[0];
-            my $str = $_[1];
-            my $res = eval $str; ## no critic
+            my $res = eval $_[1]; ## no critic
             if ($@) {
                 die Text::PSTemplate::Exception->new($@);
             }
