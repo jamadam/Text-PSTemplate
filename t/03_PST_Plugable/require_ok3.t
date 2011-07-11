@@ -10,9 +10,7 @@ use File::Path;
 	
 	sub c3 : Test(2) {
 		
-        eval {
-            require 'lib/Text/PSTemplate/Plugable.pm';
-        };
+		require 'Text/PSTemplate.pm';
         my $tpl = Text::PSTemplate->new;
         $tpl->plug('require_ok3_1');
 		is(require_ok3_1->internal_use(), 'a');

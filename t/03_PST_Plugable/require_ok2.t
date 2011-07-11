@@ -4,9 +4,7 @@ use lib 'lib';
 use lib 't/lib', 't/03_PST_Plugable/lib';
 use base 'Test::Class';
 use Test::More;
-eval {
-	require 'lib/Text/PSTemplate/Plugable.pm';
-};
+require 'Text/PSTemplate.pm';
 
     __PACKAGE__->runtests;
     
