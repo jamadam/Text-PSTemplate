@@ -566,7 +566,7 @@ Parses block with given variables.
 
 =head2 echo($var)
 
-This fucntion just returns given argument.
+This function just returns given argument.
 
     <% echo($var) %>
 

@@ -669,10 +669,10 @@ The essential syntax for writing template is as follows.
 
 =head2 Plugin
 
-This template engine provides a plugin mechanism. A plugin can define fucntions
+This template engine provides a plugin mechanism. A plugin can define functions
 for templates.
 
-A plugin must inherites Text::PSTemplate::PluginBase. Once inherit it, the
+A plugin must inherits Text::PSTemplate::PluginBase. Once inherit it, the
 plugin class get capable of TplExport attribute.
     
     package MyPlug;
@@ -698,6 +698,8 @@ The function is available as follows.
 =head2 Core plugins
 
 Text::PSTemplate automatically activate some core plugins.
+
+=over
 
 =item Core plugins
 

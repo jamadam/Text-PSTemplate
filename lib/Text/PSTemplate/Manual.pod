@@ -43,7 +43,7 @@ HTML example
 
 =head1 USAGE
 
-=head2 put vars and functions
+=head2 put variables and functions
 
 Statements must be delimited by certain delimiters. Variables and functions
 inside the pair of delimiters has similar appearance to Perl programs.
