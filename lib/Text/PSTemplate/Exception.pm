@@ -25,7 +25,7 @@ use overload (
             }
         }
         $out =~ s{\s+}{ }g;
-        return $out;
+        $out;
     }
 
     sub new {
@@ -44,7 +44,7 @@ use overload (
                 $self->{line} = $2;
             }
         }
-        return $self;
+        $self;
     }
     
     sub set_message {
@@ -53,7 +53,7 @@ use overload (
 			return $self;
 		}
         $self->{message} = $value;
-		return $self;
+		$self;
     }
     
     sub set_position {
@@ -62,7 +62,7 @@ use overload (
 			return $self;
 		}
         $self->{position} = $value;
-		return $self;
+		$self;
     }
     
     sub set_file {
@@ -71,29 +71,29 @@ use overload (
 			return $self;
 		}
         $self->{file} = $value;
-		return $self;
+		$self;
     }
     
 	sub finalize {
 		
 		my ($self) = @_;
 		$self->{lock} = 1;
-		return $self;
+		$self;
 	}
 	
     sub message {
         my ($self) = @_;
-        return $self->{message};
+        $self->{message};
     }
     
     sub position {
         my ($self) = @_;
-        return $self->{position};
+        $self->{position};
     }
     
     sub file {
         my ($self) = @_;
-        return $self->{file};
+        $self->{file};
     }
     
     sub _line_number {
@@ -104,7 +104,7 @@ use overload (
         }
         my $errstr = substr($all, 0, $pos);
         my $line_num = (() = $errstr =~ /\r\n|\r|\n/g);
-        return $line_num + 1;
+        $line_num + 1;
     }
     
     sub line_number_to_pos {
@@ -123,14 +123,14 @@ use overload (
                 next;
             }
         }
-        return $pos;
+        $pos;
     }
     
     ### ---
     ### return null string
     ### ---
     our $PARTIAL_NONEXIST_NULL = sub {
-        return '';
+        '';
     };
     
     our $PARTIAL_NONEXIST_DIE = sub {
@@ -142,7 +142,7 @@ use overload (
     ### return null string
     ### ---
     our $TAG_ERROR_NULL = sub {
-        return '';
+        '';
     };
     
     ### ---
@@ -152,7 +152,7 @@ use overload (
         my ($parser, $line, $self) = (@_);
         my $delim_l = Text::PSTemplate::get_current_parser()->get_delimiter(0);
         my $delim_r = Text::PSTemplate::get_current_parser()->get_delimiter(1);
-        return $delim_l. $line. $delim_r;
+        $delim_l. $line. $delim_r;
     };
     
     ### ---

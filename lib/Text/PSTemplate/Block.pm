@@ -3,6 +3,9 @@ use strict;
 use warnings;
 use Carp;
 
+    my $MEM_BLOCKS = 1;
+    my $MEM_LENGTH = 2;
+    
     sub new {
         my ($class, $names, $right, $delim_l, $delim_r) = @_;
         my $length;
@@ -13,7 +16,10 @@ use Carp;
                 $length += length($1) + length($2);
             }
         }
-        return bless {blocks => \@out, length => $length}, $class;
+        bless {
+            $MEM_BLOCKS => \@out,
+            $MEM_LENGTH => $length
+        }, $class;
     }
     
     sub get_left_chomp {
@@ -21,7 +27,7 @@ use Carp;
         my ($self, $index) = @_;
         my $data = $self->content($index);
         $data =~ m{^(\r\n|\r|\n)};
-        return $1;
+        $1;
     }
     
     ### ---
@@ -31,7 +37,7 @@ use Carp;
         
         my ($self, $index, $args) = @_;
         if (defined $index) {
-            my $data = $self->{blocks}->[$index]->[0];
+            my $data = $self->{$MEM_BLOCKS}->[$index]->[0];
             if ($data && $args) {
                 if ($args->{chop_left}) {
                     $data =~ s{^(?:\r\n|\r|\n)}{};
@@ -48,17 +54,17 @@ use Carp;
 
     sub delimiter {
         my ($self, $index) = @_;
-        return $self->{blocks}->[$index]->[1];
+        $self->{$MEM_BLOCKS}->[$index]->[1];
     }
 
     sub get_followers_offset {
         my ($self) = @_;
-        return $self->{length};
+        $self->{$MEM_LENGTH};
     }
     
     sub length {
         my ($self) = @_;
-        return scalar @$self;
+        scalar @$self;
     }
 
 1;

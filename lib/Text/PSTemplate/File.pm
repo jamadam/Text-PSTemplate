@@ -8,19 +8,18 @@ use Encode::Guess;
 
     my $MEM_FILENAME    = 1;
     my $MEM_CONTENT     = 2;
-    my $MEM_ENCODE     = 3;
+    my $MEM_ENCODE      = 3;
     
     sub new {
         
         my ($class, $name, $encode) = @_;
         $encode ||= 'utf8';
-        my $fh;
         
         if (! $name) {
             die "file name is empty\n";
         }
         
-        open($fh, "<", $name) || die "File '$name' cannot be opened\n";
+        open(my $fh, "<", $name) || die "File '$name' cannot be opened\n";
         
         if ($fh and flock($fh, LOCK_EX)) {
             my $out = do { local $/; <$fh> };

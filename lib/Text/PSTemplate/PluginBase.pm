@@ -24,9 +24,6 @@ use Fcntl qw(:flock);
     sub new {
         
         my ($class, $tpl, $as) = (@_);
-        if (! $tpl || ! $tpl->isa('Text::PSTemplate')) {
-            croak 'template is not given';
-        }
         
         no strict 'refs';
         foreach my $pkg (@{$class. '::ISA'}) {

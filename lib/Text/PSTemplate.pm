@@ -30,8 +30,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
     my $MEM_NONEXIST                = 9;
     my $MEM_FUNC_NONEXIST           = 10;
     my $MEM_VAR_NONEXIST            = 11;
+    my $MEM_PLUGED                  = 12;
 
-    #my @CORE_LIST = qw(Control Env Extends Util);
     my %CORE_LIST = (
         Control => '',
         Env     => '',
@@ -55,17 +55,11 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub new {
         
-        if (scalar @_ == 2 && ! defined $_[1]) {
-            #$_[1] = undef;
-        } else {
+        if (scalar @_ == 1) {
             $_[1] ||= $current_parser;
         }
         
-        my $self = bless {
-            $MEM_MOTHER      => $_[1], 
-            $MEM_FUNC        => {},
-            $MEM_VAR         => {},
-        }, $_[0];
+        my $self = bless {$MEM_MOTHER => $_[1]}, $_[0];
         
         if (! defined $self->{$MEM_MOTHER}) {
             $self->{$MEM_ENCODING}          = 'utf8';
@@ -508,8 +502,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
     sub plug {
         
         my ($self, $plugin, $as) = (@_);
-        $self->{pluged} ||= {};
-        my $p_instance = $self->{pluged}->{$plugin};
+        $self->{$MEM_PLUGED} ||= {};
+        my $p_instance = $self->{$MEM_PLUGED}->{$plugin};
         if (! blessed($p_instance)) {
             no strict 'refs';
             if (! %{"$plugin\::"}) {
@@ -521,17 +515,17 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 }
             }
             $p_instance = $plugin->new($self, $as);
-            $self->{pluged}->{$plugin} = $p_instance;
-            weaken $self->{pluged}->{$plugin};
+            $self->{$MEM_PLUGED}->{$plugin} = $p_instance;
+            weaken $self->{$MEM_PLUGED}->{$plugin};
         }
-        $self->{pluged}->{$plugin};
+        $self->{$MEM_PLUGED}->{$plugin};
     }
     
     sub get_plugin {
         
         my ($self, $name) = @_;
-        if (exists $self->{pluged}->{$name}) {
-            return $self->{pluged}->{$name};
+        if (exists $self->{$MEM_PLUGED}->{$name}) {
+            return $self->{$MEM_PLUGED}->{$name};
         }
         croak "Plugin $name not loaded";
     }
@@ -545,13 +539,13 @@ List of all available template functions
 =============================================================
 EOF
 
-        for my $plug (keys %{$self->{pluged}}) {
+        for my $plug (keys %{$self->{$MEM_PLUGED}}) {
 
             $out .= "\n-- $plug namespace";
             $out .= "\n";
             $out .= "\n";
 
-            my $as = $self->{pluged}->{$plug}->{2};
+            my $as = $self->{$MEM_PLUGED}->{$plug}->{2};
             for my $func (@{$plug->_get_tpl_exports}) {
                 $out .= '<% '. join('::', grep {$_} $as, $func->[2]) . '() %>';
                 $out .= "\n";
