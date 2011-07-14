@@ -31,6 +31,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     my $MEM_FUNC_NONEXIST           = 10;
     my $MEM_VAR_NONEXIST            = 11;
     my $MEM_PLUGED                  = 12;
+    my $MEM_TAG_FILTERS             = 13;
 
     my %CORE_LIST = (
         Control => '',
@@ -360,6 +361,17 @@ $Carp::Internal{ (__PACKAGE__) }++;
     }
     
     ### ---
+    ### Add tag option
+    ### ---
+    sub set_filter {
+        
+        my ($self, $key, $cb) = @_;
+        my $array = $self->{$MEM_TAG_FILTERS}->{$key} ||= [];
+        push(@$array, $cb);
+        $self;
+    }
+    
+    ### ---
     ### Parse str
     ### ---
     sub parse {
@@ -375,8 +387,8 @@ $Carp::Internal{ (__PACKAGE__) }++;
         while ($str) {
             my $delim_l = $self->get_param($MEM_DELIMITER_LEFT);
             my $delim_r = $self->get_param($MEM_DELIMITER_RIGHT);
-            my ($left, $all, $escape, $space_l, $prefix, $tag, $space_r, $right) =
-            split(m{((\\*)$delim_l(\s*)([\&\$]*)(.+?)(\s*)$delim_r)}s, $str, 2);
+            my ($left, $all, $escape, $opt_l, $space_l, $prefix, $tag, $space_r, $right) =
+            split(m{((\\*)$delim_l([^\s]*)(\s+)([\&\$]*)(.+?)(\s*)$delim_r)}s, $str, 2);
             
             if (! defined $tag) {
                 return $out. $str;
@@ -387,7 +399,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             my $len = length($escape);
             $out .= ('\\' x int($len / 2));
             if ($len % 2 == 1) {
-                $out .= $delim_l. $space_l. $prefix. $tag. $space_r. $delim_r;
+                $out .= $delim_l. $opt_l. $space_l. $prefix. $tag. $space_r. $delim_r;
             } else {
                 local $block;
                 local $current_parser = $self;
@@ -407,7 +419,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
                     Text::PSTemplate::_EvalStage::_do($self, $interp);
                 } catch {
                     my $exception = $_;
-                    my $org = $space_l. $prefix. $tag. $space_r;
+                    my $org = $opt_l. $space_l. $prefix. $tag. $space_r;
                     my $position = $exception->position || 0;
                     my $ret = try {
                         $self->get_param($MEM_NONEXIST)->($self, $org, $exception);
@@ -424,7 +436,17 @@ $Carp::Internal{ (__PACKAGE__) }++;
                     $eval_pos += length($1);
                 }
                 
+                # filter
+                if (my $f = $self->get_param($MEM_TAG_FILTERS)) {
+                    if (my $cbs = $f->{$opt_l}) {
+                        for my $cb (@$cbs) {
+                            $result = $cb->($result);
+                        }
+                    }
+                }
+                
                 $out .= $result;
+                
                 if ($block) {
                     $eval_pos += $block->get_followers_offset;
                 }
