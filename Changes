@@ -1,6 +1,6 @@
 Revision history for Text-PSTemplate
 
-0.34 2011/06/28
+0.34 2011/07/14
   - Exception API simplified.
   - A dependency for test specified
   - File cache feature no longer available
