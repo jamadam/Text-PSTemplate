@@ -237,6 +237,17 @@ template instance.
 This can be called from template functions. If current context is originated
 from a file, this returns the file name.
 
+=head2 $instance->set_filter($key, $filter_code_ref)
+
+Add a filter for given key in code ref.
+
+    my $tpl = Text::PSTemplate->new;
+    $tpl->set_filter('[escape]', \&escape);
+    
+    # in templates..
+    
+    <%[escape] $val %>
+
 =head2 Text::PSTemplate::set_chop($mode)
 
 This method set the behavior of the parser how they should treat follow up line
