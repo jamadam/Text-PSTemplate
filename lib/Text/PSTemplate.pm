@@ -186,6 +186,17 @@ $Carp::Internal{ (__PACKAGE__) }++;
     }
     
     ### ---
+    ### Add tag option
+    ### ---
+    sub set_filter {
+        
+        my ($self, $key, $cb) = @_;
+        my $array = $self->{$MEM_TAG_FILTERS}->{$key} ||= [];
+        push(@$array, $cb);
+        $self;
+    }
+    
+    ### ---
     ### Set delimiter
     ### ---
     sub set_delimiter {
@@ -358,17 +369,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
             return $res;
         }
         '';
-    }
-    
-    ### ---
-    ### Add tag option
-    ### ---
-    sub set_filter {
-        
-        my ($self, $key, $cb) = @_;
-        my $array = $self->{$MEM_TAG_FILTERS}->{$key} ||= [];
-        push(@$array, $cb);
-        $self;
     }
     
     ### ---
@@ -848,6 +848,17 @@ template instance.
 
 This can be called from template functions. If current context is originated
 from a file, this returns the file name.
+
+=head2 $instance->set_filter($key, $filter_code_ref)
+
+Add a filter for given key in code ref.
+
+    my $tpl = Text::PSTemplate->new;
+    $tpl->set_filter('[escape]', \&escape);
+    
+    # in templates..
+    
+    <%[escape] $val %>
 
 =head2 Text::PSTemplate::set_chop($mode)
 
