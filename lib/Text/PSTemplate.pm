@@ -5,7 +5,7 @@ use Fcntl qw(:flock);
 use Text::PSTemplate::Exception;
 use Text::PSTemplate::Block;
 use Text::PSTemplate::File;
-our $VERSION = '0.34';
+our $VERSION = '0.35';
 use 5.005;
 use Carp;
 use Try::Tiny;
@@ -646,22 +646,44 @@ The essential syntax for writing template is as follows.
 
     <% ... %>
 
-=item escaping
-
-    \<% ... %>
-
 =item Perl style variable and function calls
 
     <% $some_var %>
     <% some_func(...) %>
 
+=item Line breaks in tags
+
+    <%
+        product_list(
+            limit       => 20,
+            category    => 'books',
+        )
+    %>
+
 =item Block syntax
 
-    <% some_func()<<EOF,EOF2 %>
-    inline data
+    <% your_func()<<EOF,EOF2 %>
+        inline data
     <% EOF %>
-    inline data2
+        inline data2
     <% EOF2 %>
+
+=item escaping
+
+tag delimiter can be escaped by backslashes so that the delimiter
+characters themselves appear to the output. If you want to parse the statement
+after backslash, you can double escape.
+
+    \<% this appears literally %>   ### literally
+    \\<% $var %>                    ### A backlash and parsed value
+    \\\<% this appears literally %> ### A backslash and literal
+    \\\\<% $var %>                  ### Two backlashes and parsed value
+    ....
+
+Character $ and & is interpolated in any part of statements even in single
+quotes. So you must escape them with backslashes when it's needed. 
+
+    <% some_func(price => '\$10.25') %>
 
 =back
 
