@@ -523,24 +523,30 @@ $Carp::Internal{ (__PACKAGE__) }++;
     
     sub plug {
         
-        my ($self, $plugin, $as) = (@_);
+        my ($self, @plugins) = (@_);
         $self->{$MEM_PLUGED} ||= {};
-        my $p_instance = $self->{$MEM_PLUGED}->{$plugin};
-        if (! blessed($p_instance)) {
-            no strict 'refs';
-            if (! %{"$plugin\::"}) {
-                my $file = $plugin;
-                $file =~ s{::}{/}g;
-                eval {require "$file.pm"}; ## no critic
-                if ($@) {
-                    croak $@;
+        my $last_plugin;
+        while (scalar @plugins) {
+            my $plugin = shift @plugins;
+            my $as = shift @plugins;
+            my $p_instance = $self->{$MEM_PLUGED}->{$plugin};
+            if (! blessed($p_instance)) {
+                no strict 'refs';
+                if (! %{"$plugin\::"}) {
+                    my $file = $plugin;
+                    $file =~ s{::}{/}g;
+                    eval {require "$file.pm"}; ## no critic
+                    if ($@) {
+                        croak $@;
+                    }
                 }
+                $p_instance = $plugin->new($self, $as);
+                $self->{$MEM_PLUGED}->{$plugin} = $p_instance;
+                weaken $self->{$MEM_PLUGED}->{$plugin};
             }
-            $p_instance = $plugin->new($self, $as);
-            $self->{$MEM_PLUGED}->{$plugin} = $p_instance;
-            weaken $self->{$MEM_PLUGED}->{$plugin};
+            $last_plugin = $self->{$MEM_PLUGED}->{$plugin};
         }
-        $self->{$MEM_PLUGED}->{$plugin};
+        $last_plugin;
     }
     
     sub get_plugin {

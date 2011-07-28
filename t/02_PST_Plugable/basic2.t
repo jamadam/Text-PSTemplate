@@ -25,3 +25,11 @@ use Data::Dumper;
         my $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> <% Test::Plugin2::some_function() %> right]);
         is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
     }
+    
+    sub get_template_pluged_twice_at_once : Test {
+        
+        my $tpl = Text::PSTemplate->new;
+        $tpl->plug('Test::Plugin1' => undef, 'Test::Plugin2' => undef);
+        my $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> <% Test::Plugin2::some_function() %> right]);
+        is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
+    }
