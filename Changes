@@ -1,6 +1,7 @@
 Revision history for Text-PSTemplate
 
 0.35 2011/07/14
+  - plug method got capable of multiple plugins
 
 0.34 2011/07/14
   - Exception API simplified.
