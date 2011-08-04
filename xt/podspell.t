@@ -45,3 +45,4 @@ namespace
 HTML
 utf
 plugins
+linebreak
