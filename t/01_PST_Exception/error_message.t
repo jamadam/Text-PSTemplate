@@ -61,7 +61,7 @@ use Data::Dumper;
 		eval {
             $tpl->get_file('dummy.txt');
 		};
-        like($@, qr/open/);
+        like($@, qr/not found/);
         like($@, qr/dummy\.txt/);
     }
 

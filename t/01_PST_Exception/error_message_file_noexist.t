@@ -9,29 +9,27 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
     
-	sub parse_file : Test(5) {
+	sub parse_file : Test(4) {
 		
 		my $tpl = Text::PSTemplate->new;
 		eval {
 			$tpl->parse_file('does_not_exist');
 		};
-		like($@, qr/file/i);
-		like($@, qr/open/i);
+		like($@, qr/not found/i);
 		like($@, qr{does_not_exist});
 		like($@, qr{line 16});
 		is((() = $@ =~ / at /g), 1);
 	}
     
-	sub get_file : Test(5) {
+	sub get_file : Test(4) {
 		
 		my $tpl = Text::PSTemplate->new;
 		eval {
 			$tpl->get_file('does_not_exist');
 		};
-		like($@, qr/file/i);
-		like($@, qr/open/i);
+		like($@, qr/not found/i);
 		like($@, qr{does_not_exist});
-		like($@, qr{line 29});
+		like($@, qr{line 28});
 		is((() = $@ =~ / at /g), 1);
 	}
 
