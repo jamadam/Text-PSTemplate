@@ -1,5 +1,7 @@
 Revision history for Text-PSTemplate
 
+0.37 2011/08/06
+
 0.36 2011/08/06
   - file_name_trans method added.
   - File encoding detection got smarter.
