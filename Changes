@@ -3,6 +3,7 @@ Revision history for Text-PSTemplate
 0.35 2011/07/14
   - plug method got capable of multiple plugins
   - file_name_trans method added.
+  - File encoding detection got smarter.
 
 0.34 2011/07/14
   - Exception API simplified.
