@@ -1,6 +1,8 @@
 Revision history for Text-PSTemplate
 
-0.37 2011/08/06
+0.38 2011/08/23
+
+0.37 2011/08/23
   - T::P::DateTime->today added.
   - Try to use DateTime if available.
   
