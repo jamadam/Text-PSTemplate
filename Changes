@@ -1,6 +1,8 @@
 Revision history for Text-PSTemplate
 
-0.38 2011/08/23
+0.39 2011/09/02
+
+0.38 2011/09/02
   - Text::PSTemplate::get_engine added
 
 0.37 2011/08/23
