@@ -40,7 +40,7 @@ use File::Spec;
         
         my $tpl = Text::PSTemplate->new;
 		my $parsed = $tpl->parse(<<'EOF');
-<% set_var(var1 => 'a', var2 => 'b') %>
+<% assign(var1 => 'a', var2 => 'b') %>
 <% $var1 %><% $var2 %>
 EOF
 
@@ -53,7 +53,7 @@ EOF
         
         my $tpl = Text::PSTemplate->new;
 		my $parsed = $tpl->parse(<<'EOF');
-<% set_var(var1 => 'a', var2 => 'b') %>
+<% assign(var1 => 'a', var2 => 'b') %>
 <% set_delimiter('%%', '%%') %>
 %% $var1 %%%% $var2 %%
 EOF

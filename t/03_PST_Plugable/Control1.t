@@ -66,7 +66,7 @@ use Data::Dumper;
             respect => 'org',
             some_var1=> 1,
         );
-        my $parsed1 = $tpl->parse(q{<% if($some_var1)<<THEN %><% set_var(respect => 'sub') %><% THEN %>});
+        my $parsed1 = $tpl->parse(q{<% if($some_var1)<<THEN %><% assign(respect => 'sub') %><% THEN %>});
         is($parsed1, '');
         is($tpl->var('respect'), 'sub');
     }
