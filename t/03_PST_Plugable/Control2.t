@@ -88,7 +88,7 @@ use Data::Dumper;
             array => [1,2,3,4],
             respect => 'org',
         );
-        my $parsed1 = $tpl->parse(q{<% each($array, 'respect')<<EOF%><% $respect %><% set_var(respect => 'sub') %><% EOF %>});
+        my $parsed1 = $tpl->parse(q{<% each($array, 'respect')<<EOF%><% $respect %><% assign(respect => 'sub') %><% EOF %>});
         is($parsed1, '1234');
         is($tpl->var('respect'), 'sub');
     }

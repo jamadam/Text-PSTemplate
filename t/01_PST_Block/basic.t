@@ -11,8 +11,8 @@ use Data::Dumper;
     __PACKAGE__->runtests;
     
     sub basic1 : Test(4) {
-        
-        my $block = Text::PSTemplate::Block->new('TTT', \do{"bbb<% TTT %>ccccaaa"}, '<%', '%>');
+        my $right = "bbb<% TTT %>ccccaaa";
+        my $block = Text::PSTemplate::Block->new('TTT', \$right, '<%', '%>');
         is($block->content(0), 'bbb');
         is($block->get_left_chomp(0), undef);
         is($block->get_followers_offset, 12);
@@ -20,8 +20,8 @@ use Data::Dumper;
     }
     
     sub basic2 : Test(7) {
-        
-        my $block = Text::PSTemplate::Block->new('TTT,TTT2', \do{"bbb<% TTT %>bbb2<% TTT2 %>ccccaaa"}, '<%', '%>');
+        my $right = "bbb<% TTT %>bbb2<% TTT2 %>ccccaaa";
+        my $block = Text::PSTemplate::Block->new('TTT,TTT2', \$right, '<%', '%>');
         is($block->content(0), 'bbb');
         is($block->content(1), 'bbb2');
         is($block->get_left_chomp(0), undef);
@@ -32,8 +32,8 @@ use Data::Dumper;
     }
     
     sub basic3 : Test(6) {
-        
-        my $block = Text::PSTemplate::Block->new('TTT', \do{"\nbbb\n<% TTT %>ccccaaa"}, '<%', '%>');
+        my $right = "\nbbb\n<% TTT %>ccccaaa";
+        my $block = Text::PSTemplate::Block->new('TTT', \$right, '<%', '%>');
         is($block->content(0), "\nbbb\n");
         is($block->content(0, {chop_left => 1}), "bbb\n");
         is($block->content(0, {chop_right => 1}), "\nbbb");
@@ -43,8 +43,8 @@ use Data::Dumper;
     }
     
     sub basic4 : Test(11) {
-        
-        my $block = Text::PSTemplate::Block->new('TTT,TTT2', \do{"\nbbb\n<% TTT %>\nbbb2\n<% TTT2 %>ccccaaa"}, '<%', '%>');
+        my $right = "\nbbb\n<% TTT %>\nbbb2\n<% TTT2 %>ccccaaa";
+        my $block = Text::PSTemplate::Block->new('TTT,TTT2', \$right, '<%', '%>');
         is($block->content(0), "\nbbb\n");
         is($block->content(1), "\nbbb2\n");
         is($block->content(0, {chop_left => 1}), "bbb\n");
@@ -59,16 +59,16 @@ use Data::Dumper;
     }
     
     sub win_type_newline : Test(3) {
-        
-        my $block = Text::PSTemplate::Block->new('TTT', \do{"\r\nbbb<% TTT %>ccccaaa"}, '<%', '%>');
+        my $right = "\r\nbbb<% TTT %>ccccaaa";
+        my $block = Text::PSTemplate::Block->new('TTT', \$right, '<%', '%>');
         is($block->content(0), "\r\nbbb");
         is($block->get_left_chomp(0), "\r\n");
         is($block->get_followers_offset, 14);
     }
     
     sub double_newline : Test(4) {
-        
-        my $block = Text::PSTemplate::Block->new('TTT', \do{"\r\n\r\nbbb<% TTT %>ccccaaa"}, '<%', '%>');
+        my $right = "\r\n\r\nbbb<% TTT %>ccccaaa";
+        my $block = Text::PSTemplate::Block->new('TTT', \$right, '<%', '%>');
         is($block->content(0), "\r\n\r\nbbb");
         is($block->content(0, {chop_left => 1}), "\r\nbbb");
         is($block->get_left_chomp(0), "\r\n");
