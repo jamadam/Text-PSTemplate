@@ -1,6 +1,8 @@
 Revision history for Text-PSTemplate
 
-0.38 2011/08/23
+0.40 2011/08/23
+  - Added PluginBase::get_engine method.
+  - Deprecated Control::set_var. Use assign instead.
 
 0.37 2011/08/23
   - T::P::DateTime->today added.
