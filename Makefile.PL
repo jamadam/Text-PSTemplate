@@ -13,7 +13,6 @@ my %params = (
     BUILD_REQUIRES => {
         'Test::More'          => '0.47',
         'Test::UseAllModules' => '0.10',
-        'Try::Tiny'           => '0.06',
     },
     META_MERGE => {
         resources => {
