@@ -8,7 +8,7 @@ use Text::PSTemplate;
 use Data::Dumper;
     
     __PACKAGE__->runtests;
-	
+
     sub crop : Test(4) {
         
         my $tpl = Text::PSTemplate->new;
