@@ -13,7 +13,7 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
         my $p = $tpl->plug('_Test');
-		is($p->some_function, 'ok');
+        is($p->some_function, 'ok');
     }
 
 package _Test;

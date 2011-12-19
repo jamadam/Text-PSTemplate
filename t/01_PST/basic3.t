@@ -12,18 +12,18 @@ use Data::Dumper;
     sub var_undef : Test {
         
         my $tpl = Text::PSTemplate->new();
-		$tpl->set_var(a => undef);
-		is($tpl->var('a'), undef);
+        $tpl->set_var(a => undef);
+        is($tpl->var('a'), undef);
     }
     
     sub var_undef2 : Test(2) {
         
         my $tpl = Text::PSTemplate->new();
-		my $tpl2 = Text::PSTemplate->new($tpl);
-		$tpl->set_var(a => 'a');
-		$tpl2->set_var(a => undef);
-		is($tpl->var('a'), 'a');
-		is($tpl2->var('a'), 'a');
+        my $tpl2 = Text::PSTemplate->new($tpl);
+        $tpl->set_var(a => 'a');
+        $tpl2->set_var(a => undef);
+        is($tpl->var('a'), 'a');
+        is($tpl2->var('a'), 'a');
     }
 
 __END__

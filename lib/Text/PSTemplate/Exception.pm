@@ -13,11 +13,11 @@ use overload (
         
         my ($self) = @_;
         my $out = $self->{message} || 'Unknown Error';
-		my $file = $self->{file};
-		if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
-			my $line = _line_number($file->content, $self->{position});
-			$out = (split(/ at /, $out))[0];
-			$out .= sprintf(" at %s line %s", $file->name, $line);
+        my $file = $self->{file};
+        if (blessed($file) && $file->isa('Text::PSTemplate::File')) {
+            my $line = _line_number($file->content, $self->{position});
+            $out = (split(/ at /, $out))[0];
+            $out .= sprintf(" at %s line %s", $file->name, $line);
         } elsif ($file) {
             $out .= " at ". $file;
             if ($self->{line}) {
@@ -36,7 +36,7 @@ use overload (
             return $_[1];
         }
         my $self = bless {message => $message}, $class;
-		
+        
         if (! $Text::PSTemplate::current_file) {
             my $at = Carp::shortmess_heavy();
             if ($at =~ qr{at (.+?) line (\d+)}) {
@@ -49,38 +49,38 @@ use overload (
     
     sub set_message {
         my ($self, $value) = @_;
-		if ($self->{lock}) {
-			return $self;
-		}
+        if ($self->{lock}) {
+            return $self;
+        }
         $self->{message} = $value;
-		$self;
+        $self;
     }
     
     sub set_position {
         my ($self, $value) = @_;
-		if ($self->{lock}) {
-			return $self;
-		}
+        if ($self->{lock}) {
+            return $self;
+        }
         $self->{position} = $value;
-		$self;
+        $self;
     }
     
     sub set_file {
         my ($self, $value) = @_;
-		if ($self->{lock}) {
-			return $self;
-		}
+        if ($self->{lock}) {
+            return $self;
+        }
         $self->{file} = $value;
-		$self;
+        $self;
     }
     
-	sub finalize {
-		
-		my ($self) = @_;
-		$self->{lock} = 1;
-		$self;
-	}
-	
+    sub finalize {
+        
+        my ($self) = @_;
+        $self->{lock} = 1;
+        $self;
+    }
+    
     sub message {
         my ($self) = @_;
         $self->{message};

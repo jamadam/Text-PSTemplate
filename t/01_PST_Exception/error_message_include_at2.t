@@ -9,46 +9,46 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
     
-	sub error_include_line_number: Test(2) {
-		
-		my $tpl = Text::PSTemplate->new;
-		eval {
-			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_1.txt');
-		};
-		like($@, qr{t/01_PST_Exception/template/error_message_include_at2_1.txt line 4});
-		is((() = $@ =~ / at /g), 1);
-	}
+    sub error_include_line_number: Test(2) {
+        
+        my $tpl = Text::PSTemplate->new;
+        eval {
+            $tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_1.txt');
+        };
+        like($@, qr{t/01_PST_Exception/template/error_message_include_at2_1.txt line 4});
+        is((() = $@ =~ / at /g), 1);
+    }
     
-	sub error_include_line_number2: Test(2) {
-		
-		my $tpl = Text::PSTemplate->new;
-		eval {
-			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_2.txt');
-		};
-		like($@, qr{t/01_PST_Exception/template/error_message_include_at2_2.txt line 7});
-		is((() = $@ =~ / at /g), 1);
-	}
+    sub error_include_line_number2: Test(2) {
+        
+        my $tpl = Text::PSTemplate->new;
+        eval {
+            $tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_2.txt');
+        };
+        like($@, qr{t/01_PST_Exception/template/error_message_include_at2_2.txt line 7});
+        is((() = $@ =~ / at /g), 1);
+    }
     
-	sub error_include_line_number3: Test(2) {
-		
-		my $tpl = Text::PSTemplate->new;
-		eval {
-			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_3.txt');
-		};
-		like($@, qr{t/01_PST_Exception/template/error_message_include_at2_3.txt line 5});
-		is((() = $@ =~ / at /g), 1);
-	}
+    sub error_include_line_number3: Test(2) {
+        
+        my $tpl = Text::PSTemplate->new;
+        eval {
+            $tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_3.txt');
+        };
+        like($@, qr{t/01_PST_Exception/template/error_message_include_at2_3.txt line 5});
+        is((() = $@ =~ / at /g), 1);
+    }
     
-	sub error_include_line_number4: Test(2) {
-		
-		my $tpl = Text::PSTemplate->new;
-		$tpl->plug('_Test', '');
-		eval {
-			$tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_4.txt');
-		};
-		like($@, qr{t/01_PST_Exception/template/error_message_include_at2_4.txt line 2});
-		is((() = $@ =~ / at /g), 1);
-	}
+    sub error_include_line_number4: Test(2) {
+        
+        my $tpl = Text::PSTemplate->new;
+        $tpl->plug('_Test', '');
+        eval {
+            $tpl->parse_file('t/01_PST_Exception/template/error_message_include_at2_4.txt');
+        };
+        like($@, qr{t/01_PST_Exception/template/error_message_include_at2_4.txt line 2});
+        is((() = $@ =~ / at /g), 1);
+    }
 
 package _Test;
 use strict;
@@ -65,7 +65,7 @@ use Text::PSTemplate;
         
         my $tpl = Text::PSTemplate->new;
         
-		return $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
+        return $tpl->parse_block(0, {chop_left => 1, chop_right => 1});
         return;
     }
 

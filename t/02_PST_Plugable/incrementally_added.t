@@ -15,7 +15,7 @@ use Data::Dumper;
         $tpl->plug('Test::Plugin1');
         my $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> right]);
         is($parsed, 'left Test::Plugin1::some_function called right');
-		
+        
         $tpl->plug('Test::Plugin2');
         my $parsed2 = $tpl->parse(q[left <% Test::Plugin2::some_function() %> right]);
         is($parsed2, 'left Test::Plugin2::some_function called right');
@@ -27,7 +27,7 @@ use Data::Dumper;
         $tpl->plug('Test::Plugin1');
         my $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> right]);
         is($parsed, 'left Test::Plugin1::some_function called right');
-		
+        
         $tpl->plug('Test::Plugin2');
         my $parsed2 = $tpl->parse(q[left <% Test::Plugin2::some_function() %> right]);
         is($parsed2, 'left Test::Plugin2::some_function called right');

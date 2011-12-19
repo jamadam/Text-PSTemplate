@@ -11,17 +11,17 @@ my %params = (
     PREREQ_PM     => {
     },
     BUILD_REQUIRES => {
-		'Test::Class' => '0.36',
+        'Test::Class' => '0.36',
         'Test::More'          => '0.47',
         'Test::UseAllModules' => '0.10',
-        'Try::Tiny'			  => '0.06',
+        'Try::Tiny'           => '0.06',
     },
     META_MERGE => {
         resources => {
             repository => '',
         },
     },
-	test => {TESTS => 't/*.t t/*/*.t'},
+    test => {TESTS => 't/*.t t/*/*.t'},
 );
 
 my $eumm = $ExtUtils::MakeMaker::VERSION;

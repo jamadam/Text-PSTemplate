@@ -4,14 +4,14 @@ use lib 'lib';
 use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
-
+    
     __PACKAGE__->runtests;
     
     sub include_file_include_error : Test(1) {
         
         my $tpl = Text::PSTemplate->new;
-		eval {
-			$tpl->parse_file('t/03_PST_Plugable/template/partial_exception1.txt');
-		};
-		like($@, qr/undefined/);
+        eval {
+            $tpl->parse_file('t/03_PST_Plugable/template/partial_exception1.txt');
+        };
+        like($@, qr/undefined/);
     }

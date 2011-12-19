@@ -9,11 +9,11 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
     
-	sub basic : Test {
-		
+    sub basic : Test {
+        
         my $tpl = Text::PSTemplate->new();
-		my $a = sub {$_[0]. '.txt'};
-		$tpl->set_filename_trans_coderef($a);
-		my $str = $tpl->get_file('t/01_PST/template/filename_trans');
-		is($str->content, 'ok');
-	}
+        my $a = sub {$_[0]. '.txt'};
+        $tpl->set_filename_trans_coderef($a);
+        my $str = $tpl->get_file('t/01_PST/template/filename_trans');
+        is($str->content, 'ok');
+    }

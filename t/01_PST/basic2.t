@@ -41,58 +41,58 @@ use Data::Dumper;
     sub catch_exception : Test(1) {
         
         my $tpl = Text::PSTemplate->new;
-		eval {
-			$tpl->parse(q[<% hoge() %>])
-		};
-		like($@, qr/undefined/);
+        eval {
+            $tpl->parse(q[<% hoge() %>])
+        };
+        like($@, qr/undefined/);
     }
     
     sub no_exception : Test(1) {
         
         my $tpl = Text::PSTemplate->new;
-		my $e = sub {'hoge'};
+        my $e = sub {'hoge'};
         $tpl->set_exception($e);
-		eval {
-			$tpl->parse(q[<% hoge() %>])
-		};
-		is($@, '');
+        eval {
+            $tpl->parse(q[<% hoge() %>])
+        };
+        is($@, '');
     }
     
     sub reconstruct_tag : Test(2) {
         
         my $tpl = Text::PSTemplate->new;
-		my $e = sub {
-	        my ($self, $line, $err) = (@_);
-			return 
-				$self->get_delimiter(0)
-				. $line
-				. $self->get_delimiter(1);
-		};
+        my $e = sub {
+            my ($self, $line, $err) = (@_);
+            return 
+                $self->get_delimiter(0)
+                . $line
+                . $self->get_delimiter(1);
+        };
         $tpl->set_exception($e);
-		my $parsed = eval {
-			$tpl->parse(q[<% hoge() %>])
-		};
-		is($@, '');
-		is($parsed, '<% hoge() %>');
+        my $parsed = eval {
+            $tpl->parse(q[<% hoge() %>])
+        };
+        is($@, '');
+        is($parsed, '<% hoge() %>');
     }
     
     sub exception_in_args : Test(2) {
         
         my $tpl = Text::PSTemplate->new;
-		my $e = sub {
-	        my ($self, $line, $err) = (@_);
-			return 
-				$self->get_delimiter(0)
-				. $line
-				. $self->get_delimiter(1);
-		};
+        my $e = sub {
+            my ($self, $line, $err) = (@_);
+            return 
+                $self->get_delimiter(0)
+                . $line
+                . $self->get_delimiter(1);
+        };
         $tpl->set_exception($e);
-		$tpl->set_func(myfunc => sub {'a'});
-		my $parsed = eval {
-			$tpl->parse(q[<% myfunc(&hoge()) %>])
-		};
-		is($@, '');
-		is($parsed, '<% myfunc(&hoge()) %>');
+        $tpl->set_func(myfunc => sub {'a'});
+        my $parsed = eval {
+            $tpl->parse(q[<% myfunc(&hoge()) %>])
+        };
+        is($@, '');
+        is($parsed, '<% myfunc(&hoge()) %>');
     }
     
     sub indent_optimize {

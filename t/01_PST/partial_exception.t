@@ -9,23 +9,23 @@ use Data::Dumper;
     
     __PACKAGE__->runtests;
     
-	sub partial_exception : Test(3) {
-		
+    sub partial_exception : Test(3) {
+        
         my $tpl = Text::PSTemplate->new;
-		eval {
-			$tpl->parse('<% a() %>');
-		};
-		like($@, qr/undefined/);
-		
-		$tpl->set_func(a => sub {
-			my $tpl2 = Text::PSTemplate->new;
-			$tpl->parse('<% b() %>');
-		});
-		eval {
-			$tpl->parse('<% a() %>');
-		};
-		like($@, qr/undefined/);
-	}
+        eval {
+            $tpl->parse('<% a() %>');
+        };
+        like($@, qr/undefined/);
+        
+        $tpl->set_func(a => sub {
+            my $tpl2 = Text::PSTemplate->new;
+            $tpl->parse('<% b() %>');
+        });
+        eval {
+            $tpl->parse('<% a() %>');
+        };
+        like($@, qr/undefined/);
+    }
 
 package PST2;
 use strict;

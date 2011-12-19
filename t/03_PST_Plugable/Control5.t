@@ -10,31 +10,31 @@ use Text::PSTemplate;
     sub extract : Test(2) {
         
         my $tpl = Text::PSTemplate->new;
-		my $var = {a => 'b', c => 'd'};
-		$tpl->set_var(var => $var);
-		my $parsed = $tpl->parse(q{<% extract($var,'a') %>});
+        my $var = {a => 'b', c => 'd'};
+        $tpl->set_var(var => $var);
+        my $parsed = $tpl->parse(q{<% extract($var,'a') %>});
         is($parsed, 'b');
-		my $parsed2 = eval {
-			$tpl->parse(q{<% extract($var,'e') %>});
-		};
+        my $parsed2 = eval {
+            $tpl->parse(q{<% extract($var,'e') %>});
+        };
         isnt($@, undef);
     }
-	
-	sub default : Test(2) {
-		
+    
+    sub default : Test(2) {
+        
         my $tpl = Text::PSTemplate->new;
-		$tpl->set_var_exception(sub{''});
-		$tpl->set_var(var => 'a');
-		my $parsed = $tpl->parse(q{<% default($var,'default') %>});
+        $tpl->set_var_exception(sub{''});
+        $tpl->set_var(var => 'a');
+        my $parsed = $tpl->parse(q{<% default($var,'default') %>});
         is($parsed, 'a');
-		my $parsed2 = $tpl->parse(q{<% default($var2,'default') %>});
+        my $parsed2 = $tpl->parse(q{<% default($var2,'default') %>});
         is($parsed2, 'default');
-	}
-	
-	sub with : Test(1) {
-		
+    }
+    
+    sub with : Test(1) {
+        
         my $tpl = Text::PSTemplate->new();
-		$tpl->set_var(arr => {foo => 'bar'});
+        $tpl->set_var(arr => {foo => 'bar'});
         my $parsed = $tpl->parse(<<'EOF');
 <% $arr->{foo} %>
 <% with($arr)<<BLOCK %><% $foo %> / <% $arr->{foo} %><% BLOCK %>
@@ -44,4 +44,4 @@ EOF
 bar
 bar / bar
 EOF
-	}
+    }

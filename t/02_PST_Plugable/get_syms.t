@@ -13,9 +13,9 @@ use Data::Dumper;
         
         my $tpl = Text::PSTemplate->new;
         my $plug = eval {
-			$tpl->plug('_Test');
-		};
-		is($@, '');
+            $tpl->plug('_Test');
+        };
+        is($@, '');
     }
 
 package _Test;
@@ -25,6 +25,6 @@ use base 'Text::PSTemplate::PluginBase';
 use Fcntl qw(:flock);
 use Carp;
 
-	sub hoge : TplExport {
-		
-	}
+    sub hoge : TplExport {
+        
+    }

@@ -29,15 +29,15 @@ package Test::Plugin1;
 use strict;
 use warnings;
 use base qw(Text::PSTemplate::PluginBase);
-
-	sub test1 : TplExport {
-		
-		my ($self, $str) = @_;
-		return $str;
-	}
-	
-	sub test2 : TplExport(chop => 1) {
-		
-		my ($self, $str) = @_;
-		return $str;
-	}
+    
+    sub test1 : TplExport {
+        
+        my ($self, $str) = @_;
+        return $str;
+    }
+    
+    sub test2 : TplExport(chop => 1) {
+        
+        my ($self, $str) = @_;
+        return $str;
+    }
