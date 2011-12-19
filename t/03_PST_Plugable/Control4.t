@@ -2,28 +2,24 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib 't/lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
 use File::Spec;
     
-    __PACKAGE__->runtests;
+	use Test::More tests => 2;
     
-    sub include_recursive : Test(1) {
-        
-        my $tpl = Text::PSTemplate->new;
-        my $parsed = $tpl->parse_file('t/03_PST_Plugable/template/Control4_1.txt');
-        is($parsed, 'ok');
-    }
+    my $tpl;
+    my $parsed;
     
-    sub include_recursive2 : Test(1) {
-        
-        my $tpl0 = Text::PSTemplate->new;
-        $tpl0->plug('Test::DB', '');
-        my $parsed = $tpl0->parse_file('t/03_PST_Plugable/template/Control4_4.txt');
-        is($parsed, 'a:30:a:30:okb:31:okc:32:ok//b:31:a:30:okb:31:okc:32:ok//c:32:a:30:okb:31:okc:32:ok//');
-    }
+    $tpl = Text::PSTemplate->new;
+    $parsed = $tpl->parse_file('t/03_PST_Plugable/template/Control4_1.txt');
+    is($parsed, 'ok');
+    
+    $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::DB', '');
+    $parsed = $tpl->parse_file('t/03_PST_Plugable/template/Control4_4.txt');
+    is($parsed, 'a:30:a:30:okb:31:okc:32:ok//b:31:a:30:okb:31:okc:32:ok//c:32:a:30:okb:31:okc:32:ok//');
 
 ### ---
 ### row DB plugin

@@ -2,25 +2,21 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib 't/lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
 
-    __PACKAGE__->runtests;
+	use Test::More tests => 3;
     
-    sub set_namespace : Test(3) {
-        
-        my $plug;
-        {
-            my $tpl = Text::PSTemplate->new;
-            $tpl->plug('Some::Plug');
-            is(ref $tpl->get_plugin('Some::Plug'), 'Some::Plug');
-            is(ref $tpl->get_plugin('Text::PSTemplate::Plugin::Control'), 'Text::PSTemplate::Plugin::Control');
-            $plug = $tpl->{pluged};
-        }
-        is($plug->{'Some::Plug'}, undef);
+    my $plug;
+    {
+        my $tpl = Text::PSTemplate->new;
+        $tpl->plug('Some::Plug');
+        is(ref $tpl->get_plugin('Some::Plug'), 'Some::Plug');
+        is(ref $tpl->get_plugin('Text::PSTemplate::Plugin::Control'), 'Text::PSTemplate::Plugin::Control');
+        $plug = $tpl->{pluged};
     }
+    is($plug->{'Some::Plug'}, undef);
 
 package Some::Plug;
 use strict;

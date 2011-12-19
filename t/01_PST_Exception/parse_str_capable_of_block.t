@@ -2,36 +2,32 @@ package Template_Basic;
 use strict;
 use warnings;
 use lib 'lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
     
-    __PACKAGE__->runtests;
+	use Test::More tests => 4;
     
-    sub normal : Test(1) {
-        my $rend = Text::PSTemplate->new;
-        $rend->plug('SomePlug', '');
-        my $parsed = $rend->parse(q{<% hoge3('parsed') %>});
-        is($parsed, 'parsedparsedparsed');
-    }
+    my $rend;
+    my $parsed;
     
-    sub block : Test(1) {
-        my $rend = Text::PSTemplate->new;
-        $rend->plug('SomePlug', '');
-        my $parsed = $rend->parse(q{<% hoge3()<<TPL,TPL2 %>parsed<% TPL %>parsed<% TPL2 %>});
-        is($parsed, 'parsedparsedparsed');
-    }
+    $rend = Text::PSTemplate->new;
+    $rend->plug('SomePlug', '');
+    $parsed = $rend->parse(q{<% hoge3('parsed') %>});
+    is($parsed, 'parsedparsedparsed');
     
-    sub block_err : Test(2) {
-        my $rend = Text::PSTemplate->new;
-        $rend->plug('SomePlug', '');
-        eval {
-            $rend->parse_file('./t/01_PST_Exception/template/parse_str_capable_of_block.txt');
-        };
-        like($@, qr/parse_str_capable_of_block.txt/);
-        like($@, qr/line 10/);
-    }
+    $rend = Text::PSTemplate->new;
+    $rend->plug('SomePlug', '');
+    $parsed = $rend->parse(q{<% hoge3()<<TPL,TPL2 %>parsed<% TPL %>parsed<% TPL2 %>});
+    is($parsed, 'parsedparsedparsed');
+    
+    $rend = Text::PSTemplate->new;
+    $rend->plug('SomePlug', '');
+    eval {
+        $rend->parse_file('./t/01_PST_Exception/template/parse_str_capable_of_block.txt');
+    };
+    like($@, qr/parse_str_capable_of_block.txt/);
+    like($@, qr/line 10/);
 
 package SomePlug;
 use strict;

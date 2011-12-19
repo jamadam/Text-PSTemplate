@@ -1,56 +1,36 @@
 use strict;
 use warnings;
 use lib 'lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
     
-    __PACKAGE__->runtests;
+	use Test::More tests => 9;
     
-    sub file_test : Test(7) {
-        
-        my $tpl = Text::PSTemplate->new();
-        {
-            my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS') %>"});
-            is($res, q{res:"1"});
-        }
-        {
-            my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','f') %>"});
-            is($res, q{res:"1"});
-        }
-        {
-            my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','d') %>"});
-            is($res, q{res:""});
-        }
-        {
-            my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','e') %>"});
-            is($res, q{res:"1"});
-        }
-        {
-            my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','M') %>"});
-            like($res, qr{res:"\d+\.\d+"});
-        }
-        {
-            my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','C') %>"});
-            like($res, qr{res:"\d+\.\d+"});
-        }
-        {
-            my $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','A') %>"});
-            like($res, qr{res:"\d+\.\d+"});
-        }
-    }
+    my $tpl;
+    my $res;
     
-    sub findfile : Test(2) {
-        
-        my $tpl = Text::PSTemplate->new();
-        {
-            my $res = $tpl->parse(q{res:"<% extract(&FS::find('t/03_PST_Plugable/template','FS'), 0) %>"});
-            use File::Spec;
-            my $expected_path = File::Spec->catfile(qw(t 03_PST_Plugable template FS));
-            is($res, qq{res:"$expected_path"});
-        }
-        {
-            my $res = $tpl->parse(q{res:"<% extract(&FS::find('t/03_PST_Plugable/template','FS2','not_found'), 0) %>"});
-            is($res, q{res:"not_found"});
-        }
-    }
+    $tpl = Text::PSTemplate->new();
+    $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS') %>"});
+    is($res, q{res:"1"});
+    $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','f') %>"});
+    is($res, q{res:"1"});
+    $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','d') %>"});
+    is($res, q{res:""});
+    $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','e') %>"});
+    is($res, q{res:"1"});
+    $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','M') %>"});
+    like($res, qr{res:"\d+\.\d+"});
+    $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','C') %>"});
+    like($res, qr{res:"\d+\.\d+"});
+    $res = $tpl->parse(q{res:"<% FS::test('t/03_PST_Plugable/template/FS','A') %>"});
+    like($res, qr{res:"\d+\.\d+"});
+    
+    use File::Spec;
+    
+    $tpl = Text::PSTemplate->new();
+    
+    $res = $tpl->parse(q{res:"<% extract(&FS::find('t/03_PST_Plugable/template','FS'), 0) %>"});
+    my $expected_path = File::Spec->catfile(qw(t 03_PST_Plugable template FS));
+    is($res, qq{res:"$expected_path"});
+    $res = $tpl->parse(q{res:"<% extract(&FS::find('t/03_PST_Plugable/template','FS2','not_found'), 0) %>"});
+    is($res, q{res:"not_found"});

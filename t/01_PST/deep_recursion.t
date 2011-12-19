@@ -2,17 +2,15 @@ package Template_Basic;
 use strict;
 use warnings;
 use lib 'lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Scalar::Util qw(blessed);
 use Data::Dumper;
 use File::Basename;
     
-    __PACKAGE__->runtests;
+	use Test::More tests => 6;
     
-    sub default_recuresion_limit : Test(3) {
-        
+    {
         my $tpl01 = Text::PSTemplate->new();
         my $tpl02 = eval {Text::PSTemplate->new($tpl01)};
         my $tpl03 = eval {Text::PSTemplate->new($tpl02)};
@@ -28,11 +26,9 @@ use File::Basename;
         my $tpl12 = eval {Text::PSTemplate->new($tpl11)};
         like($@, qr/Deep Recursion/);
         my $file = basename(__FILE__);
-        like($@, qr/$file line 28/);
+        like($@, qr/$file line 26/);
     }
-    
-    sub recuresion_limit_custom : Test(3) {
-        
+    {
         my $tpl01 = Text::PSTemplate->new;
         $tpl01->set_recur_limit(2);
         my $tpl02 = eval {Text::PSTemplate->new($tpl01)};
@@ -41,7 +37,7 @@ use File::Basename;
         my $tpl04 = eval {Text::PSTemplate->new($tpl03)};
         like($@, qr/Deep Recursion/);
         my $file = basename(__FILE__);
-        like($@, qr/$file line 41/);
+        like($@, qr/$file line 37/);
     }
 
 __END__

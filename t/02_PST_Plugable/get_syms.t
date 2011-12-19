@@ -2,21 +2,17 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib 't/lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
 
-    __PACKAGE__->runtests;
+	use Test::More tests => 1;
     
-    sub flock_ok : Test {
-        
-        my $tpl = Text::PSTemplate->new;
-        my $plug = eval {
-            $tpl->plug('_Test');
-        };
-        is($@, '');
-    }
+    my $tpl = Text::PSTemplate->new;
+    my $plug = eval {
+        $tpl->plug('_Test');
+    };
+    is($@, '');
 
 package _Test;
 use strict;

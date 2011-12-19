@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib 't/lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;

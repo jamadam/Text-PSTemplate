@@ -2,28 +2,23 @@ package Template_Basic;
 use strict;
 use warnings;
 use lib 'lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
     
-    __PACKAGE__->runtests;
+	use Test::More tests => 7;
     
-    sub overload_ok : Test(6) {
-        
-        my $a = Text::PSTemplate::Exception->new('hoge');
-        my $res1 = eval {$a eq 'a'};
-        is($@, '');
-        isnt($res1, 1);
-        my $res2 = eval {$a ne 'a'};
-        is($@, '');
-        is($res2, 1);
-        like($a, qr/hoge/);
-        like($a, qr/basic.t/);
-    }
+    my $e;
     
-    sub overload_ok2 : Test(1) {
-        
-        my $a = Text::PSTemplate::Exception->new('hoge');
-        is(ref $a, 'Text::PSTemplate::Exception');
-    }
+    $e = Text::PSTemplate::Exception->new('hoge');
+    my $res1 = eval {$e eq 'a'};
+    is($@, '');
+    isnt($res1, 1);
+    my $res2 = eval {$e ne 'a'};
+    is($@, '');
+    is($res2, 1);
+    like($e, qr/hoge/);
+    like($e, qr/basic.t/);
+
+    $e = Text::PSTemplate::Exception->new('hoge');
+    is(ref $e, 'Text::PSTemplate::Exception');

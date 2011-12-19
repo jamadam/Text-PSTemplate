@@ -2,34 +2,29 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib 't/lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
 
-    __PACKAGE__->runtests;
+	use Test::More tests => 3;
     
-    sub zero : Test(1) {
-        
-        my $tpl = Text::PSTemplate->new;
-        $tpl->plug('Test::_Plugin');
-        my $parsed = $tpl->parse(q[left <% Test::_Plugin::zero() %> right]);
-        is($parsed, 'left 0 right');
-    }
+    my $tpl;
+    my $parsed;
     
-    sub null_string : Test(1) {
-        my $tpl = Text::PSTemplate->new;
-        $tpl->plug('Test::_Plugin');
-        my $parsed = $tpl->parse(q[left <% Test::_Plugin::null_string() %> right]);
-        is($parsed, 'left  right');
-    }
+    $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::_Plugin');
+    $parsed = $tpl->parse(q[left <% Test::_Plugin::zero() %> right]);
+    is($parsed, 'left 0 right');
     
-    sub undefined : Test(1) {
-        my $tpl = Text::PSTemplate->new;
-        $tpl->plug('Test::_Plugin');
-        my $parsed = $tpl->parse(q[left <% Test::_Plugin::undefined() %> right]);
-        is($parsed, 'left  right');
-    }
+    $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::_Plugin');
+    $parsed = $tpl->parse(q[left <% Test::_Plugin::null_string() %> right]);
+    is($parsed, 'left  right');
+    
+    $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::_Plugin');
+    $parsed = $tpl->parse(q[left <% Test::_Plugin::undefined() %> right]);
+    is($parsed, 'left  right');
 
 package Test::_Plugin;
 use strict;

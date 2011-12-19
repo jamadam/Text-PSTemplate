@@ -2,34 +2,27 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib 't/lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
 
-    __PACKAGE__->runtests;
+	use Test::More tests => 3;
     
-    sub get_template_pluged : Test {
-        
-        my $tpl = Text::PSTemplate->new;
-        $tpl->plug('Test::Plugin1');
-        my $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> right]);
-        is($parsed, 'left Test::Plugin1::some_function called right');
-    }
+    my $tpl;
+    my $parsed;
     
-    sub get_template_pluged_twice : Test {
-        
-        my $tpl = Text::PSTemplate->new;
-        $tpl->plug('Test::Plugin1');
-        $tpl->plug('Test::Plugin2');
-        my $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> <% Test::Plugin2::some_function() %> right]);
-        is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
-    }
+    $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::Plugin1');
+    $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> right]);
+    is($parsed, 'left Test::Plugin1::some_function called right');
     
-    sub get_template_pluged_twice_at_once : Test {
-        
-        my $tpl = Text::PSTemplate->new;
-        $tpl->plug('Test::Plugin1' => undef, 'Test::Plugin2' => undef);
-        my $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> <% Test::Plugin2::some_function() %> right]);
-        is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
-    }
+    $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::Plugin1');
+    $tpl->plug('Test::Plugin2');
+    $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> <% Test::Plugin2::some_function() %> right]);
+    is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');
+    
+    $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::Plugin1' => undef, 'Test::Plugin2' => undef);
+    $parsed = $tpl->parse(q[left <% Test::Plugin1::some_function() %> <% Test::Plugin2::some_function() %> right]);
+    is($parsed, 'left Test::Plugin1::some_function called Test::Plugin2::some_function called right');

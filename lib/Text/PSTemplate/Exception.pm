@@ -44,8 +44,12 @@ use overload (
         my $self = bless {$MEM_MESSAGE => $message}, $class;
         
         if (! $Text::PSTemplate::current_file) {
-            my $at = Carp::shortmess_heavy();
-            if ($at =~ qr{at (.+?) line (\d+)}) {
+            my $at = eval {Carp::shortmess_heavy()};
+            if ($@) {
+                my @caller = caller(0);
+                $self->{$MEM_FILE} = $caller[1];
+                $self->{$MEM_LINE} = $caller[2];
+            } elsif ($at =~ qr{at (.+?) line (\d+)}) {
                 $self->{$MEM_FILE} = $1;
                 $self->{$MEM_LINE} = $2;
             }

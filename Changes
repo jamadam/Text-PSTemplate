@@ -1,6 +1,8 @@
 Revision history for Text-PSTemplate
 
 0.41 2011/11/25
+  - Improved internal codes.
+  - Removed dependency on Test::Class module.
 
 0.40 2011/11/25
   - Added PluginBase::get_engine method.

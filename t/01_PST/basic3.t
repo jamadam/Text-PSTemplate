@@ -2,28 +2,24 @@ package Template_Basic;
 use strict;
 use warnings;
 use lib 'lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
     
-    __PACKAGE__->runtests;
+	use Test::More tests => 3;
     
-    sub var_undef : Test {
-        
-        my $tpl = Text::PSTemplate->new();
-        $tpl->set_var(a => undef);
-        is($tpl->var('a'), undef);
-    }
+    my $tpl;
+    my $tpl2;
     
-    sub var_undef2 : Test(2) {
-        
-        my $tpl = Text::PSTemplate->new();
-        my $tpl2 = Text::PSTemplate->new($tpl);
-        $tpl->set_var(a => 'a');
-        $tpl2->set_var(a => undef);
-        is($tpl->var('a'), 'a');
-        is($tpl2->var('a'), 'a');
-    }
+    $tpl = Text::PSTemplate->new();
+    $tpl->set_var(a => undef);
+    is($tpl->var('a'), undef, 'right value in variable');
+    
+    $tpl = Text::PSTemplate->new();
+    $tpl2 = Text::PSTemplate->new($tpl);
+    $tpl->set_var(a => 'a');
+    $tpl2->set_var(a => undef);
+    is($tpl->var('a'), 'a', 'right value in variable');
+    is($tpl2->var('a'), 'a', 'right value in variable');
 
 __END__

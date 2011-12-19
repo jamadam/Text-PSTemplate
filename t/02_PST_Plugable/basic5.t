@@ -2,21 +2,17 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib 't/lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
 
-    __PACKAGE__->runtests;
+	use Test::More tests => 4;
     
-    sub constractor_check : Test(4) {
-        
-        my $tpl = Text::PSTemplate->new;
-        is(ref $tpl, 'Text::PSTemplate');
-        my $tpl2 = Text::PSTemplate->new($tpl);
-        is(ref $tpl2, 'Text::PSTemplate');
-        my $tpl3 = Text::PSTemplate->new($tpl);
-        is(ref $tpl3, 'Text::PSTemplate');
-        my $tpl4 = Text::PSTemplate->new($tpl);
-        is(ref $tpl4, 'Text::PSTemplate');
-    }
+    my $tpl = Text::PSTemplate->new;
+    is(ref $tpl, 'Text::PSTemplate');
+    my $tpl2 = Text::PSTemplate->new($tpl);
+    is(ref $tpl2, 'Text::PSTemplate');
+    my $tpl3 = Text::PSTemplate->new($tpl);
+    is(ref $tpl3, 'Text::PSTemplate');
+    my $tpl4 = Text::PSTemplate->new($tpl);
+    is(ref $tpl4, 'Text::PSTemplate');

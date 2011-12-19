@@ -1,22 +1,18 @@
 use strict;
 use warnings;
 use lib 'lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 
-    __PACKAGE__->runtests;
+	use Test::More tests => 2;
     
-    sub die_in_plugin : Test(2) {
-        
-        my $tpl = Text::PSTemplate->new;
-        $tpl->plug('Test::_Plugin','');
-        my $parsed = eval {
-            $tpl->parse_file('t/03_PST_Plugable/template/PST_die_at.txt');
-        };
-        like($@, qr/PST_die_at.txt/);
-        like($@, qr/ERROR/);
-    }
+    my $tpl = Text::PSTemplate->new;
+    $tpl->plug('Test::_Plugin','');
+    my $parsed = eval {
+        $tpl->parse_file('t/03_PST_Plugable/template/PST_die_at.txt');
+    };
+    like($@, qr/PST_die_at.txt/);
+    like($@, qr/ERROR/);
 
 package Test::_Plugin;
 use strict;

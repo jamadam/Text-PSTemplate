@@ -1,47 +1,39 @@
 use strict;
 use warnings;
 use lib 'lib';
-use base 'Test::Class';
 use Test::More;
 use Text::PSTemplate;
 
-    __PACKAGE__->runtests;
+	use Test::More tests => 5;
     
-    sub extract : Test(2) {
-        
-        my $tpl = Text::PSTemplate->new;
-        my $var = {a => 'b', c => 'd'};
-        $tpl->set_var(var => $var);
-        my $parsed = $tpl->parse(q{<% extract($var,'a') %>});
-        is($parsed, 'b');
-        my $parsed2 = eval {
-            $tpl->parse(q{<% extract($var,'e') %>});
-        };
-        isnt($@, undef);
-    }
+    my $tpl;
+    my $parsed;
     
-    sub default : Test(2) {
-        
-        my $tpl = Text::PSTemplate->new;
-        $tpl->set_var_exception(sub{''});
-        $tpl->set_var(var => 'a');
-        my $parsed = $tpl->parse(q{<% default($var,'default') %>});
-        is($parsed, 'a');
-        my $parsed2 = $tpl->parse(q{<% default($var2,'default') %>});
-        is($parsed2, 'default');
-    }
+    $tpl = Text::PSTemplate->new;
+    $tpl->set_var(var => {a => 'b', c => 'd'});
+    $parsed = $tpl->parse(q{<% extract($var,'a') %>});
+    is($parsed, 'b');
+    my $parsed2 = eval {
+        $tpl->parse(q{<% extract($var,'e') %>});
+    };
+    isnt($@, undef);
     
-    sub with : Test(1) {
-        
-        my $tpl = Text::PSTemplate->new();
-        $tpl->set_var(arr => {foo => 'bar'});
-        my $parsed = $tpl->parse(<<'EOF');
+    $tpl = Text::PSTemplate->new;
+    $tpl->set_var_exception(sub{''});
+    $tpl->set_var(var => 'a');
+    $parsed = $tpl->parse(q{<% default($var,'default') %>});
+    is($parsed, 'a');
+    $parsed2 = $tpl->parse(q{<% default($var2,'default') %>});
+    is($parsed2, 'default');
+    
+    $tpl = Text::PSTemplate->new();
+    $tpl->set_var(arr => {foo => 'bar'});
+    $parsed = $tpl->parse(<<'EOF');
 <% $arr->{foo} %>
 <% with($arr)<<BLOCK %><% $foo %> / <% $arr->{foo} %><% BLOCK %>
 EOF
 
-        is($parsed, <<EOF);
+    is($parsed, <<EOF);
 bar
 bar / bar
 EOF
-    }
