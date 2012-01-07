@@ -303,7 +303,7 @@ for ( 1 .. 35 ) {
 }
 
 # subtract years
-for ( 1 .. 37 ) {
+for ( 1 .. 36 ) {
     $t = Text::PSTemplate::DateTime->new(
         year      => 1999, month => 3, day => 1,
         time_zone => 'UTC',
