@@ -1,6 +1,8 @@
 Revision history for Text-PSTemplate
 
-0.42 2011/11/19
+0.43 2012/01/07
+
+0.42 2012/01/07
   - Improved internal codes.
   - Improved Block class to throw exception for unclosed blocks.
 
