@@ -8,12 +8,14 @@ use Carp;
     
     sub new {
         my ($class, $names, $right, $delim_l, $delim_r) = @_;
-        my $length;
+        my $length = 0;
         my @out = ();
         for my $a (split(',', $names)) {
             if ($$right =~ s{(.*?)($delim_l\s*$a\s*$delim_r)}{}s) {
                 push(@out, [$1, $2]);
                 $length += length($1) + length($2);
+            } else {
+                die "unclosed block $a found";
             }
         }
         bless {
