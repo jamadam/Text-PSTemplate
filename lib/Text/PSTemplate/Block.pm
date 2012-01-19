@@ -25,7 +25,6 @@ use Carp;
     }
     
     sub get_left_chomp {
-        
         my ($self, $index) = @_;
         my $data = $self->content($index);
         $data =~ m{^(\r\n|\r|\n)};
@@ -36,7 +35,6 @@ use Carp;
     ### Get inline data
     ### ---
     sub content {
-        
         my ($self, $index, $args) = @_;
         if (defined $index) {
             my $data = $self->{$MEM_BLOCKS}->[$index]->[0];

@@ -22,7 +22,6 @@ use Fcntl qw(:flock);
     ### Constructor
     ### ---
     sub new {
-        
         my ($class, $tpl, $as) = @_;
         
         no strict 'refs';
@@ -47,7 +46,6 @@ use Fcntl qw(:flock);
     }
     
     sub _init_tpl_exports {
-        
         my $class = shift;
         for my $entry (@{$_attr_tpl_export_cache{$class}}) {
             $entry->[2] = $_findsym2_tbl{$class}->{$entry->[0]};
@@ -55,7 +53,6 @@ use Fcntl qw(:flock);
     }
     
     sub _findsym2 {
-        
         my $pkg = shift;
         if (! exists $_findsym2_tbl{$pkg}) {
             no strict 'refs';
@@ -76,7 +73,6 @@ use Fcntl qw(:flock);
     ### Get template function entries
     ### ---
     sub _get_tpl_exports {
-        
         my $pkg = shift;
         my @out = ();
         no strict 'refs';
@@ -95,7 +91,6 @@ use Fcntl qw(:flock);
     ### Template function Attribute
     ### ---
     sub TplExport : ATTR(BEGIN) {
-        
         my($pkg, undef, $ref, undef, $data, undef) = @_;
         push(@{$_attr_tpl_export_cache{$pkg}}, [$ref, $data ? {@$data} : {}]);
     }
@@ -104,7 +99,6 @@ use Fcntl qw(:flock);
     ### Register template functions
     ### ---
     sub _set_tpl_funcs {
-        
         my ($self, $tpl) = (@_);
         my $org = ref $self;
         my $namespace = defined $self->{$MEM_AS} ? $self->{$MEM_AS} : $org;
