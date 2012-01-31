@@ -1,6 +1,7 @@
 Revision history for Text-PSTemplate
 
 0.43 2012/01/07
+  - Fixed get_func_list
 
 0.42 2012/01/07
   - Improved internal codes.

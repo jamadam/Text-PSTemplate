@@ -553,7 +553,9 @@ EOF
             $out .= "\n";
             $out .= "\n";
 
-            my $as = $self->{$MEM_PLUGED}->{$plug}->{2};
+            my $as = $self->{$MEM_PLUGED}->{$plug}->{1};
+            $as = defined $as ? $as : $plug;
+            
             for my $func (@{$plug->_get_tpl_exports}) {
                 $out .= '<% '. join('::', grep {$_} $as, $func->[2]) . '() %>';
                 $out .= "\n";
