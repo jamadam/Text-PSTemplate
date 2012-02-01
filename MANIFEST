@@ -6,7 +6,6 @@ lib/Text/PSTemplate/Exception.pm
 lib/Text/PSTemplate/File.pm
 lib/Text/PSTemplate/Manual.pod
 lib/Text/PSTemplate/ManualJP.pod
-lib/Text/PSTemplate/Plugable.pm
 lib/Text/PSTemplate/Plugin/CGI.pm
 lib/Text/PSTemplate/Plugin/Control.pm
 lib/Text/PSTemplate/Plugin/Developer.pod
