@@ -1,7 +1,8 @@
 Revision history for Text-PSTemplate
 
-0.43 2012/01/07
+0.43 2012/02/04
   - Fixed get_func_list
+  - Improved PluginBase to be more testable
 
 0.42 2012/01/07
   - Improved internal codes.
