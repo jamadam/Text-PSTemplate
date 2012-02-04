@@ -24,6 +24,8 @@ use Fcntl qw(:flock);
     sub new {
         my ($class, $tpl, $as) = @_;
         
+        $tpl ||= Text::PSTemplate->new;
+        
         no strict 'refs';
         foreach my $pkg (@{$class. '::ISA'}) {
             if ($pkg ne __PACKAGE__) {
