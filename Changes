@@ -1,5 +1,7 @@
 Revision history for Text-PSTemplate
 
+0.45 2012/02/08
+
 0.44 2012/02/08
   - Fixed a bug on undefined func exception handling.
 
