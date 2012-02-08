@@ -259,7 +259,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### my ($self, $name, $error_callback) = @_;
     ### ---
     sub func {
-        $_[2] ||= $_[0]->{$MEM_VAR_NONEXIST};
+        $_[2] ||= $_[0]->{$MEM_FUNC_NONEXIST};
         
         if (defined $_[1]) {
             if (defined $_[0]->{$MEM_FUNC}->{$_[1]}) {
