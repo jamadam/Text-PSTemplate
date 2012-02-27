@@ -58,7 +58,6 @@ use Data::Dumper;
     $tpl->set_func(hello => sub {
         my (@array) = @_;
         my $tpl2 = Text::PSTemplate->new;
-        $tpl2->set_exception(sub {''});
         is $tpl2->get_current_parser, $tpl, 'right parser id';
         my $out = '';
         for my $elem (@array) {

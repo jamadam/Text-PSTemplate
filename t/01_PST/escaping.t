@@ -38,15 +38,13 @@ use Data::Dumper;
     is $parsed, 'left -./?a=1&b=2 right', 'right parsed result';
     
     $tpl = Text::PSTemplate->new;
-    $tpl->set_exception($Text::PSTemplate::Exception::TAG_ERROR_NO_ACTION);
     $tpl->set_var_exception($Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE);
-    $parsed = $tpl->parse(q!-<% $title %>-!);
-    is $parsed, q!-<% $title %>-!, 'right parsed result';
+    $parsed = eval {$tpl->parse(q!-<% $title %>-!)};
+    like $@, qr{variable \$title undefined at t/01_PST/escaping.t line 42}, 'right parsed result';
     
     $tpl = Text::PSTemplate->new;
-    $tpl->set_exception(sub {q{error at 'hoge' ""}});
-    $parsed = $tpl->parse(q!-<% title($a) %>-!);
-    is $parsed, q{-error at 'hoge' ""-}, 'right parsed result';
+    $parsed = eval {$tpl->parse(q!-<% title($a) %>-!)};
+    like $@, qr{variable \$a undefined at t/01_PST/escaping.t line 46}, 'right parsed result';
     
     $tpl = Text::PSTemplate->new;
     $tpl->set_var(a => 'a');

@@ -6,7 +6,7 @@ use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
     
-	use Test::More tests => 8;
+	use Test::More tests => 6;
     
     my $tpl;
     my $parsed;
@@ -37,31 +37,17 @@ use Data::Dumper;
     like($@, qr/undefined/, 'right error');
     
     $tpl = Text::PSTemplate->new;
-    $tpl->set_exception(sub {'hoge'});
     eval {$tpl->parse(q[<% hoge() %>])};
-    is($@, '', 'right error');
+    like($@, qr{function &hoge undefined at t/01_PST/basic2.t}, 'right error');
     
     $tpl = Text::PSTemplate->new;
-    $tpl->set_exception(sub {
-        my ($self, $line, $err) = (@_);
-        return 
-            $self->get_delimiter(0)
-            . $line
-            . $self->get_delimiter(1);
-    });
     $parsed = eval {$tpl->parse(q[<% hoge() %>])};
-    is $@, '', 'right error';
-    is $parsed, '<% hoge() %>', 'right parsed string';
+    like $@, qr{function &hoge undefined at t/01_PST/basic2.t line 44}, 'right error';
     
     $tpl = Text::PSTemplate->new;
-    $tpl->set_exception(sub {
-        my ($self, $line, $err) = (@_);
-        return $self->get_delimiter(0). $line. $self->get_delimiter(1);
-    });
-    $tpl->set_func(myfunc => sub {'a'});
+    $tpl->set_func(myfunc => sub {warn '====='; 'a'});
     $parsed = eval {$tpl->parse(q[<% myfunc(&hoge()) %>])};
-    is($@, '', 'right error');
-    is($parsed, '<% myfunc(&hoge()) %>', 'right parsed string');
+    like($@, qr{function &hoge undefined at t/01_PST/basic2.t line 49}, 'right error');
     
     sub indent_optimize {
         my $in = shift;
