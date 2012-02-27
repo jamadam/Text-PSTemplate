@@ -5,7 +5,7 @@ use Fcntl qw(:flock);
 use Text::PSTemplate::Exception;
 use Text::PSTemplate::Block;
 use Text::PSTemplate::File;
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 use 5.005;
 use Carp;
 use Try::Tiny;
