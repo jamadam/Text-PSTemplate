@@ -134,6 +134,13 @@ use overload (
     ### ---
     ### return null string
     ### ---
+    our $PARTIAL_NONEXIST_UNDEF = sub {
+        return;
+    };
+    
+    ### ---
+    ### return null string
+    ### ---
     our $PARTIAL_NONEXIST_NULL = sub {
         '';
     };

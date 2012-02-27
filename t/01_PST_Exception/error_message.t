@@ -31,6 +31,7 @@ use Data::Dumper;
     
     $tpl = Text::PSTemplate->new;
     $tpl->set_func(a => sub{''});
+    $tpl->set_var_exception($Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE);
     eval {$tpl->parse_file('t/01_PST_Exception/template/error_message2.txt')};
     like($@, qr/variable/i);
     like($@, qr/undefined/i);

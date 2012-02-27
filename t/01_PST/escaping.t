@@ -40,11 +40,11 @@ use Data::Dumper;
     $tpl = Text::PSTemplate->new;
     $tpl->set_var_exception($Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE);
     $parsed = eval {$tpl->parse(q!-<% $title %>-!)};
-    like $@, qr{variable \$title undefined at t/01_PST/escaping.t line 42}, 'right parsed result';
+    is $@, q{variable $title undefined at t/01_PST/escaping.t line 42}, 'right parsed result';
     
     $tpl = Text::PSTemplate->new;
     $parsed = eval {$tpl->parse(q!-<% title($a) %>-!)};
-    like $@, qr{variable \$a undefined at t/01_PST/escaping.t line 46}, 'right parsed result';
+    is $@, q{function &title undefined at t/01_PST/escaping.t line 46}, 'right parsed result';
     
     $tpl = Text::PSTemplate->new;
     $tpl->set_var(a => 'a');

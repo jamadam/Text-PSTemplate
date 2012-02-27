@@ -69,7 +69,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             $self->{$MEM_FUNC_NONEXIST}     =
                             $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
             $self->{$MEM_VAR_NONEXIST}      =
-                            $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
+                            $Text::PSTemplate::Exception::PARTIAL_NONEXIST_UNDEF;
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
@@ -563,7 +563,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
                 die Text::PSTemplate::Exception->new($@);
             }
             if (! defined $res) {
-                die Text::PSTemplate::Exception->new('Tag resulted undefined');
+                $res = '';
             }
             return $res;
         }
