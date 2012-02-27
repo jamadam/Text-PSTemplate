@@ -134,17 +134,11 @@ use overload (
     ### ---
     ### return null string
     ### ---
-    our $PARTIAL_NONEXIST_UNDEF = sub {
-        return;
-    };
+    our $PARTIAL_NONEXIST_NULL = sub {''};
     
     ### ---
-    ### return null string
+    ### Die with undef warning
     ### ---
-    our $PARTIAL_NONEXIST_NULL = sub {
-        '';
-    };
-    
     our $PARTIAL_NONEXIST_DIE = sub {
         my ($parser, $var, $type) = (@_);
         CORE::die "$type $var undefined\n";

@@ -68,8 +68,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             $self->{$MEM_DELIMITER_RIGHT}   = '%>';
             $self->{$MEM_FUNC_NONEXIST}     =
                             $Text::PSTemplate::Exception::PARTIAL_NONEXIST_DIE;
-            $self->{$MEM_VAR_NONEXIST}      =
-                            $Text::PSTemplate::Exception::PARTIAL_NONEXIST_UNDEF;
+            $self->{$MEM_VAR_NONEXIST}      = sub {};
         }
         
         if ($self->_count_recursion() > $self->get_param($MEM_RECUR_LIMIT)) {
@@ -90,11 +89,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### Get mother in caller context
     ### ---
     sub get_current_parser {
-        if (ref $_[0]) {
-            $_[0]->{$MEM_MOTHER};
-        } else {
-            $current_parser;
-        }
+        return (ref $_[0]) ? $_[0]->{$MEM_MOTHER} : $current_parser;
     }
     
     ### ---
