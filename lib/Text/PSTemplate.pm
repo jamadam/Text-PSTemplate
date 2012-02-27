@@ -345,7 +345,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
     ### ---
     sub parse {
         my ($self, $str) = @_;
-        my $str_org = $str;
         
         if (! defined $str) {
             die Text::PSTemplate::Exception->new('No template string found');
@@ -387,7 +386,6 @@ $Carp::Internal{ (__PACKAGE__) }++;
                     Text::PSTemplate::_EvalStage::_do($self, $interp);
                 } catch {
                     my $exception = $_;
-                    my $org = $opt_l. $space_l. $prefix. $tag. $space_r;
                     my $position = $exception->position || 0;
                     $exception->set_position($position + $eval_pos);
                     die $exception;
@@ -562,10 +560,7 @@ $Carp::Internal{ (__PACKAGE__) }++;
             if ($@) {
                 die Text::PSTemplate::Exception->new($@);
             }
-            if (! defined $res) {
-                $res = '';
-            }
-            return $res;
+            return (defined $res) ? $res : '';
         }
         sub AUTOLOAD {
             our $AUTOLOAD;
