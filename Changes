@@ -1,6 +1,7 @@
 Revision history for Text-PSTemplate
 
 0.46 2012/02/27
+  - Fixed a bug on error messages with perl-5.8.9
 
 0.45 2012/02/27
   - Added dependency.
