@@ -15,6 +15,7 @@ my %params = (
         'Test::UseAllModules' => '0.10',
         'Attribute::Handlers' => '0.91',
         'Try::Tiny'           => '0.11',
+        'Carp'                => '1.25',
     },
     META_MERGE => {
         resources => {
