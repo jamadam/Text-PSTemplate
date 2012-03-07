@@ -538,6 +538,7 @@ EOF
             }
             $out .= "\n";
         }
+        chop($out);
         return $out;
     }
     
