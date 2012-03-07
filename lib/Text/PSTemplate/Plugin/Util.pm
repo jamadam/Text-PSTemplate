@@ -8,7 +8,6 @@ use Text::PSTemplate;
     ### Conver to comma separated number
     ### ---
     sub commify : TplExport {
-        
         my ($self, $num) = @_;
         
         if ($num) {
@@ -22,7 +21,6 @@ use Text::PSTemplate;
     }
     
     sub length : TplExport {
-        
         my ($self, $obj) = @_;
         if (ref $obj eq 'ARRAY') {
             return scalar @$obj;
@@ -33,10 +31,11 @@ use Text::PSTemplate;
     ### Substr
     ### ---
     sub substr : TplExport {
-        
         my ($self, $target, $start, $length, $alter) = @_;
         
-        defined $target or return '';
+        if (! defined $target) {
+            return '';
+        }
         
         my $output = substr($target, $start, $length);
         
@@ -52,7 +51,6 @@ use Text::PSTemplate;
     my $_counters = {};
     
     sub counter : TplExport {
-        
         my $self = shift;
         my %args = (
             name => 'default',
@@ -79,7 +77,6 @@ use Text::PSTemplate;
     }
     
     sub _make_counter {
-        
         my $a = {
             start       => 1,
             skip        => 1,
@@ -104,7 +101,6 @@ use Text::PSTemplate;
     ### split multi line into array
     ### ---
     sub split_line : TplExport {
-        
         my ($self, $str) = @_;
         my @ret = split(/\r\n|\r|\n/, $str);
         return \@ret;
@@ -114,7 +110,6 @@ use Text::PSTemplate;
     ### line count
     ### ---
     sub line_count : TplExport {
-        
         my $self = shift;
         my @array = split(/\r\n|\r|\n/, shift);
         return scalar @array;
@@ -124,7 +119,6 @@ use Text::PSTemplate;
     ### string replace
     ### ---
     sub replace : TplExport {
-        
         my ($self, $str, $org, $rep) = @_;
         $str =~ s{$org}{$rep}g;
         return $str;
@@ -134,7 +128,6 @@ use Text::PSTemplate;
     ### replace spaces to line break
     ### ---
     sub space2linebreak : TplExport {
-        
         my ($self, $str) = @_;
         $str =~ s{\s|Å@}{\n}g;
         return $str;
@@ -144,11 +137,9 @@ use Text::PSTemplate;
     ### delete_space
     ### ---
     sub delete_space : TplExport {
-        
         my $self = shift;
         my $str = shift;
         $str =~ s{\s|Å@}{}g;
-        
         return $str;
     }
     
@@ -156,7 +147,6 @@ use Text::PSTemplate;
     ### split and extract
     ### ---
     sub split : TplExport {
-        
         my $self = shift;
         my @array;
         if ($_[2]) {
@@ -171,7 +161,6 @@ use Text::PSTemplate;
     ### int
     ### ---
     sub int : TplExport {
-        
         my ($self, $num) = @_;
         return CORE::int($num);
     }
@@ -180,7 +169,6 @@ use Text::PSTemplate;
     ### randomize array order
     ### ---
     sub randomize : TplExport {
-        
         my ($self, $array) = @_;
         my @new = ();
         foreach (0..(scalar @$array - 1)) {
@@ -195,7 +183,6 @@ use Text::PSTemplate;
     ### random string of given length
     ### ---
     sub random_string : TplExport {
-        
         my ($self, $length, $candidates) = @_;
         $candidates ||= 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
         my @c = split(//, $candidates);
