@@ -41,16 +41,10 @@ use overload (
         }
         my $self = bless {$MEM_MESSAGE => $message}, $class;
         
-        if (! $Text::PSTemplate::current_file) {
-            my $at = eval {Carp::shortmess_heavy()};
-            if ($@) {
-                my @caller = caller(0);
-                $self->{$MEM_FILE} = $caller[1];
-                $self->{$MEM_LINE} = $caller[2];
-            } elsif ($at =~ qr{at (.+?) line (\d+)}) {
-                $self->{$MEM_FILE} = $1;
-                $self->{$MEM_LINE} = $2;
-            }
+        if (! $Text::PSTemplate::current_file &&
+                        Carp::shortmess_heavy() =~ qr{at (.+?) line (\d+)}) {
+            $self->{$MEM_FILE} = $1;
+            $self->{$MEM_LINE} = $2;
         }
         $self;
     }
@@ -113,24 +107,6 @@ use overload (
         $line_num + 1;
     }
     
-    sub line_number_to_pos {
-        my ($str, $num) = @_;
-        my $found = 0;
-        my $pos;
-        for ($pos = 0; $found < $num - 1 && $pos < length($str); $pos++) {
-            if (substr($str, $pos, 2) =~ /\r\n/) {
-                $found++;
-                $pos++;
-                next;
-            }
-            if (substr($str, $pos, 1) =~ /\r|\n/) {
-                $found++;
-                next;
-            }
-        }
-        $pos;
-    }
-    
     ### ---
     ### return null string
     ### ---
@@ -155,18 +131,13 @@ TEXT::PSTemplate::Exception - A Class represents exceptions
 =head1 SYNOPSIS
 
     use Text::PSTemplate::Exception;
-    
-    $code_ref = $Text::PSTemplate::PARTIAL_NULL;
-    $code_ref = $Text::PSTemplate::PARTIAL_DIE;
-    $code_ref = $Text::PSTemplate::TAG_NULL;
-    $code_ref = $Text::PSTemplate::TAG_NO_ACTION;
-    $code_ref = $Text::PSTemplate::TAG_DIE;
+    my $e = Text::PSTemplate::Exception->new('Error occured');
     
 =head1 DESCRIPTION
 
 This class represents exceptions which contains error messages and the line
 numbers together. This class also provides some common error callback
-subroutines. They can be thrown at exception setters.
+subroutines for template parser. They can be thrown at exception setters.
 
 =head1 METHODS
 
@@ -186,8 +157,6 @@ subroutines. They can be thrown at exception setters.
 
 =head2 $instance->finalize
 
-=head2 TEXT::PSTemplate::Exception->line_number_to_pos;
-
 =head2 $TEXT::PSTemplate::Exception::PARTIAL_NONEXIST_NULL;
 
     Text::PSTemplate::set_exception($code_ref)
@@ -202,20 +171,6 @@ This callback returns null string.
 
 This callback dies with message. This is the default option for both function
 parse errors and variable parse errors.
-
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_DIE;
-
-This callback dies with message. This is the default option for tag parse.
-
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NULL;
-
-This callback returns null string. The template will be parsed as if the tag wasn't
-there. This is good if you don't want wrong tags visible to public.
-
-=head2 $TEXT::PSTemplate::Exception::TAG_ERROR_NO_ACTION;
-
-This callback returns tag description itself. The template will be parsed as if
-the tag was escaped.
 
 =head1 AUTHOR
 
