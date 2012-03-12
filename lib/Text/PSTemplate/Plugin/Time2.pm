@@ -48,8 +48,8 @@ use Time::Local;
     }
     
     sub now : TplExport {
-        my ($self) = @_;
-        return Text::PSTemplate::DateTime->new->iso8601(' ');
+        my ($self, $delim) = @_;
+        return Text::PSTemplate::DateTime->new->iso8601(defined $delim ? $delim : ' ');
     }
     
     ### ---
@@ -64,8 +64,8 @@ use Time::Local;
     ### 2000-01-01 23:23:23
     ### ---
     sub iso8601 : TplExport {
-        my ($self, $date) = @_;
-        return Text::PSTemplate::DateTime->parse($date)->iso8601(' ');
+        my ($self, $date, $delim) = @_;
+        return Text::PSTemplate::DateTime->parse($date)->iso8601(defined $delim ? $delim : ' ');
     }
     
     ### ---
