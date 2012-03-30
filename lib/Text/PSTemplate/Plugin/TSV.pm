@@ -46,7 +46,7 @@ use base qw(Text::PSTemplate::PluginBase);
         
         my $data = &seek_tsv(file => $file, %args);
         
-        my $template = Text::PSTemplate->new();
+        my $template = Text::PSTemplate->get_current_parser;
         
         if (! scalar @$data) {
             if ($args{default}) {
@@ -65,6 +65,7 @@ use base qw(Text::PSTemplate::PluginBase);
         }
         
         for (my $lc = 0; $lc < scalar @$data; $lc++) {
+            my $template = Text::PSTemplate->new;
             my $array_ref = @$data[$lc];
             for (my $idx = 0; $idx < scalar @$array_ref; $idx++) {
                 $template->set_var($idx => $array_ref->[$idx]);
