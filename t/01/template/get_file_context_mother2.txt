@@ -1,0 +1,1 @@
+<% a() %><% include('t/01/template/get_file_context_mother3.txt') %>

@@ -1,0 +1,1 @@
+<% include('t/04_Plugable_Core/template/Control4_2.txt') %>

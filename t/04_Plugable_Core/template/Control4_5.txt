@@ -1,0 +1,1 @@
+<% $0 %>:<% $1 %>:<% list('t/04_Plugable_Core/template/Control4_6.txt') %>//
