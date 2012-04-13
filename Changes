@@ -1,6 +1,8 @@
 Revision history for Text-PSTemplate
 
 0.48 2012/03/07
+  - Fixed a bug on TSV loop.
+  - Added option for get_func_list to spicify classes.
 
 0.47 2012/03/07
   - Improved exception class internal.
