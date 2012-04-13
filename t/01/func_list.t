@@ -5,7 +5,7 @@ use Test::More;
 use Text::PSTemplate;
 use Data::Dumper;
     
-	use Test::More tests => 1;
+	use Test::More tests => 2;
     
     my $tpl;
     
@@ -78,6 +78,21 @@ List of all available template functions
 <% randomize() %>
 <% random_string() %>
 
+
+-- Text::PSTemplate::Plugin::FS namespace
+
+<% FS::test() %>
+<% FS::find() %>
+EOF
+    
+    is $list, $expected;
+    
+    $list = $tpl->get_func_list('Text::PSTemplate::Plugin::FS');
+    
+    $expected = <<'EOF';
+=============================================================
+List of all available template functions
+=============================================================
 
 -- Text::PSTemplate::Plugin::FS namespace
 

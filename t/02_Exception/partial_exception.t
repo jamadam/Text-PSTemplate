@@ -7,6 +7,6 @@ use Text::PSTemplate;
     
     my $tpl = Text::PSTemplate->new;
     eval {
-        $tpl->parse_file('t/04_Plugable_Core/template/partial_exception1.txt');
+        $tpl->parse_file('t/02_Exception/template/partial_exception1.txt');
     };
     like($@, qr/undefined/);

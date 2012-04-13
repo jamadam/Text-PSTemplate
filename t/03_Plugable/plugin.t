@@ -11,13 +11,13 @@ use File::Spec;
     my $parsed;
     
     $tpl = Text::PSTemplate->new;
-    $parsed = $tpl->parse_file('t/04_Plugable_Core/template/Control4_1.txt');
-    is($parsed, 'ok');
+    $parsed = $tpl->parse_file('t/03_Plugable/template/plugin_1.txt');
+    is $parsed, 'ok';
     
     $tpl = Text::PSTemplate->new;
     $tpl->plug('Test::DB', '');
-    $parsed = $tpl->parse_file('t/04_Plugable_Core/template/Control4_4.txt');
-    is($parsed, 'a:30:a:30:okb:31:okc:32:ok//b:31:a:30:okb:31:okc:32:ok//c:32:a:30:okb:31:okc:32:ok//');
+    $parsed = $tpl->parse_file('t/03_Plugable/template/plugin_4.txt');
+    is $parsed, 'a:30:a:30:okb:31:okc:32:ok//b:31:a:30:okb:31:okc:32:ok//c:32:a:30:okb:31:okc:32:ok//';
 
 ### ---
 ### row DB plugin
@@ -28,7 +28,6 @@ use warnings;
 use base qw(Text::PSTemplate::PluginBase);
 
     sub list : TplExport {
-        
         my ($self, $file) = @_;
         my $tpl = NT::Plugin::DB::RowTemplate->new;
         my $data = [
@@ -57,13 +56,11 @@ use warnings;
 use base qw(Text::PSTemplate);
     
     sub set_table_info {
-        
         my ($self, $tableinfo) = (@_);
         $self->{_RowTemplate_tableinfo} = $tableinfo;
     }
     
     sub list_row_loop {
-        
         my ($self, %args) = (@_);
         my $row_num = 0;
         foreach my $key (@{$args{fields}}) {

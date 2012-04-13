@@ -1,0 +1,1 @@
+<% list('t/03_Plugable/template/plugin_5.txt') %>

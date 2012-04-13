@@ -516,14 +516,18 @@ $Carp::Internal{ (__PACKAGE__) }++;
     }
 
     sub get_func_list {
-        my $self = shift;
+        my ($self, @classes) = @_;
         my $out = <<EOF;
 =============================================================
 List of all available template functions
 =============================================================
 EOF
-
-        for my $plug (keys %{$self->{$MEM_PLUGED}}) {
+        
+        if (! scalar @classes) {
+            @classes = keys %{$self->{$MEM_PLUGED}};
+        }
+        
+        for my $plug (@classes) {
 
             $out .= "\n-- $plug namespace";
             $out .= "\n";
@@ -1043,7 +1047,7 @@ This method returns the plugin instance for given name.
 This method returns the namespace for the plugin. Since it's just to be called
 from PluginBase abstract class, you don't worry about it.
 
-=head2 get_func_list
+=head2 get_func_list(@classes)
 
 Output list of available template function in text format.
 

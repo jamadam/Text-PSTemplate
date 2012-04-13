@@ -1,0 +1,1 @@
+<% include('t/03_Plugable/template/plugin_2.txt') %>
