@@ -3,6 +3,16 @@ use strict;
 use warnings;
 use base qw(Text::PSTemplate::PluginBase);
 use Text::PSTemplate;
+use File::Basename;
+use File::Spec::Functions qw/abs2rel catdir catfile splitdir/;
+
+    ### ---
+    ### Rel path to current template
+    ### ---
+    sub rel_file : TplExport {
+        my ($self, $path) = @_;
+        return catfile(dirname(Text::PSTemplate->get_current_filename), $path);
+    }
     
     ### ---
     ### Conver to comma separated number
