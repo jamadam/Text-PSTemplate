@@ -232,7 +232,7 @@ package Text::PSTemplate::Plugin::TSV::_TSV;
         my $line = <$fh>;
         if (defined $line) {
             $line =~ s/\r\n|\r|\n$//g;
-            my @cells = split(/\t/, $line);
+            my @cells = split("\t", $line, -1);
             if ($self->{row_size}) {
                 return [@cells[0..$self->{row_size}]];
             } else {
