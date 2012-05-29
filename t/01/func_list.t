@@ -64,6 +64,7 @@ List of all available template functions
 
 -- Text::PSTemplate::Plugin::Util namespace
 
+<% rel_file() %>
 <% commify() %>
 <% length() %>
 <% substr() %>
